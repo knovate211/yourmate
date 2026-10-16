@@ -1,0 +1,169 @@
+# ─── Careers: mock interviews and resume reviews ─────────────────────────────
+
+enum InterviewType {
+  CODING
+  SYSTEM_DESIGN
+  FRONTEND
+  BACKEND
+  DATA_ML
+  PRODUCT
+  CASE
+  HR
+}
+
+enum InterviewVerdict {
+  READY
+  ALMOST
+  NOT_YET
+}
+
+type ResumeOffer {
+  "Fixed price per review."
+  price: Money!
+  "Days the mentor takes to deliver, counted from accepting."
+  turnaroundDays: Int!
+}
+
+input ResumeOfferInput {
+  priceMinor: Int!
+  turnaroundDays: Int!
+}
+
+type FeedbackScore {
+  "A feedbackCriteria value from the catalog."
+  criterion: String!
+  "1-5."
+  score: Int!
+}
+
+"A mentor's scorecard after a mock interview."
+type InterviewFeedback {
+  scores: [FeedbackScore!]!
+  verdict: InterviewVerdict!
+  strengths: String!
+  improvements: String!
+  resources: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+input FeedbackScoreInput {
+  criterion: String!
+  score: Int!
+}
+
+input InterviewFeedbackInput {
+  bookingId: ID!
+  "Every catalog criterion, scored 1-5."
+  scores: [FeedbackScoreInput!]!
+  verdict: InterviewVerdict!
+  strengths: String!
+  improvements: String!
+  resources: String
+}
+
+enum ResumeReviewStatus {
+  REQUESTED
+  ACCEPTED
+  DELIVERED
+  DECLINED
+  CANCELLED
+  EXPIRED
+}
+
+enum ResumeReviewAction {
+  ACCEPT
+  DECLINE
+  CANCEL
+}
+
+enum ResumeReviewRole {
+  STUDENT
+  REVIEWER
+  ANY
+}
+
+type ResumeSectionNote {
+  "A resumeSections value from the catalog."
+  section: String!
+  "1-5."
+  rating: Int!
+  comment: String!
+}
+
+"A student's resume, reviewed by a career mentor. Only the two of them see it."
+type ResumeReview {
+  id: ID!
+  mentor: Provider!
+  student: User!
+  reviewer: User!
+  targetRole: String!
+  notes: String!
+  fileName: String!
+  "A link to the resume that works for 15 minutes. Null once the file is deleted."
+  fileUrl: String
+  price: Money!
+  turnaroundDays: Int!
+  status: ResumeReviewStatus!
+  statusReason: String!
+  cancelledBy: User
+  dueAt: Time
+  overdue: Boolean!
+  acceptedAt: Time
+  deliveredAt: Time
+  "1-10, once delivered."
+  overallScore: Int
+  summary: String!
+  sections: [ResumeSectionNote!]!
+  "The mentor's annotated copy, if they attached one."
+  feedbackFileUrl: String
+  "The student has rated this review."
+  rated: Boolean!
+  myRole: ResumeReviewRole!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type ResumeReviewPage {
+  items: [ResumeReview!]!
+  total: Int!
+}
+
+input ResumeReviewRequestInput {
+  mentorId: ID!
+  "The role or kind of job the resume is for."
+  targetRole: String!
+  notes: String
+  "A PDF, at most 5 MB."
+  resume: Upload!
+}
+
+input ResumeSectionNoteInput {
+  section: String!
+  rating: Int!
+  comment: String!
+}
+
+input DeliverResumeReviewInput {
+  id: ID!
+  overallScore: Int!
+  summary: String!
+  "At least three sections."
+  sections: [ResumeSectionNoteInput!]!
+  "An optional annotated PDF."
+  annotated: Upload
+}
+
+extend type Query {
+  resumeReviews(as: ResumeReviewRole!, statuses: [ResumeReviewStatus!], page: Int, pageSize: Int): ResumeReviewPage! @auth
+  resumeReview(id: ID!): ResumeReview @auth
+}
+
+extend type Mutation {
+  "Mentors: score a mock interview once it has started. Saving again updates it."
+  saveInterviewFeedback(input: InterviewFeedbackInput!): InterviewFeedback! @auth
+  requestResumeReview(input: ResumeReviewRequestInput!): ResumeReview! @auth
+  transitionResumeReview(id: ID!, action: ResumeReviewAction!, reason: String): ResumeReview! @auth
+  deliverResumeReview(input: DeliverResumeReviewInput!): ResumeReview! @auth
+  rateResumeReview(id: ID!, rating: Int!, comment: String): Review! @auth
+}

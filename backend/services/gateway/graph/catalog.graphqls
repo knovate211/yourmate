@@ -1,0 +1,26 @@
+"A choice the app offers, with the label to show for it."
+type Option {
+  "The enum value, e.g. CAMPUS_TOUR."
+  value: String!
+  label: String!
+}
+
+"Every list of choices the services accept, so clients never hardcode them."
+type Catalog {
+  guideServices: [Option!]!
+  sessionModes: [Option!]!
+  "Session lengths students can book, in minutes."
+  sessionDurations: [Int!]!
+  communityKinds: [Option!]!
+  reportReasons: [Option!]!
+  postTypes: [Option!]!
+  interviewTypes: [Option!]!
+  "What a mock-interview scorecard rates, 1-5 each."
+  feedbackCriteria: [Option!]!
+  interviewVerdicts: [Option!]!
+  resumeSections: [Option!]!
+}
+
+extend type Query {
+  catalog: Catalog!
+}

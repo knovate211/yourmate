@@ -1,0 +1,139 @@
+# Your Mate — full local stack.
+#
+#   docker compose up --build        then open http://localhost:5190
+#
+# Ports (all bound to 127.0.0.1; 8080–8090, 5432–5435 and 6379 are taken by
+# other projects on this machine):
+#   5190  web (nginx: SPA + /graphql + /files proxy)
+#   8095  gateway (GraphQL; /playground in dev)
+#   5437  postgres
+#   8027  mailpit inbox UI (every email the stack sends lands here)
+#
+# No credentials live in this file: every secret comes from .env, which is
+# git-ignored. Create it with scripts/dev-env.sh (see .env.example). Compose
+# refuses to start while a required value is missing.
+x-backend-env: &backend-env
+  DATABASE_URL: postgres://yourmate:${POSTGRES_PASSWORD:?run scripts/dev-env.sh to create .env}@postgres:5432/yourmate?sslmode=disable
+  INTERNAL_TOKEN: ${INTERNAL_TOKEN:?run scripts/dev-env.sh to create .env}
+  JWT_SECRET: ${JWT_SECRET:?run scripts/dev-env.sh to create .env}
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+  MAIL_FROM: ${MAIL_FROM:?set MAIL_FROM in .env}
+  APP_URL: ${APP_URL:?set APP_URL in .env}
+  DEBUG: ${DEBUG:-false}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: yourmate
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run scripts/dev-env.sh to create .env}
+      POSTGRES_DB: yourmate
+    ports:
+      - "127.0.0.1:5437:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yourmate"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8027:8025"
+
+  identity:
+    build: { context: ./backend, args: { SERVICE: identity } }
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      GRPC_ADDR: ":50071"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      ADMIN_CAMPUS_SLUG: ${ADMIN_CAMPUS_SLUG:?set ADMIN_CAMPUS_SLUG in .env}
+      # Optional rules; blank keeps the default (see .env.example).
+      OTP_TTL: ${OTP_TTL:-}
+      OTP_MAX_ATTEMPTS: ${OTP_MAX_ATTEMPTS:-}
+      OTP_RESEND_GAP: ${OTP_RESEND_GAP:-}
+      OTP_MAX_PER_HOUR: ${OTP_MAX_PER_HOUR:-}
+      LOGIN_FAILURE_WINDOW: ${LOGIN_FAILURE_WINDOW:-}
+      LOGIN_MAX_FAILURES: ${LOGIN_MAX_FAILURES:-}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  marketplace:
+    build: { context: ./backend, args: { SERVICE: marketplace } }
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      GRPC_ADDR: ":50072"
+      IDENTITY_ADDR: identity:50071
+      BOOKING_LEAD_TIME: ${BOOKING_LEAD_TIME:-}
+      BOOKING_DEFAULT_DAYS: ${BOOKING_DEFAULT_DAYS:-}
+      BOOKING_MAX_DAYS: ${BOOKING_MAX_DAYS:-}
+      BOOKING_MAX_OPEN_REQUESTS: ${BOOKING_MAX_OPEN_REQUESTS:-}
+      BOOKING_AUTO_COMPLETE_AFTER: ${BOOKING_AUTO_COMPLETE_AFTER:-}
+      SESSION_DURATIONS: ${SESSION_DURATIONS:-}
+      RESUME_MAX_OPEN: ${RESUME_MAX_OPEN:-}
+      RESUME_REQUEST_TTL: ${RESUME_REQUEST_TTL:-}
+      RESUME_FILE_RETENTION: ${RESUME_FILE_RETENTION:-}
+      RESUME_MAX_TURNAROUND_DAYS: ${RESUME_MAX_TURNAROUND_DAYS:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      identity: { condition: service_started }
+
+  community:
+    build: { context: ./backend, args: { SERVICE: community } }
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      GRPC_ADDR: ":50073"
+      STAFF_EMAIL: ${STAFF_EMAIL:-}
+      COMMUNITY_MAX_OWNED: ${COMMUNITY_MAX_OWNED:-}
+      COMMUNITY_DECLINE_COOLDOWN: ${COMMUNITY_DECLINE_COOLDOWN:-}
+      COMMUNITY_REMOVAL_BAN: ${COMMUNITY_REMOVAL_BAN:-}
+      COMMUNITY_POSTS_PER_HOUR: ${COMMUNITY_POSTS_PER_HOUR:-}
+      COMMUNITY_REPLIES_PER_HOUR: ${COMMUNITY_REPLIES_PER_HOUR:-}
+      FEED_MAX_PENDING_POSTS: ${FEED_MAX_PENDING_POSTS:-}
+      CONTACT_PER_HOUR: ${CONTACT_PER_HOUR:-}
+      DM_NEW_PER_HOUR: ${DM_NEW_PER_HOUR:-}
+      DM_PENDING_LIMIT: ${DM_PENDING_LIMIT:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  gateway:
+    build: { context: ./backend, args: { SERVICE: gateway } }
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      HTTP_ADDR: ":8095"
+      IDENTITY_ADDR: identity:50071
+      MARKETPLACE_ADDR: marketplace:50072
+      COMMUNITY_ADDR: community:50073
+      FILE_SIGNING_SECRET: ${FILE_SIGNING_SECRET:?run scripts/dev-env.sh to create .env}
+      UPLOAD_DIR: /data/uploads
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5190,http://localhost:5191}
+      DEV_MODE: ${DEV_MODE:-true}
+      TRUST_PROXY: "true"
+    ports:
+      - "127.0.0.1:8095:8095"
+    volumes:
+      - uploads:/data/uploads
+    depends_on: [identity, marketplace, community]
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5190:80"
+    depends_on: [gateway]
+
+volumes:
+  pgdata:
+  uploads:

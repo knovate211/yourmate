@@ -1,0 +1,521 @@
+syntax = "proto3";
+
+package yourmate.community.v1;
+
+option go_package = "github.com/yourmate/backend/gen/community/v1;communityv1";
+
+// CommunityService owns the campus feed, abuse reports and contact inquiries.
+service CommunityService {
+  rpc CreatePost(CreatePostRequest) returns (Post);
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse);
+  rpc GetPost(GetPostRequest) returns (Post);
+  rpc ReviewPost(ReviewPostRequest) returns (Post);
+  rpc DeletePost(DeletePostRequest) returns (Empty);
+
+  rpc CreateReport(CreateReportRequest) returns (Report);
+  rpc ListReports(ListReportsRequest) returns (ListReportsResponse);
+  rpc ResolveReport(ResolveReportRequest) returns (Report);
+
+  rpc CreateInquiry(CreateInquiryRequest) returns (Inquiry);
+  rpc ListInquiries(ListInquiriesRequest) returns (ListInquiriesResponse);
+
+  rpc Stats(Empty) returns (CommunityStats);
+
+  // Communities. Every call carries the acting user's facts in `actor`; the
+  // gateway fills them from the identity service.
+  rpc EnsureDefaultCommunity(EnsureDefaultCommunityRequest) returns (Community);
+  rpc CreateCommunity(CreateCommunityRequest) returns (Community);
+  rpc UpdateCommunity(UpdateCommunityRequest) returns (Community);
+  rpc DeleteCommunity(CommunityRef) returns (Empty);
+  rpc GetCommunity(GetCommunityRequest) returns (Community);
+  rpc ListCommunities(ListCommunitiesRequest) returns (ListCommunitiesResponse);
+  rpc JoinCommunity(JoinCommunityRequest) returns (JoinCommunityResponse);
+  rpc LeaveCommunity(CommunityRef) returns (Empty);
+  rpc SetCommunityMuted(SetCommunityMutedRequest) returns (Community);
+  rpc ListJoinRequests(CommunityRef) returns (ListJoinRequestsResponse);
+  rpc ReviewJoinRequest(ReviewJoinRequestRequest) returns (JoinRequest);
+  rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
+  rpc ListMemberIds(CommunityRef) returns (ListMemberIdsResponse);
+  rpc SetMemberRole(SetMemberRoleRequest) returns (Empty);
+  rpc RemoveMember(MemberRef) returns (Empty);
+
+  rpc CreateCommunityPost(CreateCommunityPostRequest) returns (CommunityPost);
+  rpc ListCommunityPosts(ListCommunityPostsRequest) returns (ListCommunityPostsResponse);
+  rpc GetCommunityPost(PostRef) returns (CommunityPost);
+  rpc RemoveCommunityPost(PostRef) returns (Empty);
+  rpc PinCommunityPost(PinCommunityPostRequest) returns (CommunityPost);
+  rpc LikeCommunityPost(LikeCommunityPostRequest) returns (CommunityPost);
+  rpc CreateReply(CreateReplyRequest) returns (CreateReplyResponse);
+  rpc ListReplies(PostRef) returns (ListRepliesResponse);
+  rpc RemoveReply(ReplyRef) returns (Empty);
+  rpc ListCommunityReports(CommunityRef) returns (ListReportsResponse);
+  rpc ModerateCommunityReport(ModerateCommunityReportRequest) returns (Empty);
+
+  // The choices the service accepts, with display labels.
+  rpc GetCatalog(Empty) returns (CommunityCatalog);
+
+  // Direct messages between people who share a community.
+  rpc CanMessage(UserPairRequest) returns (CanMessageResponse);
+  rpc StartConversation(UserPairRequest) returns (Conversation);
+  rpc ListConversations(ListConversationsRequest) returns (ListConversationsResponse);
+  rpc GetConversation(ConversationRef) returns (Conversation);
+  rpc RespondToConversation(RespondToConversationRequest) returns (Conversation);
+  rpc ListDirectMessages(ListDirectMessagesRequest) returns (ListDirectMessagesResponse);
+  rpc SendDirectMessage(SendDirectMessageRequest) returns (SendDirectMessageResponse);
+  rpc InboxSummary(Actor) returns (InboxSummaryResponse);
+  // Live: every message sent or received by the actor, as it happens.
+  rpc StreamMessageEvents(Actor) returns (stream MessageEvent);
+}
+
+message MessageEvent {
+  string conversation_id = 1;
+  DirectMessage message = 2;
+}
+
+message UserPairRequest {
+  Actor actor = 1;
+  string user_id = 2; // the other person
+}
+
+message CanMessageResponse {
+  bool allowed = 1;
+  string conversation_id = 2; // set when they already have one
+}
+
+message Conversation {
+  string id = 1;
+  string other_user_id = 2;
+  string status = 3;       // request | active | declined
+  string requested_by = 4;
+  bool can_send = 5;       // the viewer may send a message now
+  bool shares_community = 6;
+  int32 unread_count = 7;
+  DirectMessage last_message = 8;
+  int64 updated_at = 9;
+}
+
+message DirectMessage {
+  string id = 1;
+  string conversation_id = 2;
+  string sender_id = 3;
+  string body = 4;
+  int64 created_at = 5;
+}
+
+message ConversationRef {
+  Actor actor = 1;
+  string conversation_id = 2;
+}
+
+message ListConversationsRequest {
+  Actor actor = 1;
+  string folder = 2; // inbox | requests
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListConversationsResponse {
+  repeated Conversation conversations = 1;
+  int64 total = 2;
+}
+
+message RespondToConversationRequest {
+  Actor actor = 1;
+  string conversation_id = 2;
+  bool accept = 3;
+}
+
+message ListDirectMessagesRequest {
+  Actor actor = 1;
+  string conversation_id = 2;
+  int64 after = 3; // unix seconds; 0 = from the start
+}
+
+message ListDirectMessagesResponse { repeated DirectMessage messages = 1; }
+
+message SendDirectMessageRequest {
+  Actor actor = 1;
+  string conversation_id = 2;
+  string body = 3;
+}
+
+message SendDirectMessageResponse {
+  DirectMessage message = 1;
+  string recipient_id = 2;
+  // True when the recipient should be told (no unread message from this chat yet).
+  bool notify = 3;
+  bool is_request = 4;
+}
+
+message InboxSummaryResponse {
+  int32 unread_conversations = 1;
+  int32 requests = 2;
+}
+
+message Option {
+  string value = 1;
+  string label = 2;
+}
+
+message CommunityCatalog {
+  repeated Option community_kinds = 1;
+  repeated Option report_reasons = 2;
+  repeated Option post_types = 3;
+}
+
+// Who is acting, as verified by the gateway. An empty id means a visitor.
+message Actor {
+  string id = 1;
+  string campus_id = 2;
+  bool campus_verified = 3;
+  bool is_admin = 4;
+}
+
+message Community {
+  string id = 1;
+  string slug = 2;
+  string campus_id = 3; // empty: every campus
+  string name = 4;
+  string description = 5;
+  string kind = 6;        // general | course | hostel | club | interest | exam
+  string join_policy = 7; // open | approval
+  string rules = 8;
+  string owner_id = 9;
+  bool is_default = 10;
+  int32 member_count = 11;
+  int32 post_count = 12;
+  string status = 13;
+  int64 created_at = 14;
+  // The viewer's relationship to the community.
+  string viewer_role = 15;    // "" | member | moderator | owner
+  string viewer_request = 16; // "" | pending | declined
+  bool viewer_muted = 17;
+}
+
+message CommunityRef {
+  Actor actor = 1;
+  string community_id = 2;
+}
+
+message EnsureDefaultCommunityRequest {
+  string campus_id = 1;
+  string campus_slug = 2;
+}
+
+message CreateCommunityRequest {
+  Actor actor = 1;
+  string name = 2;
+  string description = 3;
+  string kind = 4;
+  bool all_campuses = 5;
+  string join_policy = 6;
+  string rules = 7;
+}
+
+message UpdateCommunityRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  string name = 3;
+  string description = 4;
+  string kind = 5;
+  string join_policy = 6;
+  string rules = 7;
+}
+
+message GetCommunityRequest {
+  Actor actor = 1;
+  string id = 2;
+  string slug = 3;
+}
+
+message ListCommunitiesRequest {
+  Actor actor = 1;
+  string tab = 2;       // campus | global | joined
+  string campus_id = 3; // for tab=campus
+  string kind = 4;
+  string query = 5;
+  int32 page = 6;
+  int32 page_size = 7;
+}
+
+message ListCommunitiesResponse {
+  repeated Community communities = 1;
+  int64 total = 2;
+}
+
+message JoinCommunityRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  string note = 3;
+}
+
+message JoinCommunityResponse {
+  string status = 1; // joined | requested
+  Community community = 2;
+  // Moderators to tell about a new request (muted ones are left out).
+  repeated string notify_user_ids = 3;
+}
+
+message SetCommunityMutedRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  bool muted = 3;
+}
+
+message JoinRequest {
+  string id = 1;
+  string community_id = 2;
+  string user_id = 3;
+  string note = 4;
+  string status = 5;
+  int64 created_at = 6;
+}
+
+message ListJoinRequestsResponse { repeated JoinRequest requests = 1; }
+
+message ReviewJoinRequestRequest {
+  Actor actor = 1;
+  string request_id = 2;
+  bool approve = 3;
+}
+
+message Member {
+  string user_id = 1;
+  string role = 2;
+  int64 joined_at = 3;
+}
+
+message ListMembersRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListMembersResponse {
+  repeated Member members = 1;
+  int64 total = 2;
+}
+
+message ListMemberIdsResponse { repeated string user_ids = 1; }
+
+message SetMemberRoleRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  string user_id = 3;
+  string role = 4; // member | moderator
+}
+
+message MemberRef {
+  Actor actor = 1;
+  string community_id = 2;
+  string user_id = 3;
+}
+
+message CommunityPost {
+  string id = 1;
+  string community_id = 2;
+  string author_id = 3;
+  string body = 4;
+  bool pinned = 5;
+  int32 like_count = 6;
+  int32 reply_count = 7;
+  bool viewer_liked = 8;
+  int64 created_at = 9;
+}
+
+message CreateCommunityPostRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  string body = 3;
+}
+
+message ListCommunityPostsRequest {
+  Actor actor = 1;
+  string community_id = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  repeated string hide_author_ids = 5; // people the viewer blocked
+}
+
+message ListCommunityPostsResponse {
+  repeated CommunityPost posts = 1;
+  int64 total = 2;
+}
+
+message PostRef {
+  Actor actor = 1;
+  string post_id = 2;
+}
+
+message PinCommunityPostRequest {
+  Actor actor = 1;
+  string post_id = 2;
+  bool pinned = 3;
+}
+
+message LikeCommunityPostRequest {
+  Actor actor = 1;
+  string post_id = 2;
+  bool liked = 3;
+}
+
+message Reply {
+  string id = 1;
+  string post_id = 2;
+  string author_id = 3;
+  string body = 4;
+  int64 created_at = 5;
+}
+
+message CreateReplyRequest {
+  Actor actor = 1;
+  string post_id = 2;
+  string body = 3;
+}
+
+message CreateReplyResponse {
+  Reply reply = 1;
+  // The post's author, when they should be told (not muted, not the replier).
+  string notify_user_id = 2;
+  string community_slug = 3;
+  string community_name = 4;
+}
+
+message ListRepliesResponse { repeated Reply replies = 1; }
+
+message ReplyRef {
+  Actor actor = 1;
+  string reply_id = 2;
+}
+
+message ModerateCommunityReportRequest {
+  Actor actor = 1;
+  string report_id = 2;
+  bool remove_post = 3; // false = dismiss
+}
+
+message Empty {}
+
+message Post {
+  string id = 1;
+  string campus_id = 2;
+  string author_id = 3;
+  string type = 4; // event | notice | place | tip
+  string title = 5;
+  string body = 6;
+  string image_key = 7;
+  int64 event_at = 8;
+  string location = 9;
+  string status = 10; // pending | published | rejected
+  string review_reason = 11;
+  int64 created_at = 12;
+}
+
+message CreatePostRequest {
+  string actor_id = 1;
+  string campus_id = 2;
+  string type = 3;
+  string title = 4;
+  string body = 5;
+  string image_key = 6;
+  int64 event_at = 7;
+  string location = 8;
+}
+
+message ListPostsRequest {
+  string campus_id = 1;
+  string type = 2;
+  string status = 3; // default published
+  string author_id = 4;
+  int32 page = 5;
+  int32 page_size = 6;
+}
+
+message ListPostsResponse {
+  repeated Post posts = 1;
+  int64 total = 2;
+}
+
+message GetPostRequest { string id = 1; }
+
+message ReviewPostRequest {
+  string id = 1;
+  bool approve = 2;
+  string reason = 3;
+}
+
+message DeletePostRequest {
+  string id = 1;
+  string actor_id = 2;
+  bool actor_is_admin = 3;
+}
+
+message Report {
+  string id = 1;
+  string reporter_id = 2;
+  string target_type = 3; // user | provider | review | post
+  string target_id = 4;
+  string reason = 5;
+  string details = 6;
+  string status = 7; // open | resolved | dismissed
+  string resolution_note = 8;
+  int64 created_at = 9;
+  int64 resolved_at = 10;
+}
+
+message CreateReportRequest {
+  string reporter_id = 1;
+  string target_type = 2;
+  string target_id = 3;
+  string reason = 4;
+  string details = 5;
+}
+
+message ListReportsRequest {
+  string status = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListReportsResponse {
+  repeated Report reports = 1;
+  int64 total = 2;
+}
+
+message ResolveReportRequest {
+  string id = 1;
+  string status = 2;
+  string note = 3;
+}
+
+message Inquiry {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string message = 4;
+  int64 created_at = 5;
+}
+
+message CreateInquiryRequest {
+  string name = 1;
+  string email = 2;
+  string message = 3;
+}
+
+message ListInquiriesRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListInquiriesResponse {
+  repeated Inquiry inquiries = 1;
+  int64 total = 2;
+}
+
+message CommunityStats {
+  int64 published_posts = 1;
+  int64 pending_posts = 2;
+  int64 open_reports = 3;
+  int64 inquiries = 4;
+}

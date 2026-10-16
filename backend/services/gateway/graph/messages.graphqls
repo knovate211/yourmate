@@ -1,0 +1,84 @@
+# ─── Direct messages ─────────────────────────────────────────────────────────
+# Private chat between two people who share a community. The first message
+# is a request the other person accepts; blocking stops messages both ways.
+
+enum ConversationStatus {
+  "Waiting for the other person to accept."
+  REQUEST
+  ACTIVE
+}
+
+enum ConversationFolder {
+  "Chats you're in, and requests you sent."
+  INBOX
+  "Requests others sent you."
+  REQUESTS
+}
+
+type DirectMessage {
+  id: ID!
+  body: String!
+  createdAt: Time!
+  mine: Boolean!
+}
+
+type Conversation {
+  id: ID!
+  other: User!
+  status: ConversationStatus!
+  "True when the viewer received this request and hasn't answered it."
+  isRequestForMe: Boolean!
+  canSend: Boolean!
+  "False once you no longer share a community; the chat becomes read-only."
+  sharesCommunity: Boolean!
+  unreadCount: Int!
+  lastMessage: DirectMessage
+  updatedAt: Time!
+}
+
+type ConversationPage {
+  items: [Conversation!]!
+  total: Int!
+}
+
+type InboxSummary {
+  "Chats with messages you haven't read."
+  unread: Int!
+  "Message requests waiting for your answer."
+  requests: Int!
+}
+
+type MessagingPermission {
+  allowed: Boolean!
+  "The existing chat with this person, if there is one."
+  conversationId: ID
+}
+
+extend type Query {
+  conversations(folder: ConversationFolder!, page: Int, pageSize: Int): ConversationPage! @auth
+  conversation(id: ID!): Conversation @auth
+  "Messages after a time (all when omitted). Reading them marks the chat read."
+  directMessages(conversationId: ID!, after: Time): [DirectMessage!]! @auth
+  inboxSummary: InboxSummary! @auth
+  "Whether the viewer may message this person."
+  canMessage(userId: ID!): MessagingPermission! @auth
+}
+
+extend type Mutation {
+  "Opens (or returns) the chat with someone who shares a community with you."
+  startConversation(userId: ID!): Conversation! @auth
+  sendDirectMessage(conversationId: ID!, body: String!): DirectMessage! @auth
+  "Accept or ignore a message request."
+  respondToConversation(id: ID!, accept: Boolean!): Conversation! @auth
+}
+
+"A message sent or received by the viewer, delivered live."
+type MessageEvent {
+  conversationId: ID!
+  message: DirectMessage!
+}
+
+type Subscription {
+  "Live messages over WebSocket (graphql-transport-ws). The connection ends when the access token expires; reconnect with a fresh one."
+  messageEvents: MessageEvent! @auth
+}

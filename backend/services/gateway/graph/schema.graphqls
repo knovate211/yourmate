@@ -1,0 +1,696 @@
+"""Requires a logged-in user."""
+directive @auth on FIELD_DEFINITION
+"""Requires a logged-in admin."""
+directive @admin on FIELD_DEFINITION
+
+scalar Time
+scalar Upload
+
+# ─── Campuses & users ─────────────────────────────────────────────────────────
+
+enum CampusStatus {
+  ACTIVE
+  PENDING
+  REJECTED
+}
+
+type Campus {
+  id: ID!
+  slug: String!
+  name: String!
+  country: String!
+  city: String!
+  timezone: String!
+  currency: String!
+  emailDomains: [String!]!
+  status: CampusStatus!
+  memberCount: Int!
+  website: String
+  "Where the campus came from: the starter set, the imported directory, or a student request."
+  source: CampusSource!
+  "An admin has confirmed the email domains, website and location."
+  detailsVerified: Boolean!
+}
+
+enum CampusSource {
+  SEED
+  DIRECTORY
+  REQUEST
+}
+
+type CampusPage {
+  items: [Campus!]!
+  total: Int!
+  page: Int!
+  pageSize: Int!
+}
+
+type CountryCount {
+  country: String!
+  campuses: Int!
+}
+
+input UpdateCampusInput {
+  name: String!
+  country: String!
+  city: String
+  timezone: String!
+  currency: String!
+  website: String
+  "Student email domains. Students who verify an email on one are campus-verified automatically."
+  emailDomains: [String!]!
+  detailsVerified: Boolean!
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+"""
+A person on Your Mate. Contact and identity fields are only visible to the
+user themselves and to admins; everyone else gets null.
+"""
+type User {
+  id: ID!
+  firstName: String!
+  "First name and last initial."
+  displayName: String!
+  avatarUrl: String
+  bio: String!
+  campus: Campus
+  "Verified as a member of their campus (campus email or student ID)."
+  campusVerified: Boolean!
+  idVerified: Boolean!
+  joinedAt: Time!
+  isAdmin: Boolean!
+  providerProfiles: [Provider!]!
+
+  lastName: String
+  email: String
+  phone: String
+  studentIdNo: String
+  gender: String
+  emailVerified: Boolean
+  campusEmailVerified: Boolean
+  status: UserStatus
+}
+
+type AuthPayload {
+  accessToken: String!
+  expiresAt: Time!
+  user: User!
+}
+
+type RegisterPayload {
+  email: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String
+  campusId: ID!
+  studentIdNo: String
+  gender: String
+  phone: String
+}
+
+input UpdateProfileInput {
+  firstName: String
+  lastName: String
+  gender: String
+  phone: String
+  bio: String
+  studentIdNo: String
+}
+
+input RequestCampusInput {
+  name: String!
+  country: String!
+  city: String
+  timezone: String!
+  currency: String!
+  emailDomains: [String!]!
+}
+
+enum VerificationStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+type Verification {
+  id: ID
+  status: VerificationStatus!
+  reason: String!
+  createdAt: Time
+  reviewedAt: Time
+  "Admin only: a short-lived link to the uploaded document."
+  documentUrl: String
+  "Admin only."
+  user: User
+}
+
+# ─── Marketplace ──────────────────────────────────────────────────────────────
+
+type Subject {
+  id: ID!
+  code: String!
+  name: String!
+  category: String!
+  "Null for global subjects."
+  campusId: ID
+}
+
+enum ProviderKind {
+  TUTOR
+  GUIDE
+  "Career mentor: mock interviews and resume reviews."
+  MENTOR
+}
+
+enum ProviderStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  SUSPENDED
+}
+
+enum SessionMode {
+  ONLINE
+  IN_PERSON
+}
+
+enum GuideService {
+  CAMPUS_TOUR
+  ADMISSIONS
+  HOUSING
+  CITY_ORIENTATION
+  PAPERWORK
+  LANGUAGE_HELP
+  EVENTS
+}
+
+type Money {
+  "Amount in the currency's minor unit (e.g. paise, cents)."
+  amountMinor: Int!
+  currency: String!
+}
+
+type AvailabilityWindow {
+  "0 = Sunday … 6 = Saturday."
+  weekday: Int!
+  "Minutes after local midnight in the provider's campus timezone."
+  startMinute: Int!
+  endMinute: Int!
+}
+
+type Availability {
+  timezone: String!
+  windows: [AvailabilityWindow!]!
+}
+
+input AvailabilityInput {
+  weekday: Int!
+  startMinute: Int!
+  endMinute: Int!
+}
+
+"A tutor, guide or career mentor listing."
+type Provider {
+  id: ID!
+  kind: ProviderKind!
+  user: User!
+  campus: Campus
+  displayName: String!
+  avatarUrl: String
+  headline: String!
+  bio: String!
+  "Hourly rate (mock interviews, for mentors); zero means free."
+  rate: Money!
+  modes: [SessionMode!]!
+  languages: [String!]!
+  services: [GuideService!]!
+  subjects: [Subject!]!
+  status: ProviderStatus!
+  ratingAvg: Float!
+  ratingCount: Int!
+  sessionsCompleted: Int!
+  createdAt: Time!
+  "Mentors: the interview types they run."
+  interviewTypes: [InterviewType!]!
+  "Mentors: where they've worked, interned or been placed."
+  companies: [String!]!
+  "Mentors: set when they review resumes."
+  resumeOffer: ResumeOffer
+  resumeReviewsDelivered: Int!
+  availability: Availability!
+  reviews(page: Int, pageSize: Int): ReviewPage!
+  isMine: Boolean!
+}
+
+type ProviderPage {
+  items: [Provider!]!
+  total: Int!
+  page: Int!
+  pageSize: Int!
+}
+
+enum ProviderSort {
+  RATING
+  PRICE_ASC
+  PRICE_DESC
+  NEWEST
+}
+
+input ProviderFilter {
+  kind: ProviderKind!
+  "Omit to search every campus (useful for online sessions)."
+  campusId: ID
+  subjectId: ID
+  mode: SessionMode
+  service: GuideService
+  interviewType: InterviewType
+  "Mentors who worked at a company matching this text."
+  company: String
+  "Only mentors who review resumes."
+  resumeReviews: Boolean
+  query: String
+  minRating: Float
+  maxRateMinor: Int
+  sort: ProviderSort
+}
+
+input ProviderProfileInput {
+  kind: ProviderKind!
+  headline: String!
+  bio: String!
+  rateMinor: Int!
+  modes: [SessionMode!]!
+  languages: [String!]!
+  services: [GuideService!]
+  subjectIds: [ID!]
+  interviewTypes: [InterviewType!]
+  companies: [String!]
+  "Mentors: omit to not offer resume reviews."
+  resumeOffer: ResumeOfferInput
+  "Publish now (requires a verified student ID). Otherwise saved as a draft."
+  publish: Boolean!
+}
+
+input SubjectInput {
+  name: String!
+  code: String
+  category: String
+}
+
+type TimeSlot {
+  startAt: Time!
+  endAt: Time!
+}
+
+type OpenSlots {
+  timezone: String!
+  slots: [TimeSlot!]!
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}
+
+enum BookingAction {
+  ACCEPT
+  DECLINE
+  CANCEL
+  COMPLETE
+}
+
+enum BookingRole {
+  STUDENT
+  PROVIDER
+  ANY
+}
+
+"Shown to both sides once a session is accepted."
+type Contact {
+  name: String!
+  email: String!
+  phone: String!
+}
+
+type Booking {
+  id: ID!
+  provider: Provider!
+  student: User!
+  providerUser: User!
+  kind: ProviderKind!
+  subject: Subject
+  service: GuideService
+  interviewType: InterviewType
+  startAt: Time!
+  endAt: Time!
+  durationMinutes: Int!
+  mode: SessionMode!
+  location: String!
+  "Only shown to the two parties once accepted."
+  meetingLink: String
+  price: Money!
+  notes: String!
+  status: BookingStatus!
+  statusReason: String!
+  cancelledBy: User
+  reviewed: Boolean!
+  myRole: BookingRole!
+  "The other party's contact details, once accepted."
+  contact: Contact
+  timezone: String!
+  messages(after: Time): [Message!]!
+  "Mock interviews: the mentor's scorecard, for the two parties."
+  feedback: InterviewFeedback
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type BookingPage {
+  items: [Booking!]!
+  total: Int!
+}
+
+input BookingInput {
+  providerId: ID!
+  startAt: Time!
+  durationMinutes: Int!
+  mode: SessionMode!
+  subjectId: ID
+  service: GuideService
+  interviewType: InterviewType
+  location: String
+  notes: String
+}
+
+input TransitionInput {
+  bookingId: ID!
+  action: BookingAction!
+  reason: String
+  meetingLink: String
+  location: String
+}
+
+type Message {
+  id: ID!
+  sender: User!
+  body: String!
+  createdAt: Time!
+  mine: Boolean!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+  comment: String!
+  reviewer: User!
+  hidden: Boolean!
+  createdAt: Time!
+}
+
+type ReviewPage {
+  items: [Review!]!
+  total: Int!
+}
+
+type Notification {
+  id: ID!
+  type: String!
+  title: String!
+  body: String!
+  link: String!
+  read: Boolean!
+  createdAt: Time!
+}
+
+type NotificationFeed {
+  items: [Notification!]!
+  unreadCount: Int!
+}
+
+# ─── Community ────────────────────────────────────────────────────────────────
+
+enum PostType {
+  EVENT
+  NOTICE
+  PLACE
+  TIP
+}
+
+enum PostStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+type Post {
+  id: ID!
+  campus: Campus
+  author: User!
+  type: PostType!
+  title: String!
+  body: String!
+  imageUrl: String
+  eventAt: Time
+  location: String!
+  status: PostStatus!
+  reviewReason: String!
+  createdAt: Time!
+  mine: Boolean!
+}
+
+type PostPage {
+  items: [Post!]!
+  total: Int!
+}
+
+input PostInput {
+  type: PostType!
+  title: String!
+  body: String!
+  eventAt: Time
+  location: String
+  image: Upload
+}
+
+enum ReportTarget {
+  USER
+  PROVIDER
+  REVIEW
+  POST
+  BOOKING
+  COMMUNITY
+  COMMUNITY_POST
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  INAPPROPRIATE
+  SCAM
+  FAKE_PROFILE
+  NO_SHOW
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+input ReportInput {
+  targetType: ReportTarget!
+  targetId: ID!
+  reason: ReportReason!
+  details: String
+}
+
+type Report {
+  id: ID!
+  reporter: User!
+  targetType: ReportTarget!
+  targetId: ID!
+  "A human-readable description of the reported item, when it still exists."
+  targetLabel: String!
+  "Where an admin can look at the reported item."
+  targetLink: String
+  reason: ReportReason!
+  details: String!
+  status: ReportStatus!
+  resolutionNote: String!
+  createdAt: Time!
+  resolvedAt: Time
+}
+
+type ReportPage {
+  items: [Report!]!
+  total: Int!
+}
+
+input ContactInput {
+  name: String!
+  email: String!
+  message: String!
+}
+
+type Inquiry {
+  id: ID!
+  name: String!
+  email: String!
+  message: String!
+  createdAt: Time!
+}
+
+type InquiryPage {
+  items: [Inquiry!]!
+  total: Int!
+}
+
+# ─── Admin ────────────────────────────────────────────────────────────────────
+
+type SubjectDemand {
+  name: String!
+  bookings: Int!
+  tutors: Int!
+}
+
+type AdminStats {
+  users: Int!
+  emailVerified: Int!
+  campusVerified: Int!
+  pendingVerifications: Int!
+  campuses: Int!
+  pendingCampuses: Int!
+  signupsLast7d: Int!
+  activeTutors: Int!
+  activeGuides: Int!
+  activeMentors: Int!
+  draftProfiles: Int!
+  bookingsTotal: Int!
+  bookingsRequested: Int!
+  bookingsAccepted: Int!
+  bookingsCompleted: Int!
+  bookingsLast7d: Int!
+  acceptRate: Float!
+  completionRate: Float!
+  averageRating: Float!
+  reviews: Int!
+  resumeReviewsDelivered: Int!
+  publishedPosts: Int!
+  pendingPosts: Int!
+  openReports: Int!
+  inquiries: Int!
+  topSubjects: [SubjectDemand!]!
+}
+
+type UserPage {
+  items: [User!]!
+  total: Int!
+}
+
+type VerificationPage {
+  items: [Verification!]!
+  total: Int!
+}
+
+# ─── Operations ───────────────────────────────────────────────────────────────
+
+type Query {
+  me: User
+  "A member's public profile. Private fields stay null unless it's you or you're an admin."
+  user(id: ID!): User @auth
+  "Search-as-you-type over active campuses (best matches first, e.g. \"iit bombay\", \"lpu\")."
+  campuses(query: String, limit: Int): [Campus!]!
+  "The paginated campus directory, optionally for one country."
+  campusDirectory(query: String, country: String, page: Int, pageSize: Int): CampusPage!
+  "Countries that have active campuses, with how many each."
+  campusCountries: [CountryCount!]!
+  campus(id: ID, slug: String): Campus
+  subjects(campusId: ID, query: String): [Subject!]!
+
+  providers(filter: ProviderFilter!, page: Int, pageSize: Int): ProviderPage!
+  provider(id: ID!): Provider
+  openSlots(providerId: ID!, durationMinutes: Int!, from: Time, days: Int): OpenSlots!
+
+  myProviderProfiles: [Provider!]! @auth
+  myAvailability: Availability! @auth
+  myVerification: Verification! @auth
+  bookings(as: BookingRole!, statuses: [BookingStatus!], upcoming: Boolean, page: Int, pageSize: Int): BookingPage! @auth
+  booking(id: ID!): Booking @auth
+  notifications(unreadOnly: Boolean, limit: Int): NotificationFeed! @auth
+  blockedUsers: [User!]! @auth
+
+  posts(campusId: ID, type: PostType, page: Int, pageSize: Int): PostPage!
+  myPosts: PostPage! @auth
+
+  adminStats: AdminStats! @admin
+  adminUsers(query: String, campusId: ID, page: Int, pageSize: Int): UserPage! @admin
+  adminVerifications(status: VerificationStatus, page: Int, pageSize: Int): VerificationPage! @admin
+  adminCampuses(status: CampusStatus, query: String, country: String, needsDetails: Boolean, page: Int, pageSize: Int): CampusPage! @admin
+  adminPosts(status: PostStatus, page: Int, pageSize: Int): PostPage! @admin
+  adminReports(status: ReportStatus, page: Int, pageSize: Int): ReportPage! @admin
+  adminInquiries(page: Int, pageSize: Int): InquiryPage! @admin
+  adminBookings(statuses: [BookingStatus!], page: Int, pageSize: Int): BookingPage! @admin
+  adminProviders(kind: ProviderKind!, query: String, page: Int, pageSize: Int): ProviderPage! @admin
+}
+
+type Mutation {
+  register(input: RegisterInput!): RegisterPayload!
+  verifyEmail(email: String!, code: String!): AuthPayload!
+  resendVerification(email: String!): Boolean!
+  login(email: String!, password: String!): AuthPayload!
+  "Uses the httpOnly refresh cookie set at login."
+  refreshSession: AuthPayload
+  logout: Boolean!
+  requestPasswordReset(email: String!): Boolean!
+  resetPassword(email: String!, code: String!, newPassword: String!): Boolean!
+  changePassword(currentPassword: String!, newPassword: String!): Boolean! @auth
+
+  updateProfile(input: UpdateProfileInput!): User! @auth
+  uploadAvatar(file: Upload!): User! @auth
+  "Anyone may request a campus (even before signing up); an admin activates it."
+  requestCampus(input: RequestCampusInput!): Campus!
+  submitVerification(document: Upload!): Verification! @auth
+
+  saveProviderProfile(input: ProviderProfileInput!): Provider! @auth
+  setProviderStatus(id: ID!, status: ProviderStatus!): Provider! @auth
+  setAvailability(windows: [AvailabilityInput!]!): Availability! @auth
+  createSubject(input: SubjectInput!): Subject! @auth
+
+  requestBooking(input: BookingInput!): Booking! @auth
+  transitionBooking(input: TransitionInput!): Booking! @auth
+  sendMessage(bookingId: ID!, body: String!): Message! @auth
+  leaveReview(bookingId: ID!, rating: Int!, comment: String): Review! @auth
+  markNotificationsRead(ids: [ID!]): Boolean! @auth
+  blockUser(userId: ID!): Boolean! @auth
+  unblockUser(userId: ID!): Boolean! @auth
+
+  createPost(input: PostInput!): Post! @auth
+  deletePost(id: ID!): Boolean! @auth
+  report(input: ReportInput!): Boolean! @auth
+  contact(input: ContactInput!): Boolean!
+
+  reviewVerification(id: ID!, approve: Boolean!, reason: String): Verification! @admin
+  reviewCampus(id: ID!, approve: Boolean!, reason: String): Campus! @admin
+  updateCampus(id: ID!, input: UpdateCampusInput!): Campus! @admin
+  setUserStatus(userId: ID!, status: UserStatus!): User! @admin
+  setUserAdmin(userId: ID!, admin: Boolean!): User! @admin
+  reviewPost(id: ID!, approve: Boolean!, reason: String): Post! @admin
+  resolveReport(id: ID!, status: ReportStatus!, note: String): Report! @admin
+  setReviewHidden(id: ID!, hidden: Boolean!): Review! @admin
+  createGlobalSubject(input: SubjectInput!): Subject! @admin
+}

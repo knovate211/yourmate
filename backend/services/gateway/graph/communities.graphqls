@@ -1,0 +1,169 @@
+# ─── Communities ──────────────────────────────────────────────────────────────
+# Groups students join: a batch, a hostel, a club, an interest, an exam.
+# Open communities are joined in one tap, approval ones by request. Campus
+# communities are only for verified students of that campus.
+
+enum CommunityKind {
+  GENERAL
+  COURSE
+  HOSTEL
+  CLUB
+  INTEREST
+  EXAM
+}
+
+enum JoinPolicy {
+  OPEN
+  APPROVAL
+}
+
+enum CommunityRole {
+  NONE
+  MEMBER
+  MODERATOR
+  OWNER
+}
+
+enum CommunityTab {
+  "Communities of one campus (defaults to the viewer's)."
+  CAMPUS
+  "Communities open to every campus."
+  GLOBAL
+  "Communities the viewer is in."
+  JOINED
+}
+
+enum JoinStatus {
+  JOINED
+  REQUESTED
+}
+
+type Community {
+  id: ID!
+  slug: String!
+  name: String!
+  description: String!
+  kind: CommunityKind!
+  joinPolicy: JoinPolicy!
+  rules: String!
+  "Null when the community is open to every campus."
+  campus: Campus
+  isDefault: Boolean!
+  memberCount: Int!
+  postCount: Int!
+  createdAt: Time!
+  owner: User
+  myRole: CommunityRole!
+  "True while the viewer's request to join waits for a moderator."
+  requestPending: Boolean!
+  "True for a week after a moderator declined the viewer's request."
+  requestDeclined: Boolean!
+  muted: Boolean!
+  canSeePosts: Boolean!
+  canModerate: Boolean!
+}
+
+type CommunityPage {
+  items: [Community!]!
+  total: Int!
+}
+
+type CommunityPost {
+  id: ID!
+  community: Community!
+  author: User!
+  body: String!
+  pinned: Boolean!
+  likeCount: Int!
+  replyCount: Int!
+  likedByMe: Boolean!
+  createdAt: Time!
+  mine: Boolean!
+}
+
+type CommunityPostPage {
+  items: [CommunityPost!]!
+  total: Int!
+}
+
+type CommunityReply {
+  id: ID!
+  author: User!
+  body: String!
+  createdAt: Time!
+  mine: Boolean!
+}
+
+type CommunityMember {
+  user: User!
+  role: CommunityRole!
+  joinedAt: Time!
+}
+
+type CommunityMemberPage {
+  items: [CommunityMember!]!
+  total: Int!
+}
+
+type JoinRequest {
+  id: ID!
+  user: User!
+  note: String!
+  createdAt: Time!
+}
+
+type JoinResult {
+  status: JoinStatus!
+  community: Community!
+}
+
+input CommunityInput {
+  name: String!
+  description: String
+  kind: CommunityKind!
+  "Open to students of every campus instead of only yours."
+  allCampuses: Boolean!
+  joinPolicy: JoinPolicy!
+  rules: String
+}
+
+input CommunityUpdateInput {
+  name: String!
+  description: String
+  kind: CommunityKind!
+  joinPolicy: JoinPolicy!
+  rules: String
+}
+
+extend type Query {
+  communities(tab: CommunityTab!, campusId: ID, kind: CommunityKind, query: String, page: Int, pageSize: Int): CommunityPage!
+  community(slug: String!): Community
+  communityPosts(communityId: ID!, page: Int, pageSize: Int): CommunityPostPage! @auth
+  communityPost(id: ID!): CommunityPost @auth
+  communityReplies(postId: ID!): [CommunityReply!]! @auth
+  communityMembers(communityId: ID!, page: Int, pageSize: Int): CommunityMemberPage! @auth
+  "Members of the community who tutor, best rated first."
+  communityTutors(communityId: ID!, page: Int, pageSize: Int): ProviderPage! @auth
+  communityJoinRequests(communityId: ID!): [JoinRequest!]! @auth
+  communityReports(communityId: ID!): [Report!]! @auth
+}
+
+extend type Mutation {
+  createCommunity(input: CommunityInput!): Community! @auth
+  updateCommunity(id: ID!, input: CommunityUpdateInput!): Community! @auth
+  deleteCommunity(id: ID!): Boolean! @auth
+  joinCommunity(id: ID!, note: String): JoinResult! @auth
+  leaveCommunity(id: ID!): Boolean! @auth
+  setCommunityMuted(id: ID!, muted: Boolean!): Community! @auth
+  reviewJoinRequest(id: ID!, approve: Boolean!): Boolean! @auth
+  setCommunityModerator(communityId: ID!, userId: ID!, moderator: Boolean!): Boolean! @auth
+  removeCommunityMember(communityId: ID!, userId: ID!): Boolean! @auth
+  createCommunityPost(communityId: ID!, body: String!): CommunityPost! @auth
+  removeCommunityPost(id: ID!): Boolean! @auth
+  pinCommunityPost(id: ID!, pinned: Boolean!): CommunityPost! @auth
+  likeCommunityPost(id: ID!, liked: Boolean!): CommunityPost! @auth
+  replyToCommunityPost(postId: ID!, body: String!): CommunityReply! @auth
+  removeCommunityReply(id: ID!): Boolean! @auth
+  "Moderators: remove the reported post, or dismiss the report."
+  moderateCommunityReport(id: ID!, removePost: Boolean!): Boolean! @auth
+}

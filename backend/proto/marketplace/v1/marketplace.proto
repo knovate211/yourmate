@@ -1,0 +1,546 @@
+syntax = "proto3";
+
+package yourmate.marketplace.v1;
+
+option go_package = "github.com/yourmate/backend/gen/marketplace/v1;marketplacev1";
+
+// MarketplaceService owns provider (tutor/guide) profiles, subjects,
+// availability, bookings, booking messages, reviews, blocks and in-app
+// notifications. Timestamps are unix seconds; money is in minor units of the
+// provider's campus currency.
+service MarketplaceService {
+  rpc ListSubjects(ListSubjectsRequest) returns (ListSubjectsResponse);
+  rpc GetSubjects(GetSubjectsRequest) returns (ListSubjectsResponse);
+  rpc CreateSubject(CreateSubjectRequest) returns (Subject);
+
+  rpc SaveProviderProfile(SaveProviderProfileRequest) returns (ProviderProfile);
+  rpc SetProviderStatus(SetProviderStatusRequest) returns (ProviderProfile);
+  rpc GetProviderProfile(GetProviderProfileRequest) returns (ProviderProfile);
+  rpc ListUserProviderProfiles(UserRequest) returns (ProviderProfileList);
+  rpc SearchProviders(SearchProvidersRequest) returns (SearchProvidersResponse);
+  // Keeps the denormalised name/avatar on a user's profiles in sync.
+  rpc SyncUserCard(SyncUserCardRequest) returns (Empty);
+  // Keeps the timezone copied onto a campus's profiles in sync after an admin edit.
+  rpc SyncCampusTimezone(SyncCampusTimezoneRequest) returns (Empty);
+
+  rpc SetAvailability(SetAvailabilityRequest) returns (AvailabilityResponse);
+  rpc GetAvailability(UserRequest) returns (AvailabilityResponse);
+  rpc GetOpenSlots(GetOpenSlotsRequest) returns (GetOpenSlotsResponse);
+
+  rpc CreateBooking(CreateBookingRequest) returns (Booking);
+  rpc GetBooking(GetBookingRequest) returns (Booking);
+  rpc ListBookings(ListBookingsRequest) returns (ListBookingsResponse);
+  rpc TransitionBooking(TransitionBookingRequest) returns (Booking);
+
+  rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse);
+  rpc SendMessage(SendMessageRequest) returns (Message);
+
+  rpc CreateReview(CreateReviewRequest) returns (Review);
+  rpc ListReviews(ListReviewsRequest) returns (ListReviewsResponse);
+  rpc GetReview(GetReviewRequest) returns (Review);
+  rpc SetReviewHidden(SetReviewHiddenRequest) returns (Review);
+
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc MarkNotificationsRead(MarkNotificationsReadRequest) returns (Empty);
+  rpc Notify(NotifyRequest) returns (Empty);
+
+  rpc BlockUser(BlockRequest) returns (Empty);
+  rpc UnblockUser(BlockRequest) returns (Empty);
+  rpc ListBlocks(UserRequest) returns (ListBlocksResponse);
+
+  // Career mentors: feedback after a mock interview, and resume reviews.
+  rpc SaveInterviewFeedback(SaveInterviewFeedbackRequest) returns (InterviewFeedback);
+  rpc GetInterviewFeedback(GetBookingRequest) returns (InterviewFeedback);
+  rpc CreateResumeReview(CreateResumeReviewRequest) returns (ResumeReview);
+  rpc GetResumeReview(GetResumeReviewRequest) returns (ResumeReview);
+  rpc ListResumeReviews(ListResumeReviewsRequest) returns (ListResumeReviewsResponse);
+  rpc TransitionResumeReview(TransitionResumeReviewRequest) returns (ResumeReview);
+  rpc DeliverResumeReview(DeliverResumeReviewRequest) returns (ResumeReview);
+  // Hands the gateway the uploads of long-closed resume reviews to delete,
+  // and forgets them.
+  rpc ClaimExpiredResumeFiles(Empty) returns (FileKeys);
+
+  rpc Stats(Empty) returns (MarketplaceStats);
+  // The choices the service accepts, with display labels.
+  rpc GetCatalog(Empty) returns (MarketplaceCatalog);
+}
+
+message Option {
+  string value = 1;
+  string label = 2;
+}
+
+message MarketplaceCatalog {
+  repeated Option guide_services = 1;
+  repeated Option session_modes = 2;
+  repeated int32 session_durations = 3; // minutes
+  repeated Option interview_types = 4;
+  repeated Option feedback_criteria = 5;
+  repeated Option resume_sections = 6;
+  repeated Option interview_verdicts = 7;
+}
+
+message Empty {}
+
+message Subject {
+  string id = 1;
+  string campus_id = 2; // empty = global subject
+  string code = 3;
+  string name = 4;
+  string category = 5;
+}
+
+message ProviderProfile {
+  string id = 1;
+  string user_id = 2;
+  string kind = 3; // tutor | guide | mentor
+  string campus_id = 4;
+  string display_name = 5;
+  string avatar_key = 6;
+  string headline = 7;
+  string bio = 8;
+  int64 rate_minor = 9; // per hour
+  string currency = 10;
+  repeated string modes = 11; // online | in_person
+  repeated string languages = 12;
+  repeated string services = 13; // guide services, or a mentor's interview types
+  repeated string subject_ids = 14;
+  string status = 15; // draft | active | paused | suspended
+  double rating_avg = 16;
+  int32 rating_count = 17;
+  int32 sessions_completed = 18;
+  int64 created_at = 19;
+  int64 updated_at = 20;
+  repeated string companies = 21; // mentors
+  ResumeOffer resume_offer = 22;  // unset = no resume reviews
+  int32 resume_reviews_delivered = 23;
+}
+
+message ResumeOffer {
+  int64 price_minor = 1; // per review
+  int32 turnaround_days = 2;
+}
+
+message ProviderProfileList { repeated ProviderProfile profiles = 1; }
+
+message ListSubjectsRequest {
+  string campus_id = 1; // global subjects are always included
+  string query = 2;
+  int32 limit = 3;
+}
+
+message ListSubjectsResponse { repeated Subject subjects = 1; }
+message GetSubjectsRequest { repeated string ids = 1; }
+
+message CreateSubjectRequest {
+  string campus_id = 1;
+  string code = 2;
+  string name = 3;
+  string category = 4;
+}
+
+message SaveProviderProfileRequest {
+  string actor_id = 1;
+  string kind = 2;
+  string headline = 3;
+  string bio = 4;
+  int64 rate_minor = 5;
+  repeated string modes = 6;
+  repeated string languages = 7;
+  repeated string services = 8;
+  repeated string subject_ids = 9;
+  // Publish the profile when the owner is ID-verified; otherwise it stays draft.
+  bool publish = 10;
+  repeated string companies = 11;
+  ResumeOffer resume_offer = 12;
+}
+
+message SetProviderStatusRequest {
+  string id = 1;
+  string actor_id = 2;
+  bool actor_is_admin = 3;
+  string status = 4;
+}
+
+message GetProviderProfileRequest {
+  string id = 1;
+  // Alternative lookup by owner.
+  string user_id = 2;
+  string kind = 3;
+}
+
+message UserRequest { string user_id = 1; }
+
+message SearchProvidersRequest {
+  string kind = 1;
+  string campus_id = 2; // empty = all campuses
+  string subject_id = 3;
+  string mode = 4;
+  string query = 5;
+  double min_rating = 6;
+  int64 max_rate_minor = 7;
+  string service = 8;
+  string sort = 9; // rating | price_asc | price_desc | newest
+  int32 page = 10;
+  int32 page_size = 11;
+  string viewer_id = 12; // hide profiles blocked by / blocking the viewer
+  bool any_status = 13;  // admin listings: include draft, paused and suspended
+  repeated string user_ids = 14; // only these people (a community's tutors)
+  string company = 15;
+  bool resume_reviews = 16; // only mentors who review resumes
+}
+
+message SearchProvidersResponse {
+  repeated ProviderProfile profiles = 1;
+  int64 total = 2;
+}
+
+message SyncUserCardRequest {
+  string user_id = 1;
+  string display_name = 2;
+  string avatar_key = 3;
+}
+
+message SyncCampusTimezoneRequest {
+  string campus_id = 1;
+  string timezone = 2;
+}
+
+message AvailabilityWindow {
+  int32 weekday = 1;      // 0 = Sunday
+  int32 start_minute = 2; // minutes after local midnight, campus timezone
+  int32 end_minute = 3;
+}
+
+message SetAvailabilityRequest {
+  string actor_id = 1;
+  repeated AvailabilityWindow windows = 2;
+}
+
+message AvailabilityResponse {
+  repeated AvailabilityWindow windows = 1;
+  string timezone = 2;
+}
+
+message GetOpenSlotsRequest {
+  string provider_profile_id = 1;
+  int32 duration_minutes = 2;
+  int64 from = 3; // default now
+  int32 days = 4; // default 14, max 28
+}
+
+message TimeSlot {
+  int64 start_at = 1;
+  int64 end_at = 2;
+}
+
+message GetOpenSlotsResponse {
+  repeated TimeSlot slots = 1;
+  string timezone = 2;
+}
+
+message Booking {
+  string id = 1;
+  string provider_profile_id = 2;
+  string provider_id = 3; // user id
+  string student_id = 4;
+  string kind = 5;
+  string campus_id = 6;
+  string subject_id = 7;
+  string service = 8;
+  int64 start_at = 9;
+  int64 end_at = 10;
+  string mode = 11;
+  string location = 12;
+  string meeting_link = 13;
+  int64 price_minor = 14;
+  string currency = 15;
+  string notes = 16;
+  string status = 17; // requested | accepted | declined | cancelled | completed | expired
+  string status_reason = 18;
+  string cancelled_by = 19;
+  bool reviewed = 20;
+  int64 created_at = 21;
+  int64 updated_at = 22;
+  bool has_feedback = 23; // mock interviews: the mentor's scorecard exists
+}
+
+message CreateBookingRequest {
+  string actor_id = 1;
+  string provider_profile_id = 2;
+  int64 start_at = 3;
+  int32 duration_minutes = 4;
+  string mode = 5;
+  string subject_id = 6;
+  string service = 7;
+  string location = 8;
+  string notes = 9;
+}
+
+message GetBookingRequest {
+  string id = 1;
+  string actor_id = 2;
+  bool actor_is_admin = 3;
+}
+
+message ListBookingsRequest {
+  string actor_id = 1;
+  string as = 2; // student | provider | any ; admin: all
+  bool admin_all = 3;
+  repeated string statuses = 4;
+  int32 page = 5;
+  int32 page_size = 6;
+  bool upcoming_only = 7;
+}
+
+message ListBookingsResponse {
+  repeated Booking bookings = 1;
+  int64 total = 2;
+}
+
+message TransitionBookingRequest {
+  string id = 1;
+  string actor_id = 2;
+  string action = 3; // accept | decline | cancel | complete
+  string reason = 4;
+  string meeting_link = 5;
+  string location = 6;
+}
+
+message Message {
+  string id = 1;
+  string booking_id = 2;
+  string sender_id = 3;
+  string body = 4;
+  int64 created_at = 5;
+}
+
+message ListMessagesRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  bool actor_is_admin = 3;
+  int64 after = 4;
+}
+
+message ListMessagesResponse { repeated Message messages = 1; }
+
+message SendMessageRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  string body = 3;
+}
+
+message Review {
+  string id = 1;
+  string booking_id = 2;
+  string reviewer_id = 3;
+  string provider_profile_id = 4;
+  int32 rating = 5;
+  string comment = 6;
+  bool hidden = 7;
+  int64 created_at = 8;
+  string resume_review_id = 9;
+}
+
+// Rates a completed session (booking_id) or a delivered resume review.
+message CreateReviewRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  int32 rating = 3;
+  string comment = 4;
+  string resume_review_id = 5;
+}
+
+message ListReviewsRequest {
+  string provider_profile_id = 1;
+  bool include_hidden = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListReviewsResponse {
+  repeated Review reviews = 1;
+  int64 total = 2;
+}
+
+message GetReviewRequest { string id = 1; }
+
+message SetReviewHiddenRequest {
+  string id = 1;
+  bool hidden = 2;
+}
+
+message Notification {
+  string id = 1;
+  string user_id = 2;
+  string type = 3;
+  string title = 4;
+  string body = 5;
+  string link = 6;
+  bool read = 7;
+  int64 created_at = 8;
+}
+
+message ListNotificationsRequest {
+  string user_id = 1;
+  bool unread_only = 2;
+  int32 limit = 3;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+  int64 unread_count = 2;
+}
+
+message MarkNotificationsReadRequest {
+  string user_id = 1;
+  repeated string ids = 2; // empty = all
+}
+
+message NotifyRequest {
+  string user_id = 1;
+  string type = 2;
+  string title = 3;
+  string body = 4;
+  string link = 5;
+  bool email = 6;
+}
+
+message BlockRequest {
+  string actor_id = 1;
+  string user_id = 2;
+}
+
+message ListBlocksResponse { repeated string user_ids = 1; }
+
+message MarketplaceStats {
+  int64 active_tutors = 1;
+  int64 active_guides = 2;
+  int64 draft_profiles = 3;
+  int64 bookings_total = 4;
+  int64 bookings_requested = 5;
+  int64 bookings_accepted = 6;
+  int64 bookings_completed = 7;
+  int64 bookings_last_7d = 8;
+  double accept_rate = 9;
+  double completion_rate = 10;
+  double average_rating = 11;
+  int64 reviews = 12;
+  repeated SubjectDemand top_subjects = 13;
+  int64 active_mentors = 14;
+  int64 resume_reviews_delivered = 15;
+}
+
+message SubjectDemand {
+  string subject_id = 1;
+  string name = 2;
+  int64 bookings = 3;
+  int64 tutors = 4;
+}
+
+// ── Careers ─────────────────────────────────────────────────────────────────
+
+message Score {
+  string criterion = 1;
+  int32 score = 2; // 1-5
+}
+
+message InterviewFeedback {
+  string booking_id = 1;
+  repeated Score scores = 2;
+  string verdict = 3; // ready | almost | not_yet
+  string strengths = 4;
+  string improvements = 5;
+  string resources = 6;
+  int64 created_at = 7;
+  int64 updated_at = 8;
+}
+
+message SaveInterviewFeedbackRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  repeated Score scores = 3;
+  string verdict = 4;
+  string strengths = 5;
+  string improvements = 6;
+  string resources = 7;
+}
+
+message SectionNote {
+  string section = 1;
+  int32 rating = 2; // 1-5
+  string comment = 3;
+}
+
+message ResumeReview {
+  string id = 1;
+  string provider_profile_id = 2;
+  string reviewer_id = 3;
+  string student_id = 4;
+  string target_role = 5;
+  string notes = 6;
+  string file_key = 7;
+  string file_name = 8;
+  int64 price_minor = 9;
+  string currency = 10;
+  int32 turnaround_days = 11;
+  string status = 12; // requested | accepted | delivered | declined | cancelled | expired
+  string status_reason = 13;
+  string cancelled_by = 14;
+  int64 due_at = 15;
+  int64 accepted_at = 16;
+  int64 delivered_at = 17;
+  int32 overall_score = 18; // 1-10, 0 until delivered
+  string summary = 19;
+  repeated SectionNote sections = 20;
+  string feedback_file_key = 21;
+  bool reviewed = 22; // the student rated it
+  int64 created_at = 23;
+  int64 updated_at = 24;
+}
+
+message CreateResumeReviewRequest {
+  string actor_id = 1;
+  string provider_profile_id = 2;
+  string target_role = 3;
+  string notes = 4;
+  string file_key = 5;
+  string file_name = 6;
+}
+
+message GetResumeReviewRequest {
+  string id = 1;
+  string actor_id = 2;
+  bool actor_is_admin = 3;
+}
+
+message ListResumeReviewsRequest {
+  string actor_id = 1;
+  string as = 2; // student | reviewer | any
+  repeated string statuses = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message ListResumeReviewsResponse {
+  repeated ResumeReview reviews = 1;
+  int64 total = 2;
+}
+
+message TransitionResumeReviewRequest {
+  string id = 1;
+  string actor_id = 2;
+  string action = 3; // accept | decline | cancel
+  string reason = 4;
+}
+
+message DeliverResumeReviewRequest {
+  string id = 1;
+  string actor_id = 2;
+  int32 overall_score = 3;
+  string summary = 4;
+  repeated SectionNote sections = 5;
+  string feedback_file_key = 6; // optional annotated copy
+}
+
+message FileKeys { repeated string keys = 1; }

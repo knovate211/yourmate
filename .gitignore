@@ -1,0 +1,17 @@
+.env
+backend/uploads
+web/node_modules
+web/dist
+*.tsbuildinfo
+.DS_Store
+# The original static mockup, kept locally; it lives at github.com/suhani0406/YOUR-MATE
+YOUR-MATE/
+# Binaries from local `go build` (images build their own)
+/backend/identity
+/backend/marketplace
+/backend/community
+/backend/gateway
+/backend/services/*/identity
+/backend/services/*/marketplace
+/backend/services/*/community
+/backend/services/*/gateway

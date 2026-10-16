@@ -1,0 +1,277 @@
+syntax = "proto3";
+
+package yourmate.identity.v1;
+
+option go_package = "github.com/yourmate/backend/gen/identity/v1;identityv1";
+
+// IdentityService owns users, sessions, campuses and campus verification.
+// Timestamps are unix seconds. Callers must send the internal token in the
+// "x-internal-token" metadata header; authorization (who may call what) is
+// decided by the gateway, which passes the acting user in actor_id.
+service IdentityService {
+  // Auth
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (AuthResponse);
+  rpc ResendOtp(EmailRequest) returns (Empty);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc Refresh(RefreshRequest) returns (AuthResponse);
+  rpc Logout(RefreshRequest) returns (Empty);
+  rpc RequestPasswordReset(EmailRequest) returns (Empty);
+  rpc ResetPassword(ResetPasswordRequest) returns (Empty);
+  rpc ChangePassword(ChangePasswordRequest) returns (Empty);
+
+  // Users
+  rpc GetUser(UserIdRequest) returns (User);
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (User);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc SetUserStatus(SetUserStatusRequest) returns (User);
+  rpc SetUserAdmin(SetUserAdminRequest) returns (User);
+
+  // Campuses
+  rpc ListCampuses(ListCampusesRequest) returns (ListCampusesResponse);
+  rpc GetCampus(GetCampusRequest) returns (Campus);
+  rpc GetCampuses(GetCampusesRequest) returns (ListCampusesResponse);
+  rpc ListCampusCountries(ListCampusCountriesRequest) returns (ListCampusCountriesResponse);
+  rpc RequestCampus(RequestCampusRequest) returns (Campus);
+  rpc ReviewCampus(ReviewRequest) returns (Campus);
+  rpc UpdateCampus(UpdateCampusRequest) returns (Campus);
+
+  // Verification (student ID card review)
+  rpc SubmitVerification(SubmitVerificationRequest) returns (Verification);
+  rpc GetLatestVerification(UserIdRequest) returns (Verification);
+  rpc ListVerifications(ListVerificationsRequest) returns (ListVerificationsResponse);
+  rpc ReviewVerification(ReviewRequest) returns (Verification);
+
+  rpc Stats(Empty) returns (IdentityStats);
+}
+
+message Empty {}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string campus_id = 5;
+  string student_id_no = 6;
+  string gender = 7;
+  string phone = 8;
+  string avatar_key = 9;
+  string bio = 10;
+  bool email_verified = 11;
+  // The user verified an email on one of the campus's own domains.
+  bool campus_email_verified = 12;
+  // An admin approved the user's student ID card.
+  bool id_verified = 13;
+  string status = 14; // active | suspended
+  repeated string roles = 15; // user, admin
+  int64 created_at = 16;
+}
+
+message Campus {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string country = 4;
+  string city = 5;
+  string timezone = 6;
+  string currency = 7;
+  repeated string email_domains = 8;
+  string status = 9; // active | pending | rejected
+  string requested_by = 10;
+  int64 created_at = 11;
+  int64 member_count = 12;
+  string website = 13;
+  string source = 14;         // seed | directory | request
+  bool details_verified = 15; // an admin confirmed domains, website and location
+}
+
+message Verification {
+  string id = 1;
+  string user_id = 2;
+  string document_key = 3;
+  string status = 4; // none | pending | approved | rejected
+  string reviewer_id = 5;
+  string reason = 6;
+  int64 created_at = 7;
+  int64 reviewed_at = 8;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string campus_id = 5;
+  string student_id_no = 6;
+  string gender = 7;
+  string phone = 8;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+  string email = 2;
+}
+
+message VerifyEmailRequest {
+  string email = 1;
+  string code = 2;
+  string user_agent = 3;
+}
+
+message EmailRequest { string email = 1; }
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+  string user_agent = 3;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  int64 access_expires_at = 2;
+  string refresh_token = 3;
+  int64 refresh_expires_at = 4;
+  User user = 5;
+}
+
+message RefreshRequest { string refresh_token = 1; }
+
+message ResetPasswordRequest {
+  string email = 1;
+  string code = 2;
+  string new_password = 3;
+}
+
+message ChangePasswordRequest {
+  string actor_id = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message UserIdRequest { string user_id = 1; }
+
+message GetUsersRequest { repeated string user_ids = 1; }
+message GetUsersResponse { repeated User users = 1; }
+
+message UpdateProfileRequest {
+  string actor_id = 1;
+  // Only fields listed in update_mask are changed.
+  repeated string update_mask = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string gender = 5;
+  string phone = 6;
+  string bio = 7;
+  string avatar_key = 8;
+  string student_id_no = 9;
+}
+
+message ListUsersRequest {
+  string query = 1;
+  string campus_id = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int64 total = 2;
+}
+
+message SetUserStatusRequest {
+  string user_id = 1;
+  string status = 2;
+}
+
+message SetUserAdminRequest {
+  string user_id = 1;
+  bool admin = 2;
+}
+
+message ListCampusesRequest {
+  string query = 1;
+  string status = 2; // empty = active, "all" = any
+  int32 limit = 3;   // used when page is 0 (search-as-you-type pickers)
+  string country = 4;
+  int32 page = 5;
+  int32 page_size = 6;
+  bool needs_details = 7; // only campuses whose details aren't verified yet
+}
+
+message ListCampusesResponse {
+  repeated Campus campuses = 1;
+  int64 total = 2;
+}
+
+message ListCampusCountriesRequest { string status = 1; }
+
+message CountryCount {
+  string country = 1;
+  int64 campuses = 2;
+}
+
+message ListCampusCountriesResponse { repeated CountryCount countries = 1; }
+
+message UpdateCampusRequest {
+  string id = 1;
+  string name = 2;
+  string country = 3;
+  string city = 4;
+  string timezone = 5;
+  string currency = 6;
+  string website = 7;
+  repeated string email_domains = 8;
+  bool details_verified = 9;
+}
+
+message GetCampusRequest {
+  string id = 1;
+  string slug = 2;
+}
+
+message GetCampusesRequest { repeated string ids = 1; }
+
+message RequestCampusRequest {
+  string actor_id = 1; // may be empty: campuses can be requested during signup
+  string name = 2;
+  string country = 3;
+  string city = 4;
+  string timezone = 5;
+  string currency = 6;
+  repeated string email_domains = 7;
+}
+
+message ReviewRequest {
+  string id = 1;
+  string reviewer_id = 2;
+  bool approve = 3;
+  string reason = 4;
+}
+
+message SubmitVerificationRequest {
+  string actor_id = 1;
+  string document_key = 2;
+}
+
+message ListVerificationsRequest {
+  string status = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListVerificationsResponse {
+  repeated Verification verifications = 1;
+  int64 total = 2;
+}
+
+message IdentityStats {
+  int64 users = 1;
+  int64 email_verified = 2;
+  int64 campus_verified = 3;
+  int64 pending_verifications = 4;
+  int64 campuses = 5;
+  int64 pending_campuses = 6;
+  int64 signups_last_7d = 7;
+}
