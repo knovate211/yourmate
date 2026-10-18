@@ -4,13 +4,14 @@ import { Bell, Briefcase, CalendarClock, CalendarDays, Compass, GraduationCap, I
 import { Container } from '../components/Layout'
 import { JoinedCommunitiesCard } from './communities'
 import { InterviewFeedbackCard, StarReview } from './careers'
+import { RoomCard } from '../components/RoomCard'
 import { BookingStatusBadge, ReportButton, VerificationBanner, providerPath } from '../components/domain'
 import { Avatar, Badge, Button, ButtonLink, Empty, ErrorNote, Field, Input, Modal, PageHeader, PageLoader, Pagination, Tabs, Textarea, cx } from '../components/ui'
 import { useToast } from '../components/toast'
 import { useAuth } from '../lib/auth'
 import { gql } from '../lib/graphql'
 import { useAction, useDocumentTitle, useQuery } from '../lib/hooks'
-import { BOOKING_CARD } from '../lib/fragments'
+import { BOOKING_CARD, ROOM } from '../lib/fragments'
 import { browserTimeZone, plural, formatDateTime, formatMoney, formatTime, timeAgo, zoneLabel } from '../lib/format'
 import { useCatalog } from '../lib/catalog'
 import type { Booking, BookingStatus, Message, Notification, Provider, Verification } from '../lib/types'
@@ -145,7 +146,7 @@ export function Dashboard() {
             <section className="card p-5 text-sm">
               <h2 className="font-semibold">Shortcuts</h2>
               <ul className="mt-2 space-y-1.5">
-                <li><Link to="/mentors" className="link">Mock interviews</Link></li>
+                <li><Link to="/prep" className="link">Placement prep</Link></li>
                 <li><Link to="/resume-reviews" className="link">Resume reviews</Link></li>
                 <li><Link to="/feed" className="link">Campus feed</Link></li>
                 <li><Link to="/notifications" className="link">Notifications</Link></li>
@@ -212,6 +213,7 @@ export function Bookings() {
 }
 
 const BOOKING_DETAIL = `${BOOKING_CARD} contact { name email phone } cancelledBy { id displayName } providerUser { id }
+  room { ${ROOM} } mentorNotes { id atSeconds body tone createdAt }
   feedback { scores { criterion score } verdict strengths improvements resources updatedAt }`
 
 type ActionKind = 'ACCEPT' | 'DECLINE' | 'CANCEL' | 'COMPLETE'
@@ -310,6 +312,7 @@ export function BookingDetail() {
               <div className="ml-auto self-center"><ReportButton targetType="BOOKING" targetId={b.id} label="Report a problem" /></div>
             </div>
           </section>
+          {b.mode === 'ONLINE' && <RoomCard booking={b} />}
           {b.kind === 'MENTOR' && <InterviewFeedbackCard booking={b} onSaved={refetch} />}
           {b.status === 'COMPLETED' && !isProvider && !b.reviewed && (
             <StarReview title={`How was your ${b.kind === 'MENTOR' ? 'interview' : 'session'} with ${b.provider.displayName}?`} onDone={refetch}

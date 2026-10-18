@@ -122,6 +122,8 @@ type Catalog struct {
 	FeedbackCriteria  []*Option `json:"feedbackCriteria"`
 	InterviewVerdicts []*Option `json:"interviewVerdicts"`
 	ResumeSections    []*Option `json:"resumeSections"`
+	// Languages the interview room's code editor offers.
+	CodeLanguages []*Option `json:"codeLanguages"`
 }
 
 type CommunityInput struct {
@@ -157,6 +159,11 @@ type CommunityUpdateInput struct {
 	Rules       *string       `json:"rules,omitempty"`
 }
 
+type CompanyCount struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
 // Shown to both sides once a session is accepted.
 type Contact struct {
 	Name  string `json:"name"`
@@ -188,6 +195,33 @@ type DeliverResumeReviewInput struct {
 	Sections []*ResumeSectionNoteInput `json:"sections"`
 	// An optional annotated PDF.
 	Annotated *graphql.Upload `json:"annotated,omitempty"`
+	// Comments pinned to spots on the PDF.
+	Pins []*ResumePinInput `json:"pins,omitempty"`
+}
+
+type ExperienceInput struct {
+	Company   string                  `json:"company"`
+	Role      string                  `json:"role"`
+	Year      int                     `json:"year"`
+	Outcome   ExperienceOutcome       `json:"outcome"`
+	Rounds    []*ExperienceRoundInput `json:"rounds"`
+	Tips      *string                 `json:"tips,omitempty"`
+	Anonymous *bool                   `json:"anonymous,omitempty"`
+}
+
+type ExperiencePage struct {
+	Items []*InterviewExperience `json:"items"`
+	Total int                    `json:"total"`
+}
+
+type ExperienceRound struct {
+	Name    string `json:"name"`
+	Details string `json:"details"`
+}
+
+type ExperienceRoundInput struct {
+	Name    string `json:"name"`
+	Details string `json:"details"`
 }
 
 type FeedbackScore struct {
@@ -248,6 +282,15 @@ type JoinResult struct {
 	Community *Community `json:"community"`
 }
 
+// The mentor's private note, stamped with the interview clock.
+type MentorNote struct {
+	ID        string    `json:"id"`
+	AtSeconds int       `json:"atSeconds"`
+	Body      string    `json:"body"`
+	Tone      NoteTone  `json:"tone"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 type MessagingPermission struct {
 	Allowed bool `json:"allowed"`
 	// The existing chat with this person, if there is one.
@@ -304,6 +347,25 @@ type PostPage struct {
 	Total int     `json:"total"`
 }
 
+// A student's track record, from their scorecards and resume reviews.
+type Progress struct {
+	// Oldest first.
+	Interviews []*ProgressInterview `json:"interviews"`
+	// Oldest first.
+	Resumes []*ProgressResume `json:"resumes"`
+	// 0-100, null before the first scored interview.
+	Readiness              *int           `json:"readiness,omitempty"`
+	WeakestCriterion       *string        `json:"weakestCriterion,omitempty"`
+	SuggestedInterviewType *InterviewType `json:"suggestedInterviewType,omitempty"`
+}
+
+type ProgressResume struct {
+	ID         string    `json:"id"`
+	At         time.Time `json:"at"`
+	Score      int       `json:"score"`
+	TargetRole string    `json:"targetRole"`
+}
+
 type ProviderFilter struct {
 	Kind ProviderKind `json:"kind"`
 	// Omit to search every campus (useful for online sessions).
@@ -347,6 +409,19 @@ type ProviderProfileInput struct {
 }
 
 type Query struct {
+}
+
+type QuestionInput struct {
+	Title         string        `json:"title"`
+	Body          string        `json:"body"`
+	InterviewType InterviewType `json:"interviewType"`
+	Difficulty    Difficulty    `json:"difficulty"`
+	Companies     []string      `json:"companies,omitempty"`
+}
+
+type QuestionPage struct {
+	Items []*Question `json:"items"`
+	Total int         `json:"total"`
 }
 
 type RegisterInput struct {
@@ -397,6 +472,23 @@ type ResumeOfferInput struct {
 	TurnaroundDays int `json:"turnaroundDays"`
 }
 
+// A comment pinned to a spot on the resume PDF. x and y are fractions of the page.
+type ResumePin struct {
+	Page    int     `json:"page"`
+	X       float64 `json:"x"`
+	Y       float64 `json:"y"`
+	Section *string `json:"section,omitempty"`
+	Comment string  `json:"comment"`
+}
+
+type ResumePinInput struct {
+	Page    int     `json:"page"`
+	X       float64 `json:"x"`
+	Y       float64 `json:"y"`
+	Section *string `json:"section,omitempty"`
+	Comment string  `json:"comment"`
+}
+
 type ResumeReviewPage struct {
 	Items []*ResumeReview `json:"items"`
 	Total int             `json:"total"`
@@ -428,6 +520,26 @@ type ResumeSectionNoteInput struct {
 type ReviewPage struct {
 	Items []*Review `json:"items"`
 	Total int       `json:"total"`
+}
+
+// What a browser needs to enter the video room.
+type RoomPass struct {
+	URL       string      `json:"url"`
+	Token     string      `json:"token"`
+	ExpiresAt time.Time   `json:"expiresAt"`
+	Role      BookingRole `json:"role"`
+}
+
+// Only the fields that are set change.
+type SaveRoomInput struct {
+	BookingID   string                `json:"bookingId"`
+	Code        *string               `json:"code,omitempty"`
+	CodeState   *string               `json:"codeState,omitempty"`
+	Language    *string               `json:"language,omitempty"`
+	Problem     *string               `json:"problem,omitempty"`
+	QuestionID  *string               `json:"questionId,omitempty"`
+	Whiteboard  *string               `json:"whiteboard,omitempty"`
+	DraftScores []*FeedbackScoreInput `json:"draftScores,omitempty"`
 }
 
 type Subject struct {
@@ -1086,6 +1198,177 @@ func (e ConversationStatus) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+type Difficulty string
+
+const (
+	DifficultyEasy   Difficulty = "EASY"
+	DifficultyMedium Difficulty = "MEDIUM"
+	DifficultyHard   Difficulty = "HARD"
+)
+
+var AllDifficulty = []Difficulty{
+	DifficultyEasy,
+	DifficultyMedium,
+	DifficultyHard,
+}
+
+func (e Difficulty) IsValid() bool {
+	switch e {
+	case DifficultyEasy, DifficultyMedium, DifficultyHard:
+		return true
+	}
+	return false
+}
+
+func (e Difficulty) String() string {
+	return string(e)
+}
+
+func (e *Difficulty) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Difficulty(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Difficulty", str)
+	}
+	return nil
+}
+
+func (e Difficulty) MarshalGQL(w io.Writer) {
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Difficulty) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Difficulty) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ExperienceOutcome string
+
+const (
+	ExperienceOutcomeSelected ExperienceOutcome = "SELECTED"
+	ExperienceOutcomeRejected ExperienceOutcome = "REJECTED"
+	ExperienceOutcomeWaiting  ExperienceOutcome = "WAITING"
+)
+
+var AllExperienceOutcome = []ExperienceOutcome{
+	ExperienceOutcomeSelected,
+	ExperienceOutcomeRejected,
+	ExperienceOutcomeWaiting,
+}
+
+func (e ExperienceOutcome) IsValid() bool {
+	switch e {
+	case ExperienceOutcomeSelected, ExperienceOutcomeRejected, ExperienceOutcomeWaiting:
+		return true
+	}
+	return false
+}
+
+func (e ExperienceOutcome) String() string {
+	return string(e)
+}
+
+func (e *ExperienceOutcome) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExperienceOutcome(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExperienceOutcome", str)
+	}
+	return nil
+}
+
+func (e ExperienceOutcome) MarshalGQL(w io.Writer) {
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ExperienceOutcome) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExperienceOutcome) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ExperienceStatus string
+
+const (
+	ExperienceStatusPending   ExperienceStatus = "PENDING"
+	ExperienceStatusPublished ExperienceStatus = "PUBLISHED"
+	ExperienceStatusRejected  ExperienceStatus = "REJECTED"
+)
+
+var AllExperienceStatus = []ExperienceStatus{
+	ExperienceStatusPending,
+	ExperienceStatusPublished,
+	ExperienceStatusRejected,
+}
+
+func (e ExperienceStatus) IsValid() bool {
+	switch e {
+	case ExperienceStatusPending, ExperienceStatusPublished, ExperienceStatusRejected:
+		return true
+	}
+	return false
+}
+
+func (e ExperienceStatus) String() string {
+	return string(e)
+}
+
+func (e *ExperienceStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExperienceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExperienceStatus", str)
+	}
+	return nil
+}
+
+func (e ExperienceStatus) MarshalGQL(w io.Writer) {
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ExperienceStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExperienceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type GuideService string
 
 const (
@@ -1380,6 +1663,63 @@ func (e *JoinStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e JoinStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type NoteTone string
+
+const (
+	NoteTonePlus  NoteTone = "PLUS"
+	NoteToneMinus NoteTone = "MINUS"
+	NoteToneNote  NoteTone = "NOTE"
+)
+
+var AllNoteTone = []NoteTone{
+	NoteTonePlus,
+	NoteToneMinus,
+	NoteToneNote,
+}
+
+func (e NoteTone) IsValid() bool {
+	switch e {
+	case NoteTonePlus, NoteToneMinus, NoteToneNote:
+		return true
+	}
+	return false
+}
+
+func (e NoteTone) String() string {
+	return string(e)
+}
+
+func (e *NoteTone) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NoteTone(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NoteTone", str)
+	}
+	return nil
+}
+
+func (e NoteTone) MarshalGQL(w io.Writer) {
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NoteTone) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NoteTone) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

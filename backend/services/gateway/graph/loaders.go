@@ -128,6 +128,8 @@ type loaders struct {
 	campuses *loader[*identityv1.Campus]
 	subjects *loader[*marketplacev1.Subject]
 	profiles *loader[*marketplacev1.ProviderProfile]
+	// Next open slot and reply speed per provider profile.
+	insights *loader[*marketplacev1.ProviderInsight]
 	// Communities as the viewer sees them (with their role); see actor().
 	communities *loader[*communityv1.Community]
 }
@@ -191,6 +193,18 @@ func newLoaders(r *Resolver) *loaders {
 			return out, firstErr
 		}),
 	}
+	l.insights = newLoader(func(ctx context.Context, ids []string) (map[string]*marketplacev1.ProviderInsight, error) {
+		res, err := r.Market.GetProviderInsights(ctx, &marketplacev1.ProviderInsightsRequest{ProfileIds: ids, WithinDays: 7})
+		if err != nil {
+			return nil, err
+		}
+		out := make(map[string]*marketplacev1.ProviderInsight, len(res.Insights))
+		for _, in := range res.Insights {
+			out[in.ProfileId] = in
+		}
+		return out, nil
+	})
+	l.insights.max = 60 // slot math per profile; keep batches small
 	l.communities = newCommunityLoader(r)
 	return l
 }

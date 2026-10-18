@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { BadgeCheck, Briefcase, Flag, Globe2, MapPin, ShieldAlert } from 'lucide-react'
 import { gql } from '../lib/graphql'
 import { useAction } from '../lib/hooks'
-import { formatMoney, plural } from '../lib/format'
+import { formatMoney, plural, replyLabel, slotLabel } from '../lib/format'
 import { useCatalog } from '../lib/catalog'
 import type { BookingStatus, Provider, ProviderKind, User } from '../lib/types'
 import { useAuth } from '../lib/auth'
@@ -61,6 +61,12 @@ export function ProviderCard({ p }: { p: Provider }) {
         </div>
       </div>
       <p className="mt-3 line-clamp-2 text-sm text-ink-700">{p.headline}</p>
+      {(p.nextSlotAt || p.replyMinutes) && (
+        <p className="mt-2 flex flex-wrap justify-between gap-x-3 text-xs">
+          {p.replyMinutes ? <span className="text-ink-500">Replies in {replyLabel(p.replyMinutes)}</span> : <span />}
+          {p.nextSlotAt && <span className="font-semibold text-brand-600">Next: {slotLabel(p.nextSlotAt)}</span>}
+        </p>
+      )}
       {p.companies.length > 0 && (
         <p className="mt-2 flex items-center gap-1 truncate text-xs text-ink-600">
           <Briefcase className="h-3.5 w-3.5 shrink-0 text-ink-400" /> {p.companies.join(' · ')}

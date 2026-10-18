@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ClipboardCheck, Download, FileText, Inbox, Sparkles, Upload } from 'lucide-react'
+import { ClipboardCheck, Download, FileText, Inbox, Sparkles, Trash2, Upload } from 'lucide-react'
 import { Container } from '../components/Layout'
 import { VerificationBanner, providerPath } from '../components/domain'
 import { Avatar, Badge, Button, ButtonLink, Empty, ErrorNote, Field, Input, Modal, PageHeader, PageLoader, Pagination, Select, Tabs, Textarea, cx, type Tone } from '../components/ui'
@@ -12,6 +12,8 @@ import { RESUME_REVIEW } from '../lib/fragments'
 import { formatDate, formatDateTime, formatMoney, plural, timeAgo } from '../lib/format'
 import { useCatalog } from '../lib/catalog'
 import type { Booking, InterviewFeedback, Provider, ResumeReview, ResumeReviewStatus } from '../lib/types'
+
+const clock = (secs: number) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`
 
 // Career mentors: the resume review flow, and the scorecard a mentor fills in
 // after a mock interview (mock interviews themselves are ordinary bookings).
@@ -101,6 +103,10 @@ export function InterviewFeedbackCard({ booking, onSaved }: { booking: Booking; 
   const [editing, setEditing] = useState(false)
   const f = booking.feedback
 
+  // "Finish & write scorecard" in the room lands here.
+  useEffect(() => {
+    if (window.location.hash === '#scorecard') document.getElementById('scorecard')?.scrollIntoView({ block: 'start' })
+  }, [])
   if (f && !editing) return <FeedbackView f={f} onEdit={isMentor ? () => setEditing(true) : undefined} />
   if (canWrite) return <FeedbackForm booking={booking} initial={f ?? undefined} onSaved={() => { setEditing(false); onSaved() }} />
   if (isMentor || booking.status === 'CANCELLED' || booking.status === 'DECLINED' || booking.status === 'EXPIRED') return null
@@ -156,10 +162,14 @@ function FeedbackView({ f, onEdit }: { f: InterviewFeedback; onEdit?: () => void
 function FeedbackForm({ booking, initial, onSaved }: { booking: Booking; initial?: InterviewFeedback; onSaved: () => void }) {
   const { feedbackCriteria, interviewVerdicts } = useCatalog()
   const toast = useToast()
-  const [scores, setScores] = useState<Record<string, number>>(Object.fromEntries(initial?.scores.map((s) => [s.criterion, s.score]) ?? []))
+  // A new scorecard starts from what the mentor scored and noted in the room.
+  const notes = booking.mentorNotes ?? []
+  const noteLines = (tone: string) => notes.filter((n) => n.tone === tone).map((n) => `• ${clock(n.atSeconds)} ${n.body}`).join('\n')
+  const drafted = (initial?.scores ?? booking.room?.draftScores ?? []).map((s) => [s.criterion, s.score])
+  const [scores, setScores] = useState<Record<string, number>>(Object.fromEntries(drafted))
   const [verdict, setVerdict] = useState(initial?.verdict ?? '')
-  const [strengths, setStrengths] = useState(initial?.strengths ?? '')
-  const [improvements, setImprovements] = useState(initial?.improvements ?? '')
+  const [strengths, setStrengths] = useState(initial?.strengths ?? noteLines('PLUS'))
+  const [improvements, setImprovements] = useState(initial?.improvements ?? noteLines('MINUS'))
   const [resources, setResources] = useState(initial?.resources ?? '')
   const save = useAction(async () => {
     await gql(`mutation($i: InterviewFeedbackInput!) { saveInterviewFeedback(input: $i) { ${FEEDBACK} } }`, {
@@ -169,8 +179,9 @@ function FeedbackForm({ booking, initial, onSaved }: { booking: Booking; initial
     onSaved()
   })
   const complete = feedbackCriteria.every((c) => scores[c.value]) && verdict && strengths.trim().length >= 10 && improvements.trim().length >= 10
+  const other = notes.filter((n) => n.tone === 'NOTE')
   return (
-    <form className="card space-y-5 border-brand-200 p-6" onSubmit={(e) => { e.preventDefault(); save.run() }}>
+    <form id="scorecard" className="card scroll-mt-20 space-y-5 border-brand-200 p-6" onSubmit={(e) => { e.preventDefault(); save.run() }}>
       <div>
         <h2 className="flex items-center gap-2 font-semibold"><ClipboardCheck className="h-5 w-5 text-brand-500" /> Scorecard for {booking.student.displayName}</h2>
         <p className="mt-1 text-sm text-ink-600">Score each skill from 1 (needs a lot of work) to 5 (excellent). Be specific: this is what they'll practise from.</p>
@@ -194,6 +205,12 @@ function FeedbackForm({ booking, initial, onSaved }: { booking: Booking; initial
           ))}
         </div>
       </div>
+      {other.length > 0 && (
+        <div className="rounded-xl bg-ink-50 p-3 text-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Your other notes from the room</p>
+          <ul className="mt-1 space-y-0.5">{other.map((n) => <li key={n.id}><b className="tabular-nums text-brand-700">{clock(n.atSeconds)}</b> {n.body}</li>)}</ul>
+        </div>
+      )}
       <Field label="What went well" hint="At least 10 characters.">
         <Textarea required rows={3} maxLength={2000} value={strengths} onChange={(e) => setStrengths(e.target.value)} placeholder="e.g. Clarified requirements first; clean, readable code." />
       </Field>
@@ -297,7 +314,7 @@ export function ResumeReviews() {
   }
   return (
     <Container className="max-w-4xl">
-      <PageHeader title="Resume reviews" subtitle="Feedback on your resume from seniors who've been through placements." actions={<ButtonLink to="/mentors?resume=1" variant="secondary">Find a reviewer</ButtonLink>} />
+      <PageHeader title="Resume reviews" subtitle="Feedback on your resume from seniors who've been through placements." actions={<ButtonLink to="/prep?tab=resumes" variant="secondary">Find a reviewer</ButtonLink>} />
       {isMentor && (
         <div className="mb-4">
           <Tabs value={role} onChange={(v) => set('as', v)} tabs={[{ value: 'STUDENT', label: 'My resumes' }, { value: 'REVIEWER', label: 'To review' }]} />
@@ -316,7 +333,7 @@ export function ResumeReviews() {
         <PageLoader />
       ) : !data?.resumeReviews.items.length ? (
         <Empty icon={<FileText className="h-10 w-10" />} title={role === 'REVIEWER' ? 'No resumes here' : 'No resume reviews here'}
-          action={role === 'STUDENT' ? <ButtonLink to="/mentors?resume=1">Get your resume reviewed</ButtonLink> : undefined}>
+          action={role === 'STUDENT' ? <ButtonLink to="/prep?tab=resumes">Get your resume reviewed</ButtonLink> : undefined}>
           {role === 'REVIEWER' ? 'Requests from students appear here.' : 'A senior who has been placed reads your resume and tells you exactly what to fix.'}
         </Empty>
       ) : (
@@ -348,7 +365,10 @@ export function ResumeReviews() {
 
 // ── Resume reviews: detail ──────────────────────────────────────────────────
 
-const RESUME_DETAIL = `${RESUME_REVIEW} fileUrl feedbackFileUrl summary sections { section rating comment } cancelledBy { id displayName }`
+const RESUME_DETAIL = `${RESUME_REVIEW} fileUrl feedbackFileUrl summary sections { section rating comment } cancelledBy { id displayName }
+  pins { page x y section comment }`
+
+const PdfPins = lazy(() => import('../components/PdfPins'))
 
 type ResumeAction = 'ACCEPT' | 'DECLINE' | 'CANCEL'
 
@@ -506,10 +526,35 @@ function ResumeFeedbackView({ r }: { r: ResumeReview }) {
           </li>
         ))}
       </ul>
+      {r.pins && r.pins.length > 0 && <PinnedComments r={r} />}
       {r.feedbackFileUrl && (
         <a href={r.feedbackFileUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm link"><Download className="h-4 w-4" /> Annotated copy (PDF)</a>
       )}
     </section>
+  )
+}
+
+function PinnedComments({ r }: { r: ResumeReview }) {
+  const { label } = useCatalog()
+  const [selected, setSelected] = useState<number | null>(null)
+  const pins = r.pins ?? []
+  return (
+    <div className="mt-5 border-t border-ink-100 pt-5">
+      <h3 className="text-sm font-semibold">Comments on your resume</h3>
+      <div className="mt-3 grid gap-4 md:grid-cols-[1.1fr_1fr]">
+        {r.fileUrl ? (
+          <Suspense fallback={<div className="h-64 rounded-xl bg-ink-100" />}><PdfPins url={r.fileUrl} pins={pins} selected={selected} onSelect={setSelected} /></Suspense>
+        ) : <p className="text-sm text-ink-500">The resume file has been deleted; the comments remain.</p>}
+        <ol className="space-y-2">
+          {pins.map((p, i) => (
+            <li key={i}><button type="button" onClick={() => setSelected(i)} className={cx('w-full rounded-xl border p-3 text-left text-sm', selected === i ? 'border-brand-400 bg-brand-50' : 'border-ink-200 bg-white')}>
+              <span className="mr-2 inline-grid h-5 w-5 place-items-center rounded-full bg-brand-500 text-[11px] font-bold text-white">{i + 1}</span>
+              {p.section && <b className="mr-1">{label('resumeSections', p.section)}:</b>}{p.comment}
+            </button></li>
+          ))}
+        </ol>
+      </div>
+    </div>
   )
 }
 
@@ -520,9 +565,14 @@ function DeliverForm({ r, onDone }: { r: ResumeReview; onDone: () => void }) {
   const [summary, setSummary] = useState('')
   const [notes, setNotes] = useState<Record<string, { rating: number; comment: string }>>({})
   const [file, setFile] = useState<File | null>(null)
+  const [pins, setPins] = useState<{ page: number; x: number; y: number; section: string; comment: string }[]>([])
+  const [selected, setSelected] = useState<number | null>(null)
   const filled = Object.entries(notes).filter(([, n]) => n.rating && n.comment.trim())
   const send = useAction(async () => {
-    const i = { id: r.id, overallScore: score, summary, sections: filled.map(([section, n]) => ({ section, rating: n.rating, comment: n.comment })) }
+    const i = {
+      id: r.id, overallScore: score, summary, sections: filled.map(([section, n]) => ({ section, rating: n.rating, comment: n.comment })),
+      pins: pins.filter((p) => p.comment.trim()).map((p) => ({ ...p, section: p.section || null })),
+    }
     const q = `mutation($i: DeliverResumeReviewInput!) { deliverResumeReview(input: $i) { id } }`
     if (file) await gqlUpload(q, { i }, { 'i.annotated': file })
     else await gql(q, { i })
@@ -557,6 +607,37 @@ function DeliverForm({ r, onDone }: { r: ResumeReview; onDone: () => void }) {
           </div>
         ))}
       </div>
+      {r.fileUrl && (
+        <div className="space-y-3">
+          <div>
+            <p className="label">Pin comments to the resume (optional)</p>
+            <p className="text-sm text-ink-600">Click the exact line you mean, then say what to change there.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-[1.1fr_1fr]">
+            <Suspense fallback={<div className="h-64 rounded-xl bg-ink-100" />}>
+              <PdfPins url={r.fileUrl} pins={pins} editable selected={selected} onSelect={setSelected}
+                onAdd={(page, x, y) => { if (pins.length < 40) { setPins((ps) => [...ps, { page, x, y, section: '', comment: '' }]); setSelected(pins.length) } }} />
+            </Suspense>
+            <ol className="space-y-2">
+              {pins.length === 0 && <li className="text-sm text-ink-500">No pins yet.</li>}
+              {pins.map((p, i) => (
+                <li key={i} className={cx('space-y-2 rounded-xl border p-3', selected === i ? 'border-brand-400 bg-brand-50' : 'border-ink-200')}>
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-brand-500 text-[11px] font-bold text-white">{i + 1}</span>
+                    <Select className="flex-1" aria-label={`Section for comment ${i + 1}`} value={p.section} onChange={(e) => setPins((ps) => ps.map((x, j) => (j === i ? { ...x, section: e.target.value } : x)))}>
+                      <option value="">Any section</option>{resumeSections.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    </Select>
+                    <button type="button" className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-red-600" aria-label={`Remove comment ${i + 1}`}
+                      onClick={() => { setPins((ps) => ps.filter((_, j) => j !== i)); setSelected(null) }}><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                  <Textarea rows={2} maxLength={1500} aria-label={`Comment ${i + 1}`} value={p.comment} onFocus={() => setSelected(i)}
+                    onChange={(e) => setPins((ps) => ps.map((x, j) => (j === i ? { ...x, comment: e.target.value } : x)))} placeholder="What to change here" />
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      )}
       <label className="flex cursor-pointer items-center gap-2 text-sm">
         <Upload className="h-4 w-4 text-ink-400" />
         <span className="link">{file ? file.name : 'Attach an annotated PDF (optional)'}</span>

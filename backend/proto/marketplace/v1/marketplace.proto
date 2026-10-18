@@ -60,6 +60,28 @@ service MarketplaceService {
   // and forgets them.
   rpc ClaimExpiredResumeFiles(Empty) returns (FileKeys);
 
+  // Live interview rooms. OpenRoom checks who may join and when; the rest
+  // hold what the interview produced.
+  rpc OpenRoom(RoomRequest) returns (RoomAccess);
+  rpc GetRoom(RoomRequest) returns (Room);
+  rpc SaveRoom(SaveRoomRequest) returns (Empty);
+  rpc RecordPresence(PresenceEvent) returns (Empty);
+  rpc AddMentorNote(AddMentorNoteRequest) returns (MentorNote);
+  rpc ListMentorNotes(RoomRequest) returns (MentorNotes);
+  rpc DeleteMentorNote(DeleteMentorNoteRequest) returns (Empty);
+
+  // The mentors' question bank.
+  rpc SaveQuestion(SaveQuestionRequest) returns (Question);
+  rpc ListQuestions(ListQuestionsRequest) returns (ListQuestionsResponse);
+  rpc GetQuestion(GetQuestionRequest) returns (Question);
+  rpc DeleteQuestion(GetQuestionRequest) returns (Empty);
+
+  // Placement prep hub and progress.
+  rpc GetProviderInsights(ProviderInsightsRequest) returns (ProviderInsights);
+  rpc AvailableSoon(AvailableSoonRequest) returns (AvailableSoonResponse);
+  rpc MentorCompanies(Empty) returns (CompanyCounts);
+  rpc GetProgress(UserRequest) returns (Progress);
+
   rpc Stats(Empty) returns (MarketplaceStats);
   // The choices the service accepts, with display labels.
   rpc GetCatalog(Empty) returns (MarketplaceCatalog);
@@ -78,6 +100,7 @@ message MarketplaceCatalog {
   repeated Option feedback_criteria = 5;
   repeated Option resume_sections = 6;
   repeated Option interview_verdicts = 7;
+  repeated Option code_languages = 8;
 }
 
 message Empty {}
@@ -497,6 +520,17 @@ message ResumeReview {
   bool reviewed = 22; // the student rated it
   int64 created_at = 23;
   int64 updated_at = 24;
+  repeated Pin pins = 25;
+}
+
+// A comment pinned to a spot on the resume PDF; x and y are fractions of the
+// page's width and height.
+message Pin {
+  int32 page = 1; // from 1
+  double x = 2;
+  double y = 3;
+  string section = 4;
+  string comment = 5;
 }
 
 message CreateResumeReviewRequest {
@@ -541,6 +575,195 @@ message DeliverResumeReviewRequest {
   string summary = 4;
   repeated SectionNote sections = 5;
   string feedback_file_key = 6; // optional annotated copy
+  repeated Pin pins = 7;
 }
 
 message FileKeys { repeated string keys = 1; }
+
+// ── Interview rooms ─────────────────────────────────────────────────────────
+
+message RoomRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  bool actor_is_admin = 3;
+}
+
+message RoomAccess {
+  Booking booking = 1;
+  string role = 2; // provider | student
+  int64 opens_at = 3;
+  int64 closes_at = 4;
+}
+
+message Presence {
+  string user_id = 1;
+  int64 joined_at = 2;
+  int64 left_at = 3; // 0 while still in the room
+}
+
+message Room {
+  string booking_id = 1;
+  string problem = 2;
+  string question_id = 3;
+  string language = 4;
+  string code = 5;
+  bytes code_state = 6;
+  string whiteboard = 7; // JSON array of whiteboard elements
+  repeated Score draft_scores = 8; // only for the provider
+  repeated Presence presence = 9;
+  int64 opens_at = 10;
+  int64 closes_at = 11;
+  bool exists = 12; // someone has opened it
+}
+
+// Only the fields that are set change.
+message SaveRoomRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  optional string code = 3;
+  optional bytes code_state = 4;
+  optional string language = 5;
+  optional string problem = 6;
+  optional string question_id = 7;
+  optional string whiteboard = 8;
+  repeated Score draft_scores = 9;
+  bool set_draft_scores = 10;
+}
+
+message PresenceEvent {
+  string booking_id = 1;
+  string user_id = 2;
+  string event = 3; // joined | left
+  int64 at = 4;
+}
+
+message MentorNote {
+  string id = 1;
+  string booking_id = 2;
+  int32 at_seconds = 3;
+  string body = 4;
+  string tone = 5; // plus | minus | note
+  int64 created_at = 6;
+}
+
+message MentorNotes { repeated MentorNote notes = 1; }
+
+message AddMentorNoteRequest {
+  string booking_id = 1;
+  string actor_id = 2;
+  int32 at_seconds = 3;
+  string body = 4;
+  string tone = 5;
+}
+
+message DeleteMentorNoteRequest {
+  string id = 1;
+  string actor_id = 2;
+}
+
+// ── Question bank ───────────────────────────────────────────────────────────
+
+message Question {
+  string id = 1;
+  string author_id = 2;
+  string title = 3;
+  string body = 4;
+  string interview_type = 5;
+  string difficulty = 6; // easy | medium | hard
+  repeated string companies = 7;
+  int64 created_at = 8;
+  int64 updated_at = 9;
+}
+
+message SaveQuestionRequest {
+  string id = 1; // empty: new question
+  string actor_id = 2;
+  string title = 3;
+  string body = 4;
+  string interview_type = 5;
+  string difficulty = 6;
+  repeated string companies = 7;
+}
+
+message ListQuestionsRequest {
+  string actor_id = 1;
+  string query = 2;
+  string interview_type = 3;
+  string company = 4;
+  string difficulty = 5;
+  bool mine_only = 6;
+  int32 page = 7;
+  int32 page_size = 8;
+}
+
+message ListQuestionsResponse {
+  repeated Question questions = 1;
+  int64 total = 2;
+}
+
+message GetQuestionRequest {
+  string id = 1;
+  string actor_id = 2;
+}
+
+// ── Hub and progress ────────────────────────────────────────────────────────
+
+message ProviderInsightsRequest {
+  repeated string profile_ids = 1;
+  int32 within_days = 2; // how far ahead to look for the next slot
+}
+
+message ProviderInsight {
+  string profile_id = 1;
+  int64 next_slot_at = 2; // 0: none in the window
+  int32 reply_minutes = 3; // median; 0: not enough data
+}
+
+message ProviderInsights { repeated ProviderInsight insights = 1; }
+
+message AvailableSoonRequest {
+  string kind = 1;
+  string campus_id = 2;
+  int32 within_hours = 3;
+  int32 limit = 4;
+  string viewer_id = 5;
+  string company = 6;
+}
+
+message ProviderSlot {
+  ProviderProfile profile = 1;
+  int64 start_at = 2;
+}
+
+message AvailableSoonResponse { repeated ProviderSlot slots = 1; }
+
+message CompanyCount {
+  string name = 1;
+  int32 mentors = 2;
+}
+
+message CompanyCounts { repeated CompanyCount companies = 1; }
+
+message ProgressInterview {
+  string booking_id = 1;
+  string interview_type = 2;
+  int64 at = 3;
+  string verdict = 4;
+  repeated Score scores = 5;
+  string provider_profile_id = 6;
+}
+
+message ProgressResume {
+  string id = 1;
+  int64 at = 2;
+  int32 score = 3;
+  string target_role = 4;
+}
+
+message Progress {
+  repeated ProgressInterview interviews = 1; // oldest first
+  repeated ProgressResume resumes = 2;       // oldest first
+  int32 readiness = 3;                       // 0-100; -1 without any interview
+  string weakest_criterion = 4;
+  string suggested_interview_type = 5;
+}

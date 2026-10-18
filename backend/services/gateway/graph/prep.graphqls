@@ -1,0 +1,251 @@
+# ─── Placement prep: interview rooms, question bank, progress, experiences ───
+
+enum NoteTone {
+  PLUS
+  MINUS
+  NOTE
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ExperienceOutcome {
+  SELECTED
+  REJECTED
+  WAITING
+}
+
+enum ExperienceStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+type RoomPresence {
+  user: User!
+  joinedAt: Time!
+  "Null while they're still in the room."
+  leftAt: Time
+}
+
+"A booking's live room: what the interview produced, and who was there."
+type InterviewRoom {
+  problem: String!
+  "The question-bank entry the problem came from; mentors only."
+  question: Question
+  "A codeLanguages value from the catalog."
+  language: String!
+  code: String!
+  "The shared editor's state (base64), so a browser that rejoins merges cleanly."
+  codeState: String
+  "Whiteboard elements as a JSON array."
+  whiteboard: String!
+  "The mentor's in-room scores; empty for the student."
+  draftScores: [FeedbackScore!]!
+  presence: [RoomPresence!]!
+  opensAt: Time!
+  closesAt: Time!
+  isOpen: Boolean!
+}
+
+"What a browser needs to enter the video room."
+type RoomPass {
+  url: String!
+  token: String!
+  expiresAt: Time!
+  role: BookingRole!
+}
+
+"The mentor's private note, stamped with the interview clock."
+type MentorNote {
+  id: ID!
+  atSeconds: Int!
+  body: String!
+  tone: NoteTone!
+  createdAt: Time!
+}
+
+"Only the fields that are set change."
+input SaveRoomInput {
+  bookingId: ID!
+  code: String
+  codeState: String
+  language: String
+  problem: String
+  questionId: ID
+  whiteboard: String
+  draftScores: [FeedbackScoreInput!]
+}
+
+extend type Booking {
+  "Online sessions, for the two parties."
+  room: InterviewRoom
+  "The provider's private notes from the room; empty for the student."
+  mentorNotes: [MentorNote!]!
+}
+
+"A problem in the mentors' question bank. Students never see the bank."
+type Question {
+  id: ID!
+  title: String!
+  body: String!
+  interviewType: InterviewType!
+  difficulty: Difficulty!
+  companies: [String!]!
+  author: User!
+  mine: Boolean!
+  createdAt: Time!
+}
+
+type QuestionPage {
+  items: [Question!]!
+  total: Int!
+}
+
+input QuestionInput {
+  title: String!
+  body: String!
+  interviewType: InterviewType!
+  difficulty: Difficulty!
+  companies: [String!]
+}
+
+extend type Provider {
+  "The next open slot within a week."
+  nextSlotAt: Time
+  "Median minutes to answer a request; null until there are a few answers."
+  replyMinutes: Int
+}
+
+type ProviderSlot {
+  provider: Provider!
+  startAt: Time!
+}
+
+type CompanyCount {
+  name: String!
+  count: Int!
+}
+
+type ProgressInterview {
+  booking: Booking!
+  interviewType: InterviewType
+  at: Time!
+  verdict: InterviewVerdict!
+  scores: [FeedbackScore!]!
+}
+
+type ProgressResume {
+  id: ID!
+  at: Time!
+  score: Int!
+  targetRole: String!
+}
+
+"A student's track record, from their scorecards and resume reviews."
+type Progress {
+  "Oldest first."
+  interviews: [ProgressInterview!]!
+  "Oldest first."
+  resumes: [ProgressResume!]!
+  "0-100, null before the first scored interview."
+  readiness: Int
+  weakestCriterion: String
+  suggestedInterviewType: InterviewType
+}
+
+type ExperienceRound {
+  name: String!
+  details: String!
+}
+
+"A senior's write-up of a company's interview process."
+type InterviewExperience {
+  id: ID!
+  "Null when posted anonymously (except for the author and admins)."
+  author: User
+  campus: Campus
+  company: String!
+  role: String!
+  year: Int!
+  outcome: ExperienceOutcome!
+  rounds: [ExperienceRound!]!
+  tips: String!
+  anonymous: Boolean!
+  status: ExperienceStatus!
+  reviewReason: String!
+  createdAt: Time!
+  mine: Boolean!
+}
+
+type ExperiencePage {
+  items: [InterviewExperience!]!
+  total: Int!
+}
+
+input ExperienceRoundInput {
+  name: String!
+  details: String!
+}
+
+input ExperienceInput {
+  company: String!
+  role: String!
+  year: Int!
+  outcome: ExperienceOutcome!
+  rounds: [ExperienceRoundInput!]!
+  tips: String
+  anonymous: Boolean
+}
+
+"A comment pinned to a spot on the resume PDF. x and y are fractions of the page."
+type ResumePin {
+  page: Int!
+  x: Float!
+  y: Float!
+  section: String
+  comment: String!
+}
+
+input ResumePinInput {
+  page: Int!
+  x: Float!
+  y: Float!
+  section: String
+  comment: String!
+}
+
+extend type ResumeReview {
+  pins: [ResumePin!]!
+}
+
+extend type Query {
+  questions(query: String, interviewType: InterviewType, company: String, difficulty: Difficulty, mine: Boolean, page: Int, pageSize: Int): QuestionPage! @auth
+  question(id: ID!): Question @auth
+  myProgress: Progress! @auth
+  "Companies mentors have worked at, most common first."
+  mentorCompanies: [CompanyCount!]!
+  "Providers with an open slot soon, earliest first."
+  availableSoon(kind: ProviderKind!, campusId: ID, company: String, withinHours: Int, limit: Int): [ProviderSlot!]!
+  interviewExperiences(company: String, campusId: ID, mine: Boolean, page: Int, pageSize: Int): ExperiencePage! @auth
+  interviewExperience(id: ID!): InterviewExperience @auth
+  experienceCompanies: [CompanyCount!]! @auth
+  adminExperiences(status: ExperienceStatus, page: Int, pageSize: Int): ExperiencePage! @admin
+}
+
+extend type Mutation {
+  "Enter a booking's video room: the two parties, from shortly before the start until a while after the end."
+  joinRoom(bookingId: ID!): RoomPass! @auth
+  saveRoom(input: SaveRoomInput!): Boolean! @auth
+  addMentorNote(bookingId: ID!, atSeconds: Int!, body: String!, tone: NoteTone): MentorNote! @auth
+  deleteMentorNote(id: ID!): Boolean! @auth
+  "Create (no id) or update one of your questions."
+  saveQuestion(id: ID, input: QuestionInput!): Question! @auth
+  deleteQuestion(id: ID!): Boolean! @auth
+  shareInterviewExperience(input: ExperienceInput!): InterviewExperience! @auth
+  deleteInterviewExperience(id: ID!): Boolean! @auth
+  reviewInterviewExperience(id: ID!, approve: Boolean!, reason: String): InterviewExperience! @admin
+}

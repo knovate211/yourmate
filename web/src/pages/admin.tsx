@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useSearchParams } from 'react-router-dom'
-import { BarChart3, BookOpen, Building2, CalendarDays, ExternalLink, FileCheck2, Flag, Inbox, Newspaper, Users, UserSquare2 } from 'lucide-react'
+import { BarChart3, BookOpen, Building2, CalendarDays, ClipboardCheck, ExternalLink, FileCheck2, Flag, Inbox, Newspaper, UserSquare2, Users } from 'lucide-react'
 import { Container } from '../components/Layout'
 import { BookingStatusBadge, providerPath } from '../components/domain'
 import { PostCard } from './feed'
@@ -9,9 +9,9 @@ import { useToast } from '../components/toast'
 import { useAuth } from '../lib/auth'
 import { gql } from '../lib/graphql'
 import { useAction, useDebounced, useDocumentTitle, useQuery } from '../lib/hooks'
-import { BOOKING_CARD, CAMPUS_ADMIN, POST, PROVIDER_CARD } from '../lib/fragments'
+import { BOOKING_CARD, CAMPUS_ADMIN, POST, PROVIDER_CARD, EXPERIENCE } from '../lib/fragments'
 import { enumLabel, plural, formatDate, formatDateTime, formatMoney, timeAgo } from '../lib/format'
-import type { Booking, Campus, Page, Post, Provider, User, Verification } from '../lib/types'
+import type { Booking, Campus, Page, Post, Provider, User, Verification, InterviewExperience } from '../lib/types'
 
 const SECTIONS = [
   { to: '/admin', label: 'Overview', icon: BarChart3, end: true },
@@ -20,6 +20,7 @@ const SECTIONS = [
   { to: '/admin/users', label: 'Users', icon: Users },
   { to: '/admin/providers', label: 'Providers', icon: UserSquare2 },
   { to: '/admin/posts', label: 'Posts', icon: Newspaper },
+  { to: '/admin/experiences', label: 'Experiences', icon: ClipboardCheck },
   { to: '/admin/reports', label: 'Reports', icon: Flag },
   { to: '/admin/bookings', label: 'Bookings', icon: CalendarDays },
   { to: '/admin/inquiries', label: 'Inquiries', icon: Inbox },
@@ -655,6 +656,50 @@ export function AdminSubjects() {
         ))}
       </div>
       <p className="mt-6 text-xs text-ink-500">Campus-specific course codes are added by ID-verified tutors from their profile editor.</p>
+    </>
+  )
+}
+
+export function AdminExperiences() {
+  useDocumentTitle('Interview experiences')
+  const toast = useToast()
+  const [status, setStatus] = useState('PENDING')
+  const { data, loading, refetch } = useQuery<{ adminExperiences: Page<InterviewExperience> }>(
+    `query($s: ExperienceStatus) { adminExperiences(status: $s, pageSize: 50) { total items { ${EXPERIENCE} } } }`, { s: status })
+  const review = useAction(async (id: string, approve: boolean) => {
+    const reason = approve ? null : window.prompt('Reason for the author (optional)') ?? ''
+    await gql(`mutation($id: ID!, $a: Boolean!, $r: String) { reviewInterviewExperience(id: $id, approve: $a, reason: $r) { status } }`, { id, a: approve, r: reason })
+    toast(approve ? 'Published.' : 'Rejected.')
+    refetch()
+  })
+  const remove = useAction(async (id: string) => {
+    await gql(`mutation($id: ID!) { deleteInterviewExperience(id: $id) }`, { id })
+    refetch()
+  })
+  return (
+    <>
+      <Title actions={<Select className="w-40" value={status} onChange={(e) => setStatus(e.target.value)}><option value="PENDING">Pending</option><option value="PUBLISHED">Published</option><option value="REJECTED">Rejected</option></Select>}>Interview experiences</Title>
+      <p className="mb-3 text-sm text-ink-600">Check that each write-up is a real account of the process, with no leaked confidential tests or personal details.</p>
+      <ErrorNote error={review.error || remove.error} className="mb-3" />
+      {loading && !data ? <PageLoader /> : data?.adminExperiences.items.length ? (
+        <div className="space-y-4">
+          {data.adminExperiences.items.map((e) => (
+            <article key={e.id} className="card space-y-3 p-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="font-semibold">{e.company} · {e.role} · {e.year} <span className="font-normal text-ink-500">({e.outcome.toLowerCase()})</span></p>
+                <span className="text-xs text-ink-500">{e.author?.displayName ?? 'Unknown'}{e.anonymous ? ' · posting anonymously' : ''}{e.campus ? ` · ${e.campus.name}` : ''}</span>
+              </div>
+              <ol className="list-decimal space-y-1 pl-5 text-sm">{e.rounds.map((r, i) => <li key={i}><b>{r.name}.</b> <span className="whitespace-pre-line text-ink-700">{r.details}</span></li>)}</ol>
+              {e.tips && <p className="text-sm text-ink-700"><b>Tips:</b> {e.tips}</p>}
+              <div className="flex gap-2">
+                {e.status !== 'PUBLISHED' && <Button size="sm" onClick={() => review.run(e.id, true)}>Publish</Button>}
+                {e.status === 'PENDING' && <Button size="sm" variant="secondary" onClick={() => review.run(e.id, false)}>Reject</Button>}
+                <Button size="sm" variant="ghost" className="text-red-600" onClick={() => remove.run(e.id)}>Delete</Button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : <Empty icon={<ClipboardCheck className="h-10 w-10" />} title="Nothing to review" />}
     </>
   )
 }

@@ -152,6 +152,8 @@ input DeliverResumeReviewInput {
   sections: [ResumeSectionNoteInput!]!
   "An optional annotated PDF."
   annotated: Upload
+  "Comments pinned to spots on the PDF."
+  pins: [ResumePinInput!]
 }
 
 extend type Query {

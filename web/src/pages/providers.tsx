@@ -22,7 +22,7 @@ const KIND_COPY: Record<ProviderKind, { title: string; subtitle: string; empty: 
 }
 
 const KIND_NOUN: Record<ProviderKind, string> = { TUTOR: 'tutor', GUIDE: 'guide', MENTOR: 'mentor' }
-const KIND_LIST: Record<ProviderKind, string> = { TUTOR: '/tutors', GUIDE: '/guides', MENTOR: '/mentors' }
+const KIND_LIST: Record<ProviderKind, string> = { TUTOR: '/tutors', GUIDE: '/guides', MENTOR: '/prep' }
 const editPath = (kind: ProviderKind) => `/dashboard/profile${kind === 'TUTOR' ? '' : `?kind=${kind}`}`
 
 function MentorIntro() {

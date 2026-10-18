@@ -23,7 +23,7 @@ export function Logo({ className }: { className?: string }) {
 const navLinks = [
   { to: '/tutors', label: 'Find a tutor' },
   { to: '/guides', label: 'Campus guides' },
-  { to: '/mentors', label: 'Placement prep' },
+  { to: '/prep', label: 'Placement prep' },
   { to: '/communities', label: 'Communities' },
   { to: '/feed', label: 'Campus feed' },
 ]
@@ -232,7 +232,7 @@ function Footer() {
           <ul className="mt-3 space-y-2 text-sm text-ink-600">
             <li><Link to="/tutors" className="hover:text-ink-900">Tutors</Link></li>
             <li><Link to="/guides" className="hover:text-ink-900">Campus guides</Link></li>
-            <li><Link to="/mentors" className="hover:text-ink-900">Placement prep</Link></li>
+            <li><Link to="/prep" className="hover:text-ink-900">Placement prep</Link></li>
             <li><Link to="/feed" className="hover:text-ink-900">Campus feed</Link></li>
             <li><Link to="/campuses" className="hover:text-ink-900">Campuses</Link></li>
           </ul>

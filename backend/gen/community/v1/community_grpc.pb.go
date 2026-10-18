@@ -66,6 +66,12 @@ const (
 	CommunityService_SendDirectMessage_FullMethodName       = "/yourmate.community.v1.CommunityService/SendDirectMessage"
 	CommunityService_InboxSummary_FullMethodName            = "/yourmate.community.v1.CommunityService/InboxSummary"
 	CommunityService_StreamMessageEvents_FullMethodName     = "/yourmate.community.v1.CommunityService/StreamMessageEvents"
+	CommunityService_CreateExperience_FullMethodName        = "/yourmate.community.v1.CommunityService/CreateExperience"
+	CommunityService_ListExperiences_FullMethodName         = "/yourmate.community.v1.CommunityService/ListExperiences"
+	CommunityService_GetExperience_FullMethodName           = "/yourmate.community.v1.CommunityService/GetExperience"
+	CommunityService_ReviewExperience_FullMethodName        = "/yourmate.community.v1.CommunityService/ReviewExperience"
+	CommunityService_DeleteExperience_FullMethodName        = "/yourmate.community.v1.CommunityService/DeleteExperience"
+	CommunityService_ExperienceCompanies_FullMethodName     = "/yourmate.community.v1.CommunityService/ExperienceCompanies"
 )
 
 // CommunityServiceClient is the client API for CommunityService service.
@@ -126,6 +132,13 @@ type CommunityServiceClient interface {
 	InboxSummary(ctx context.Context, in *Actor, opts ...grpc.CallOption) (*InboxSummaryResponse, error)
 	// Live: every message sent or received by the actor, as it happens.
 	StreamMessageEvents(ctx context.Context, in *Actor, opts ...grpc.CallOption) (grpc.ServerStreamingClient[MessageEvent], error)
+	// Interview experiences, moderated like feed posts.
+	CreateExperience(ctx context.Context, in *CreateExperienceRequest, opts ...grpc.CallOption) (*InterviewExperience, error)
+	ListExperiences(ctx context.Context, in *ListExperiencesRequest, opts ...grpc.CallOption) (*ListExperiencesResponse, error)
+	GetExperience(ctx context.Context, in *ExperienceRef, opts ...grpc.CallOption) (*InterviewExperience, error)
+	ReviewExperience(ctx context.Context, in *ReviewExperienceRequest, opts ...grpc.CallOption) (*InterviewExperience, error)
+	DeleteExperience(ctx context.Context, in *ExperienceRef, opts ...grpc.CallOption) (*Empty, error)
+	ExperienceCompanies(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ExperienceCompaniesResponse, error)
 }
 
 type communityServiceClient struct {
@@ -615,6 +628,66 @@ func (c *communityServiceClient) StreamMessageEvents(ctx context.Context, in *Ac
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CommunityService_StreamMessageEventsClient = grpc.ServerStreamingClient[MessageEvent]
 
+func (c *communityServiceClient) CreateExperience(ctx context.Context, in *CreateExperienceRequest, opts ...grpc.CallOption) (*InterviewExperience, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InterviewExperience)
+	err := c.cc.Invoke(ctx, CommunityService_CreateExperience_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) ListExperiences(ctx context.Context, in *ListExperiencesRequest, opts ...grpc.CallOption) (*ListExperiencesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListExperiencesResponse)
+	err := c.cc.Invoke(ctx, CommunityService_ListExperiences_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) GetExperience(ctx context.Context, in *ExperienceRef, opts ...grpc.CallOption) (*InterviewExperience, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InterviewExperience)
+	err := c.cc.Invoke(ctx, CommunityService_GetExperience_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) ReviewExperience(ctx context.Context, in *ReviewExperienceRequest, opts ...grpc.CallOption) (*InterviewExperience, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InterviewExperience)
+	err := c.cc.Invoke(ctx, CommunityService_ReviewExperience_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) DeleteExperience(ctx context.Context, in *ExperienceRef, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, CommunityService_DeleteExperience_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *communityServiceClient) ExperienceCompanies(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ExperienceCompaniesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExperienceCompaniesResponse)
+	err := c.cc.Invoke(ctx, CommunityService_ExperienceCompanies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CommunityServiceServer is the server API for CommunityService service.
 // All implementations must embed UnimplementedCommunityServiceServer
 // for forward compatibility.
@@ -673,6 +746,13 @@ type CommunityServiceServer interface {
 	InboxSummary(context.Context, *Actor) (*InboxSummaryResponse, error)
 	// Live: every message sent or received by the actor, as it happens.
 	StreamMessageEvents(*Actor, grpc.ServerStreamingServer[MessageEvent]) error
+	// Interview experiences, moderated like feed posts.
+	CreateExperience(context.Context, *CreateExperienceRequest) (*InterviewExperience, error)
+	ListExperiences(context.Context, *ListExperiencesRequest) (*ListExperiencesResponse, error)
+	GetExperience(context.Context, *ExperienceRef) (*InterviewExperience, error)
+	ReviewExperience(context.Context, *ReviewExperienceRequest) (*InterviewExperience, error)
+	DeleteExperience(context.Context, *ExperienceRef) (*Empty, error)
+	ExperienceCompanies(context.Context, *Empty) (*ExperienceCompaniesResponse, error)
 	mustEmbedUnimplementedCommunityServiceServer()
 }
 
@@ -823,6 +903,24 @@ func (UnimplementedCommunityServiceServer) InboxSummary(context.Context, *Actor)
 }
 func (UnimplementedCommunityServiceServer) StreamMessageEvents(*Actor, grpc.ServerStreamingServer[MessageEvent]) error {
 	return status.Error(codes.Unimplemented, "method StreamMessageEvents not implemented")
+}
+func (UnimplementedCommunityServiceServer) CreateExperience(context.Context, *CreateExperienceRequest) (*InterviewExperience, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateExperience not implemented")
+}
+func (UnimplementedCommunityServiceServer) ListExperiences(context.Context, *ListExperiencesRequest) (*ListExperiencesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListExperiences not implemented")
+}
+func (UnimplementedCommunityServiceServer) GetExperience(context.Context, *ExperienceRef) (*InterviewExperience, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetExperience not implemented")
+}
+func (UnimplementedCommunityServiceServer) ReviewExperience(context.Context, *ReviewExperienceRequest) (*InterviewExperience, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReviewExperience not implemented")
+}
+func (UnimplementedCommunityServiceServer) DeleteExperience(context.Context, *ExperienceRef) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteExperience not implemented")
+}
+func (UnimplementedCommunityServiceServer) ExperienceCompanies(context.Context, *Empty) (*ExperienceCompaniesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExperienceCompanies not implemented")
 }
 func (UnimplementedCommunityServiceServer) mustEmbedUnimplementedCommunityServiceServer() {}
 func (UnimplementedCommunityServiceServer) testEmbeddedByValue()                          {}
@@ -1684,6 +1782,114 @@ func _CommunityService_StreamMessageEvents_Handler(srv interface{}, stream grpc.
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CommunityService_StreamMessageEventsServer = grpc.ServerStreamingServer[MessageEvent]
 
+func _CommunityService_CreateExperience_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateExperienceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).CreateExperience(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_CreateExperience_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).CreateExperience(ctx, req.(*CreateExperienceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_ListExperiences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListExperiencesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).ListExperiences(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_ListExperiences_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).ListExperiences(ctx, req.(*ListExperiencesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_GetExperience_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExperienceRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).GetExperience(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_GetExperience_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).GetExperience(ctx, req.(*ExperienceRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_ReviewExperience_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReviewExperienceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).ReviewExperience(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_ReviewExperience_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).ReviewExperience(ctx, req.(*ReviewExperienceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_DeleteExperience_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExperienceRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).DeleteExperience(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_DeleteExperience_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).DeleteExperience(ctx, req.(*ExperienceRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommunityService_ExperienceCompanies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommunityServiceServer).ExperienceCompanies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommunityService_ExperienceCompanies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommunityServiceServer).ExperienceCompanies(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CommunityService_ServiceDesc is the grpc.ServiceDesc for CommunityService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1874,6 +2080,30 @@ var CommunityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InboxSummary",
 			Handler:    _CommunityService_InboxSummary_Handler,
+		},
+		{
+			MethodName: "CreateExperience",
+			Handler:    _CommunityService_CreateExperience_Handler,
+		},
+		{
+			MethodName: "ListExperiences",
+			Handler:    _CommunityService_ListExperiences_Handler,
+		},
+		{
+			MethodName: "GetExperience",
+			Handler:    _CommunityService_GetExperience_Handler,
+		},
+		{
+			MethodName: "ReviewExperience",
+			Handler:    _CommunityService_ReviewExperience_Handler,
+		},
+		{
+			MethodName: "DeleteExperience",
+			Handler:    _CommunityService_DeleteExperience_Handler,
+		},
+		{
+			MethodName: "ExperienceCompanies",
+			Handler:    _CommunityService_ExperienceCompanies_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

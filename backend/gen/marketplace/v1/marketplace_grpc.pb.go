@@ -56,6 +56,21 @@ const (
 	MarketplaceService_TransitionResumeReview_FullMethodName   = "/yourmate.marketplace.v1.MarketplaceService/TransitionResumeReview"
 	MarketplaceService_DeliverResumeReview_FullMethodName      = "/yourmate.marketplace.v1.MarketplaceService/DeliverResumeReview"
 	MarketplaceService_ClaimExpiredResumeFiles_FullMethodName  = "/yourmate.marketplace.v1.MarketplaceService/ClaimExpiredResumeFiles"
+	MarketplaceService_OpenRoom_FullMethodName                 = "/yourmate.marketplace.v1.MarketplaceService/OpenRoom"
+	MarketplaceService_GetRoom_FullMethodName                  = "/yourmate.marketplace.v1.MarketplaceService/GetRoom"
+	MarketplaceService_SaveRoom_FullMethodName                 = "/yourmate.marketplace.v1.MarketplaceService/SaveRoom"
+	MarketplaceService_RecordPresence_FullMethodName           = "/yourmate.marketplace.v1.MarketplaceService/RecordPresence"
+	MarketplaceService_AddMentorNote_FullMethodName            = "/yourmate.marketplace.v1.MarketplaceService/AddMentorNote"
+	MarketplaceService_ListMentorNotes_FullMethodName          = "/yourmate.marketplace.v1.MarketplaceService/ListMentorNotes"
+	MarketplaceService_DeleteMentorNote_FullMethodName         = "/yourmate.marketplace.v1.MarketplaceService/DeleteMentorNote"
+	MarketplaceService_SaveQuestion_FullMethodName             = "/yourmate.marketplace.v1.MarketplaceService/SaveQuestion"
+	MarketplaceService_ListQuestions_FullMethodName            = "/yourmate.marketplace.v1.MarketplaceService/ListQuestions"
+	MarketplaceService_GetQuestion_FullMethodName              = "/yourmate.marketplace.v1.MarketplaceService/GetQuestion"
+	MarketplaceService_DeleteQuestion_FullMethodName           = "/yourmate.marketplace.v1.MarketplaceService/DeleteQuestion"
+	MarketplaceService_GetProviderInsights_FullMethodName      = "/yourmate.marketplace.v1.MarketplaceService/GetProviderInsights"
+	MarketplaceService_AvailableSoon_FullMethodName            = "/yourmate.marketplace.v1.MarketplaceService/AvailableSoon"
+	MarketplaceService_MentorCompanies_FullMethodName          = "/yourmate.marketplace.v1.MarketplaceService/MentorCompanies"
+	MarketplaceService_GetProgress_FullMethodName              = "/yourmate.marketplace.v1.MarketplaceService/GetProgress"
 	MarketplaceService_Stats_FullMethodName                    = "/yourmate.marketplace.v1.MarketplaceService/Stats"
 	MarketplaceService_GetCatalog_FullMethodName               = "/yourmate.marketplace.v1.MarketplaceService/GetCatalog"
 )
@@ -111,6 +126,25 @@ type MarketplaceServiceClient interface {
 	// Hands the gateway the uploads of long-closed resume reviews to delete,
 	// and forgets them.
 	ClaimExpiredResumeFiles(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*FileKeys, error)
+	// Live interview rooms. OpenRoom checks who may join and when; the rest
+	// hold what the interview produced.
+	OpenRoom(ctx context.Context, in *RoomRequest, opts ...grpc.CallOption) (*RoomAccess, error)
+	GetRoom(ctx context.Context, in *RoomRequest, opts ...grpc.CallOption) (*Room, error)
+	SaveRoom(ctx context.Context, in *SaveRoomRequest, opts ...grpc.CallOption) (*Empty, error)
+	RecordPresence(ctx context.Context, in *PresenceEvent, opts ...grpc.CallOption) (*Empty, error)
+	AddMentorNote(ctx context.Context, in *AddMentorNoteRequest, opts ...grpc.CallOption) (*MentorNote, error)
+	ListMentorNotes(ctx context.Context, in *RoomRequest, opts ...grpc.CallOption) (*MentorNotes, error)
+	DeleteMentorNote(ctx context.Context, in *DeleteMentorNoteRequest, opts ...grpc.CallOption) (*Empty, error)
+	// The mentors' question bank.
+	SaveQuestion(ctx context.Context, in *SaveQuestionRequest, opts ...grpc.CallOption) (*Question, error)
+	ListQuestions(ctx context.Context, in *ListQuestionsRequest, opts ...grpc.CallOption) (*ListQuestionsResponse, error)
+	GetQuestion(ctx context.Context, in *GetQuestionRequest, opts ...grpc.CallOption) (*Question, error)
+	DeleteQuestion(ctx context.Context, in *GetQuestionRequest, opts ...grpc.CallOption) (*Empty, error)
+	// Placement prep hub and progress.
+	GetProviderInsights(ctx context.Context, in *ProviderInsightsRequest, opts ...grpc.CallOption) (*ProviderInsights, error)
+	AvailableSoon(ctx context.Context, in *AvailableSoonRequest, opts ...grpc.CallOption) (*AvailableSoonResponse, error)
+	MentorCompanies(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*CompanyCounts, error)
+	GetProgress(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*Progress, error)
 	Stats(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketplaceStats, error)
 	// The choices the service accepts, with display labels.
 	GetCatalog(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketplaceCatalog, error)
@@ -494,6 +528,156 @@ func (c *marketplaceServiceClient) ClaimExpiredResumeFiles(ctx context.Context, 
 	return out, nil
 }
 
+func (c *marketplaceServiceClient) OpenRoom(ctx context.Context, in *RoomRequest, opts ...grpc.CallOption) (*RoomAccess, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RoomAccess)
+	err := c.cc.Invoke(ctx, MarketplaceService_OpenRoom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) GetRoom(ctx context.Context, in *RoomRequest, opts ...grpc.CallOption) (*Room, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Room)
+	err := c.cc.Invoke(ctx, MarketplaceService_GetRoom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) SaveRoom(ctx context.Context, in *SaveRoomRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, MarketplaceService_SaveRoom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) RecordPresence(ctx context.Context, in *PresenceEvent, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, MarketplaceService_RecordPresence_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) AddMentorNote(ctx context.Context, in *AddMentorNoteRequest, opts ...grpc.CallOption) (*MentorNote, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MentorNote)
+	err := c.cc.Invoke(ctx, MarketplaceService_AddMentorNote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) ListMentorNotes(ctx context.Context, in *RoomRequest, opts ...grpc.CallOption) (*MentorNotes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MentorNotes)
+	err := c.cc.Invoke(ctx, MarketplaceService_ListMentorNotes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) DeleteMentorNote(ctx context.Context, in *DeleteMentorNoteRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, MarketplaceService_DeleteMentorNote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) SaveQuestion(ctx context.Context, in *SaveQuestionRequest, opts ...grpc.CallOption) (*Question, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Question)
+	err := c.cc.Invoke(ctx, MarketplaceService_SaveQuestion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) ListQuestions(ctx context.Context, in *ListQuestionsRequest, opts ...grpc.CallOption) (*ListQuestionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListQuestionsResponse)
+	err := c.cc.Invoke(ctx, MarketplaceService_ListQuestions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) GetQuestion(ctx context.Context, in *GetQuestionRequest, opts ...grpc.CallOption) (*Question, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Question)
+	err := c.cc.Invoke(ctx, MarketplaceService_GetQuestion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) DeleteQuestion(ctx context.Context, in *GetQuestionRequest, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, MarketplaceService_DeleteQuestion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) GetProviderInsights(ctx context.Context, in *ProviderInsightsRequest, opts ...grpc.CallOption) (*ProviderInsights, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProviderInsights)
+	err := c.cc.Invoke(ctx, MarketplaceService_GetProviderInsights_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) AvailableSoon(ctx context.Context, in *AvailableSoonRequest, opts ...grpc.CallOption) (*AvailableSoonResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AvailableSoonResponse)
+	err := c.cc.Invoke(ctx, MarketplaceService_AvailableSoon_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) MentorCompanies(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*CompanyCounts, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CompanyCounts)
+	err := c.cc.Invoke(ctx, MarketplaceService_MentorCompanies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *marketplaceServiceClient) GetProgress(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*Progress, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Progress)
+	err := c.cc.Invoke(ctx, MarketplaceService_GetProgress_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *marketplaceServiceClient) Stats(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketplaceStats, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MarketplaceStats)
@@ -565,6 +749,25 @@ type MarketplaceServiceServer interface {
 	// Hands the gateway the uploads of long-closed resume reviews to delete,
 	// and forgets them.
 	ClaimExpiredResumeFiles(context.Context, *Empty) (*FileKeys, error)
+	// Live interview rooms. OpenRoom checks who may join and when; the rest
+	// hold what the interview produced.
+	OpenRoom(context.Context, *RoomRequest) (*RoomAccess, error)
+	GetRoom(context.Context, *RoomRequest) (*Room, error)
+	SaveRoom(context.Context, *SaveRoomRequest) (*Empty, error)
+	RecordPresence(context.Context, *PresenceEvent) (*Empty, error)
+	AddMentorNote(context.Context, *AddMentorNoteRequest) (*MentorNote, error)
+	ListMentorNotes(context.Context, *RoomRequest) (*MentorNotes, error)
+	DeleteMentorNote(context.Context, *DeleteMentorNoteRequest) (*Empty, error)
+	// The mentors' question bank.
+	SaveQuestion(context.Context, *SaveQuestionRequest) (*Question, error)
+	ListQuestions(context.Context, *ListQuestionsRequest) (*ListQuestionsResponse, error)
+	GetQuestion(context.Context, *GetQuestionRequest) (*Question, error)
+	DeleteQuestion(context.Context, *GetQuestionRequest) (*Empty, error)
+	// Placement prep hub and progress.
+	GetProviderInsights(context.Context, *ProviderInsightsRequest) (*ProviderInsights, error)
+	AvailableSoon(context.Context, *AvailableSoonRequest) (*AvailableSoonResponse, error)
+	MentorCompanies(context.Context, *Empty) (*CompanyCounts, error)
+	GetProgress(context.Context, *UserRequest) (*Progress, error)
 	Stats(context.Context, *Empty) (*MarketplaceStats, error)
 	// The choices the service accepts, with display labels.
 	GetCatalog(context.Context, *Empty) (*MarketplaceCatalog, error)
@@ -688,6 +891,51 @@ func (UnimplementedMarketplaceServiceServer) DeliverResumeReview(context.Context
 }
 func (UnimplementedMarketplaceServiceServer) ClaimExpiredResumeFiles(context.Context, *Empty) (*FileKeys, error) {
 	return nil, status.Error(codes.Unimplemented, "method ClaimExpiredResumeFiles not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) OpenRoom(context.Context, *RoomRequest) (*RoomAccess, error) {
+	return nil, status.Error(codes.Unimplemented, "method OpenRoom not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) GetRoom(context.Context, *RoomRequest) (*Room, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRoom not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) SaveRoom(context.Context, *SaveRoomRequest) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveRoom not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) RecordPresence(context.Context, *PresenceEvent) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method RecordPresence not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) AddMentorNote(context.Context, *AddMentorNoteRequest) (*MentorNote, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddMentorNote not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) ListMentorNotes(context.Context, *RoomRequest) (*MentorNotes, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListMentorNotes not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) DeleteMentorNote(context.Context, *DeleteMentorNoteRequest) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteMentorNote not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) SaveQuestion(context.Context, *SaveQuestionRequest) (*Question, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveQuestion not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) ListQuestions(context.Context, *ListQuestionsRequest) (*ListQuestionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListQuestions not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) GetQuestion(context.Context, *GetQuestionRequest) (*Question, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetQuestion not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) DeleteQuestion(context.Context, *GetQuestionRequest) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteQuestion not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) GetProviderInsights(context.Context, *ProviderInsightsRequest) (*ProviderInsights, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProviderInsights not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) AvailableSoon(context.Context, *AvailableSoonRequest) (*AvailableSoonResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AvailableSoon not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) MentorCompanies(context.Context, *Empty) (*CompanyCounts, error) {
+	return nil, status.Error(codes.Unimplemented, "method MentorCompanies not implemented")
+}
+func (UnimplementedMarketplaceServiceServer) GetProgress(context.Context, *UserRequest) (*Progress, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProgress not implemented")
 }
 func (UnimplementedMarketplaceServiceServer) Stats(context.Context, *Empty) (*MarketplaceStats, error) {
 	return nil, status.Error(codes.Unimplemented, "method Stats not implemented")
@@ -1382,6 +1630,276 @@ func _MarketplaceService_ClaimExpiredResumeFiles_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MarketplaceService_OpenRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).OpenRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_OpenRoom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).OpenRoom(ctx, req.(*RoomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_GetRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).GetRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_GetRoom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).GetRoom(ctx, req.(*RoomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_SaveRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveRoomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).SaveRoom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_SaveRoom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).SaveRoom(ctx, req.(*SaveRoomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_RecordPresence_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PresenceEvent)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).RecordPresence(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_RecordPresence_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).RecordPresence(ctx, req.(*PresenceEvent))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_AddMentorNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMentorNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).AddMentorNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_AddMentorNote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).AddMentorNote(ctx, req.(*AddMentorNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_ListMentorNotes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).ListMentorNotes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_ListMentorNotes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).ListMentorNotes(ctx, req.(*RoomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_DeleteMentorNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteMentorNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).DeleteMentorNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_DeleteMentorNote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).DeleteMentorNote(ctx, req.(*DeleteMentorNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_SaveQuestion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveQuestionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).SaveQuestion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_SaveQuestion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).SaveQuestion(ctx, req.(*SaveQuestionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_ListQuestions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListQuestionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).ListQuestions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_ListQuestions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).ListQuestions(ctx, req.(*ListQuestionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_GetQuestion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQuestionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).GetQuestion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_GetQuestion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).GetQuestion(ctx, req.(*GetQuestionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_DeleteQuestion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQuestionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).DeleteQuestion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_DeleteQuestion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).DeleteQuestion(ctx, req.(*GetQuestionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_GetProviderInsights_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProviderInsightsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).GetProviderInsights(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_GetProviderInsights_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).GetProviderInsights(ctx, req.(*ProviderInsightsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_AvailableSoon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AvailableSoonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).AvailableSoon(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_AvailableSoon_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).AvailableSoon(ctx, req.(*AvailableSoonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_MentorCompanies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).MentorCompanies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_MentorCompanies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).MentorCompanies(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarketplaceService_GetProgress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketplaceServiceServer).GetProgress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarketplaceService_GetProgress_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketplaceServiceServer).GetProgress(ctx, req.(*UserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MarketplaceService_Stats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -1572,6 +2090,66 @@ var MarketplaceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ClaimExpiredResumeFiles",
 			Handler:    _MarketplaceService_ClaimExpiredResumeFiles_Handler,
+		},
+		{
+			MethodName: "OpenRoom",
+			Handler:    _MarketplaceService_OpenRoom_Handler,
+		},
+		{
+			MethodName: "GetRoom",
+			Handler:    _MarketplaceService_GetRoom_Handler,
+		},
+		{
+			MethodName: "SaveRoom",
+			Handler:    _MarketplaceService_SaveRoom_Handler,
+		},
+		{
+			MethodName: "RecordPresence",
+			Handler:    _MarketplaceService_RecordPresence_Handler,
+		},
+		{
+			MethodName: "AddMentorNote",
+			Handler:    _MarketplaceService_AddMentorNote_Handler,
+		},
+		{
+			MethodName: "ListMentorNotes",
+			Handler:    _MarketplaceService_ListMentorNotes_Handler,
+		},
+		{
+			MethodName: "DeleteMentorNote",
+			Handler:    _MarketplaceService_DeleteMentorNote_Handler,
+		},
+		{
+			MethodName: "SaveQuestion",
+			Handler:    _MarketplaceService_SaveQuestion_Handler,
+		},
+		{
+			MethodName: "ListQuestions",
+			Handler:    _MarketplaceService_ListQuestions_Handler,
+		},
+		{
+			MethodName: "GetQuestion",
+			Handler:    _MarketplaceService_GetQuestion_Handler,
+		},
+		{
+			MethodName: "DeleteQuestion",
+			Handler:    _MarketplaceService_DeleteQuestion_Handler,
+		},
+		{
+			MethodName: "GetProviderInsights",
+			Handler:    _MarketplaceService_GetProviderInsights_Handler,
+		},
+		{
+			MethodName: "AvailableSoon",
+			Handler:    _MarketplaceService_AvailableSoon_Handler,
+		},
+		{
+			MethodName: "MentorCompanies",
+			Handler:    _MarketplaceService_MentorCompanies_Handler,
+		},
+		{
+			MethodName: "GetProgress",
+			Handler:    _MarketplaceService_GetProgress_Handler,
 		},
 		{
 			MethodName: "Stats",

@@ -19,6 +19,8 @@ type Catalog {
   feedbackCriteria: [Option!]!
   interviewVerdicts: [Option!]!
   resumeSections: [Option!]!
+  "Languages the interview room's code editor offers."
+  codeLanguages: [Option!]!
 }
 
 extend type Query {

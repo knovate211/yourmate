@@ -11,9 +11,8 @@ import (
 	"time"
 
 	marketplacev1 "github.com/yourmate/backend/gen/marketplace/v1"
-	"github.com/yourmate/backend/services/gateway/storage"
-
 	"github.com/yourmate/backend/services/gateway/graph/model"
+	"github.com/yourmate/backend/services/gateway/storage"
 )
 
 // SaveInterviewFeedback is the resolver for the saveInterviewFeedback field.
@@ -68,6 +67,9 @@ func (r *mutationResolver) DeliverResumeReview(ctx context.Context, input model.
 		Id: input.ID, ActorId: viewerID(ctx), OverallScore: int32(input.OverallScore), Summary: input.Summary}
 	for _, n := range input.Sections {
 		req.Sections = append(req.Sections, &marketplacev1.SectionNote{Section: down(n.Section), Rating: int32(n.Rating), Comment: n.Comment})
+	}
+	for _, p := range input.Pins {
+		req.Pins = append(req.Pins, &marketplacev1.Pin{Page: int32(p.Page), X: p.X, Y: p.Y, Section: down(str(p.Section)), Comment: p.Comment})
 	}
 	if input.Annotated != nil {
 		key, err := r.Store.Save(storage.Resumes, input.Annotated.File)

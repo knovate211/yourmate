@@ -131,7 +131,15 @@ func (s *server) GetInterviewFeedback(ctx context.Context, req *marketplacev1.Ge
 const resumeColumns = `r.id, r.provider_profile_id, r.reviewer_id, r.student_id, r.target_role, r.notes, r.file_key, r.file_name,
 	r.price_minor, r.currency, r.turnaround_days, r.status, r.status_reason, coalesce(r.cancelled_by::text, ''),
 	r.due_at, r.accepted_at, r.delivered_at, coalesce(r.overall_score, 0), r.summary, r.sections, r.feedback_file_key,
-	EXISTS (SELECT 1 FROM reviews v WHERE v.resume_review_id = r.id), r.created_at, r.updated_at`
+	EXISTS (SELECT 1 FROM reviews v WHERE v.resume_review_id = r.id), r.created_at, r.updated_at, r.pins`
+
+type pin struct {
+	Page    int32   `json:"page"`
+	X       float64 `json:"x"`
+	Y       float64 `json:"y"`
+	Section string  `json:"section"`
+	Comment string  `json:"comment"`
+}
 
 type sectionNote struct {
 	Section string `json:"section"`
@@ -151,11 +159,11 @@ func scanResume(row pgx.Row) (*marketplacev1.ResumeReview, error) {
 	var due, accepted, delivered *time.Time
 	var created, updated time.Time
 	var turnaround, score int16
-	var sections []byte
+	var sections, pins []byte
 	if err := row.Scan(&r.Id, &r.ProviderProfileId, &r.ReviewerId, &r.StudentId, &r.TargetRole, &r.Notes, &r.FileKey, &r.FileName,
 		&r.PriceMinor, &r.Currency, &turnaround, &r.Status, &r.StatusReason, &r.CancelledBy,
 		&due, &accepted, &delivered, &score, &r.Summary, &sections, &r.FeedbackFileKey,
-		&r.Reviewed, &created, &updated); err != nil {
+		&r.Reviewed, &created, &updated, &pins); err != nil {
 		return nil, err
 	}
 	r.TurnaroundDays, r.OverallScore = int32(turnaround), int32(score)
@@ -165,6 +173,11 @@ func scanResume(row pgx.Row) (*marketplacev1.ResumeReview, error) {
 	_ = json.Unmarshal(sections, &notes)
 	for _, n := range notes {
 		r.Sections = append(r.Sections, &marketplacev1.SectionNote{Section: n.Section, Rating: n.Rating, Comment: n.Comment})
+	}
+	var ps []pin
+	_ = json.Unmarshal(pins, &ps)
+	for _, p := range ps {
+		r.Pins = append(r.Pins, &marketplacev1.Pin{Page: p.Page, X: p.X, Y: p.Y, Section: p.Section, Comment: p.Comment})
 	}
 	return r, nil
 }
@@ -436,6 +449,26 @@ func (s *server) DeliverResumeReview(ctx context.Context, req *marketplacev1.Del
 	if len(notes) < 3 {
 		return nil, grpcx.Invalid("comment on at least 3 sections")
 	}
+	var pins []pin
+	if len(req.Pins) > 40 {
+		return nil, grpcx.Invalid("at most 40 pinned comments")
+	}
+	for _, p := range req.Pins {
+		comment := strings.TrimSpace(p.Comment)
+		switch {
+		case p.Page < 1 || p.Page > 50 || p.X < 0 || p.X > 1 || p.Y < 0 || p.Y > 1:
+			return nil, grpcx.Invalid("a pinned comment is off the page")
+		case p.Section != "" && !slices.Contains(resumeSections, p.Section):
+			return nil, grpcx.Invalid("unknown section %q", p.Section)
+		case !textLen(comment, 1, 1500):
+			return nil, grpcx.Invalid("each pinned comment must be 1–1500 characters")
+		}
+		pins = append(pins, pin{Page: p.Page, X: p.X, Y: p.Y, Section: p.Section, Comment: comment})
+	}
+	if pins == nil {
+		pins = []pin{}
+	}
+	rawPins, _ := json.Marshal(pins)
 
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
@@ -457,8 +490,8 @@ func (s *server) DeliverResumeReview(ctx context.Context, req *marketplacev1.Del
 	raw, _ := json.Marshal(notes)
 	now := s.now()
 	if _, err := tx.Exec(ctx, `UPDATE resume_reviews SET status = 'delivered', overall_score = $2, summary = $3, sections = $4,
-			feedback_file_key = $5, delivered_at = $6, closed_at = $6, updated_at = now() WHERE id = $1`,
-		r.Id, req.OverallScore, summary, raw, req.FeedbackFileKey, now); err != nil {
+			feedback_file_key = $5, delivered_at = $6, closed_at = $6, pins = $7, updated_at = now() WHERE id = $1`,
+		r.Id, req.OverallScore, summary, raw, req.FeedbackFileKey, now, rawPins); err != nil {
 		return nil, grpcx.Internal(err)
 	}
 	if _, err := tx.Exec(ctx, `UPDATE provider_profiles SET resume_reviews_delivered = resume_reviews_delivered + 1 WHERE id = $1`,

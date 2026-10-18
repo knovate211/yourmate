@@ -82,6 +82,7 @@ type MarketplaceCatalog struct {
 	FeedbackCriteria  []*Option              `protobuf:"bytes,5,rep,name=feedback_criteria,json=feedbackCriteria,proto3" json:"feedback_criteria,omitempty"`
 	ResumeSections    []*Option              `protobuf:"bytes,6,rep,name=resume_sections,json=resumeSections,proto3" json:"resume_sections,omitempty"`
 	InterviewVerdicts []*Option              `protobuf:"bytes,7,rep,name=interview_verdicts,json=interviewVerdicts,proto3" json:"interview_verdicts,omitempty"`
+	CodeLanguages     []*Option              `protobuf:"bytes,8,rep,name=code_languages,json=codeLanguages,proto3" json:"code_languages,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -161,6 +162,13 @@ func (x *MarketplaceCatalog) GetResumeSections() []*Option {
 func (x *MarketplaceCatalog) GetInterviewVerdicts() []*Option {
 	if x != nil {
 		return x.InterviewVerdicts
+	}
+	return nil
+}
+
+func (x *MarketplaceCatalog) GetCodeLanguages() []*Option {
+	if x != nil {
+		return x.CodeLanguages
 	}
 	return nil
 }
@@ -4042,6 +4050,7 @@ type ResumeReview struct {
 	Reviewed          bool                   `protobuf:"varint,22,opt,name=reviewed,proto3" json:"reviewed,omitempty"` // the student rated it
 	CreatedAt         int64                  `protobuf:"varint,23,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt         int64                  `protobuf:"varint,24,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Pins              []*Pin                 `protobuf:"bytes,25,rep,name=pins,proto3" json:"pins,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -4244,6 +4253,91 @@ func (x *ResumeReview) GetUpdatedAt() int64 {
 	return 0
 }
 
+func (x *ResumeReview) GetPins() []*Pin {
+	if x != nil {
+		return x.Pins
+	}
+	return nil
+}
+
+// A comment pinned to a spot on the resume PDF; x and y are fractions of the
+// page's width and height.
+type Pin struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Page          int32                  `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"` // from 1
+	X             float64                `protobuf:"fixed64,2,opt,name=x,proto3" json:"x,omitempty"`
+	Y             float64                `protobuf:"fixed64,3,opt,name=y,proto3" json:"y,omitempty"`
+	Section       string                 `protobuf:"bytes,4,opt,name=section,proto3" json:"section,omitempty"`
+	Comment       string                 `protobuf:"bytes,5,opt,name=comment,proto3" json:"comment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Pin) Reset() {
+	*x = Pin{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Pin) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Pin) ProtoMessage() {}
+
+func (x *Pin) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Pin.ProtoReflect.Descriptor instead.
+func (*Pin) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *Pin) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *Pin) GetX() float64 {
+	if x != nil {
+		return x.X
+	}
+	return 0
+}
+
+func (x *Pin) GetY() float64 {
+	if x != nil {
+		return x.Y
+	}
+	return 0
+}
+
+func (x *Pin) GetSection() string {
+	if x != nil {
+		return x.Section
+	}
+	return ""
+}
+
+func (x *Pin) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
 type CreateResumeReviewRequest struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	ActorId           string                 `protobuf:"bytes,1,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
@@ -4258,7 +4352,7 @@ type CreateResumeReviewRequest struct {
 
 func (x *CreateResumeReviewRequest) Reset() {
 	*x = CreateResumeReviewRequest{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[55]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4270,7 +4364,7 @@ func (x *CreateResumeReviewRequest) String() string {
 func (*CreateResumeReviewRequest) ProtoMessage() {}
 
 func (x *CreateResumeReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[55]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4283,7 +4377,7 @@ func (x *CreateResumeReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateResumeReviewRequest.ProtoReflect.Descriptor instead.
 func (*CreateResumeReviewRequest) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{55}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *CreateResumeReviewRequest) GetActorId() string {
@@ -4339,7 +4433,7 @@ type GetResumeReviewRequest struct {
 
 func (x *GetResumeReviewRequest) Reset() {
 	*x = GetResumeReviewRequest{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[56]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4351,7 +4445,7 @@ func (x *GetResumeReviewRequest) String() string {
 func (*GetResumeReviewRequest) ProtoMessage() {}
 
 func (x *GetResumeReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[56]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4364,7 +4458,7 @@ func (x *GetResumeReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResumeReviewRequest.ProtoReflect.Descriptor instead.
 func (*GetResumeReviewRequest) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{56}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *GetResumeReviewRequest) GetId() string {
@@ -4401,7 +4495,7 @@ type ListResumeReviewsRequest struct {
 
 func (x *ListResumeReviewsRequest) Reset() {
 	*x = ListResumeReviewsRequest{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[57]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4413,7 +4507,7 @@ func (x *ListResumeReviewsRequest) String() string {
 func (*ListResumeReviewsRequest) ProtoMessage() {}
 
 func (x *ListResumeReviewsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[57]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4426,7 +4520,7 @@ func (x *ListResumeReviewsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResumeReviewsRequest.ProtoReflect.Descriptor instead.
 func (*ListResumeReviewsRequest) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{57}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ListResumeReviewsRequest) GetActorId() string {
@@ -4474,7 +4568,7 @@ type ListResumeReviewsResponse struct {
 
 func (x *ListResumeReviewsResponse) Reset() {
 	*x = ListResumeReviewsResponse{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[58]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4486,7 +4580,7 @@ func (x *ListResumeReviewsResponse) String() string {
 func (*ListResumeReviewsResponse) ProtoMessage() {}
 
 func (x *ListResumeReviewsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[58]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4499,7 +4593,7 @@ func (x *ListResumeReviewsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResumeReviewsResponse.ProtoReflect.Descriptor instead.
 func (*ListResumeReviewsResponse) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{58}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *ListResumeReviewsResponse) GetReviews() []*ResumeReview {
@@ -4528,7 +4622,7 @@ type TransitionResumeReviewRequest struct {
 
 func (x *TransitionResumeReviewRequest) Reset() {
 	*x = TransitionResumeReviewRequest{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[59]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4540,7 +4634,7 @@ func (x *TransitionResumeReviewRequest) String() string {
 func (*TransitionResumeReviewRequest) ProtoMessage() {}
 
 func (x *TransitionResumeReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[59]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4553,7 +4647,7 @@ func (x *TransitionResumeReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransitionResumeReviewRequest.ProtoReflect.Descriptor instead.
 func (*TransitionResumeReviewRequest) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{59}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *TransitionResumeReviewRequest) GetId() string {
@@ -4592,13 +4686,14 @@ type DeliverResumeReviewRequest struct {
 	Summary         string                 `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
 	Sections        []*SectionNote         `protobuf:"bytes,5,rep,name=sections,proto3" json:"sections,omitempty"`
 	FeedbackFileKey string                 `protobuf:"bytes,6,opt,name=feedback_file_key,json=feedbackFileKey,proto3" json:"feedback_file_key,omitempty"` // optional annotated copy
+	Pins            []*Pin                 `protobuf:"bytes,7,rep,name=pins,proto3" json:"pins,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *DeliverResumeReviewRequest) Reset() {
 	*x = DeliverResumeReviewRequest{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[60]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4610,7 +4705,7 @@ func (x *DeliverResumeReviewRequest) String() string {
 func (*DeliverResumeReviewRequest) ProtoMessage() {}
 
 func (x *DeliverResumeReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[60]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4623,7 +4718,7 @@ func (x *DeliverResumeReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeliverResumeReviewRequest.ProtoReflect.Descriptor instead.
 func (*DeliverResumeReviewRequest) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{60}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *DeliverResumeReviewRequest) GetId() string {
@@ -4668,6 +4763,13 @@ func (x *DeliverResumeReviewRequest) GetFeedbackFileKey() string {
 	return ""
 }
 
+func (x *DeliverResumeReviewRequest) GetPins() []*Pin {
+	if x != nil {
+		return x.Pins
+	}
+	return nil
+}
+
 type FileKeys struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keys          []string               `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
@@ -4677,7 +4779,7 @@ type FileKeys struct {
 
 func (x *FileKeys) Reset() {
 	*x = FileKeys{}
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[61]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4689,7 +4791,7 @@ func (x *FileKeys) String() string {
 func (*FileKeys) ProtoMessage() {}
 
 func (x *FileKeys) ProtoReflect() protoreflect.Message {
-	mi := &file_marketplace_v1_marketplace_proto_msgTypes[61]
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4702,7 +4804,7 @@ func (x *FileKeys) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FileKeys.ProtoReflect.Descriptor instead.
 func (*FileKeys) Descriptor() ([]byte, []int) {
-	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{61}
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *FileKeys) GetKeys() []string {
@@ -4712,6 +4814,1831 @@ func (x *FileKeys) GetKeys() []string {
 	return nil
 }
 
+type RoomRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BookingId     string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	ActorIsAdmin  bool                   `protobuf:"varint,3,opt,name=actor_is_admin,json=actorIsAdmin,proto3" json:"actor_is_admin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoomRequest) Reset() {
+	*x = RoomRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoomRequest) ProtoMessage() {}
+
+func (x *RoomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoomRequest.ProtoReflect.Descriptor instead.
+func (*RoomRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *RoomRequest) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *RoomRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+func (x *RoomRequest) GetActorIsAdmin() bool {
+	if x != nil {
+		return x.ActorIsAdmin
+	}
+	return false
+}
+
+type RoomAccess struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Booking       *Booking               `protobuf:"bytes,1,opt,name=booking,proto3" json:"booking,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"` // provider | student
+	OpensAt       int64                  `protobuf:"varint,3,opt,name=opens_at,json=opensAt,proto3" json:"opens_at,omitempty"`
+	ClosesAt      int64                  `protobuf:"varint,4,opt,name=closes_at,json=closesAt,proto3" json:"closes_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RoomAccess) Reset() {
+	*x = RoomAccess{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RoomAccess) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RoomAccess) ProtoMessage() {}
+
+func (x *RoomAccess) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RoomAccess.ProtoReflect.Descriptor instead.
+func (*RoomAccess) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *RoomAccess) GetBooking() *Booking {
+	if x != nil {
+		return x.Booking
+	}
+	return nil
+}
+
+func (x *RoomAccess) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *RoomAccess) GetOpensAt() int64 {
+	if x != nil {
+		return x.OpensAt
+	}
+	return 0
+}
+
+func (x *RoomAccess) GetClosesAt() int64 {
+	if x != nil {
+		return x.ClosesAt
+	}
+	return 0
+}
+
+type Presence struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	JoinedAt      int64                  `protobuf:"varint,2,opt,name=joined_at,json=joinedAt,proto3" json:"joined_at,omitempty"`
+	LeftAt        int64                  `protobuf:"varint,3,opt,name=left_at,json=leftAt,proto3" json:"left_at,omitempty"` // 0 while still in the room
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Presence) Reset() {
+	*x = Presence{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Presence) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Presence) ProtoMessage() {}
+
+func (x *Presence) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Presence.ProtoReflect.Descriptor instead.
+func (*Presence) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *Presence) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *Presence) GetJoinedAt() int64 {
+	if x != nil {
+		return x.JoinedAt
+	}
+	return 0
+}
+
+func (x *Presence) GetLeftAt() int64 {
+	if x != nil {
+		return x.LeftAt
+	}
+	return 0
+}
+
+type Room struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BookingId     string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	Problem       string                 `protobuf:"bytes,2,opt,name=problem,proto3" json:"problem,omitempty"`
+	QuestionId    string                 `protobuf:"bytes,3,opt,name=question_id,json=questionId,proto3" json:"question_id,omitempty"`
+	Language      string                 `protobuf:"bytes,4,opt,name=language,proto3" json:"language,omitempty"`
+	Code          string                 `protobuf:"bytes,5,opt,name=code,proto3" json:"code,omitempty"`
+	CodeState     []byte                 `protobuf:"bytes,6,opt,name=code_state,json=codeState,proto3" json:"code_state,omitempty"`
+	Whiteboard    string                 `protobuf:"bytes,7,opt,name=whiteboard,proto3" json:"whiteboard,omitempty"`                      // JSON array of whiteboard elements
+	DraftScores   []*Score               `protobuf:"bytes,8,rep,name=draft_scores,json=draftScores,proto3" json:"draft_scores,omitempty"` // only for the provider
+	Presence      []*Presence            `protobuf:"bytes,9,rep,name=presence,proto3" json:"presence,omitempty"`
+	OpensAt       int64                  `protobuf:"varint,10,opt,name=opens_at,json=opensAt,proto3" json:"opens_at,omitempty"`
+	ClosesAt      int64                  `protobuf:"varint,11,opt,name=closes_at,json=closesAt,proto3" json:"closes_at,omitempty"`
+	Exists        bool                   `protobuf:"varint,12,opt,name=exists,proto3" json:"exists,omitempty"` // someone has opened it
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Room) Reset() {
+	*x = Room{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Room) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Room) ProtoMessage() {}
+
+func (x *Room) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Room.ProtoReflect.Descriptor instead.
+func (*Room) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *Room) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *Room) GetProblem() string {
+	if x != nil {
+		return x.Problem
+	}
+	return ""
+}
+
+func (x *Room) GetQuestionId() string {
+	if x != nil {
+		return x.QuestionId
+	}
+	return ""
+}
+
+func (x *Room) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
+}
+
+func (x *Room) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *Room) GetCodeState() []byte {
+	if x != nil {
+		return x.CodeState
+	}
+	return nil
+}
+
+func (x *Room) GetWhiteboard() string {
+	if x != nil {
+		return x.Whiteboard
+	}
+	return ""
+}
+
+func (x *Room) GetDraftScores() []*Score {
+	if x != nil {
+		return x.DraftScores
+	}
+	return nil
+}
+
+func (x *Room) GetPresence() []*Presence {
+	if x != nil {
+		return x.Presence
+	}
+	return nil
+}
+
+func (x *Room) GetOpensAt() int64 {
+	if x != nil {
+		return x.OpensAt
+	}
+	return 0
+}
+
+func (x *Room) GetClosesAt() int64 {
+	if x != nil {
+		return x.ClosesAt
+	}
+	return 0
+}
+
+func (x *Room) GetExists() bool {
+	if x != nil {
+		return x.Exists
+	}
+	return false
+}
+
+// Only the fields that are set change.
+type SaveRoomRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	BookingId      string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	ActorId        string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	Code           *string                `protobuf:"bytes,3,opt,name=code,proto3,oneof" json:"code,omitempty"`
+	CodeState      []byte                 `protobuf:"bytes,4,opt,name=code_state,json=codeState,proto3,oneof" json:"code_state,omitempty"`
+	Language       *string                `protobuf:"bytes,5,opt,name=language,proto3,oneof" json:"language,omitempty"`
+	Problem        *string                `protobuf:"bytes,6,opt,name=problem,proto3,oneof" json:"problem,omitempty"`
+	QuestionId     *string                `protobuf:"bytes,7,opt,name=question_id,json=questionId,proto3,oneof" json:"question_id,omitempty"`
+	Whiteboard     *string                `protobuf:"bytes,8,opt,name=whiteboard,proto3,oneof" json:"whiteboard,omitempty"`
+	DraftScores    []*Score               `protobuf:"bytes,9,rep,name=draft_scores,json=draftScores,proto3" json:"draft_scores,omitempty"`
+	SetDraftScores bool                   `protobuf:"varint,10,opt,name=set_draft_scores,json=setDraftScores,proto3" json:"set_draft_scores,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SaveRoomRequest) Reset() {
+	*x = SaveRoomRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveRoomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveRoomRequest) ProtoMessage() {}
+
+func (x *SaveRoomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveRoomRequest.ProtoReflect.Descriptor instead.
+func (*SaveRoomRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *SaveRoomRequest) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetCode() string {
+	if x != nil && x.Code != nil {
+		return *x.Code
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetCodeState() []byte {
+	if x != nil {
+		return x.CodeState
+	}
+	return nil
+}
+
+func (x *SaveRoomRequest) GetLanguage() string {
+	if x != nil && x.Language != nil {
+		return *x.Language
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetProblem() string {
+	if x != nil && x.Problem != nil {
+		return *x.Problem
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetQuestionId() string {
+	if x != nil && x.QuestionId != nil {
+		return *x.QuestionId
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetWhiteboard() string {
+	if x != nil && x.Whiteboard != nil {
+		return *x.Whiteboard
+	}
+	return ""
+}
+
+func (x *SaveRoomRequest) GetDraftScores() []*Score {
+	if x != nil {
+		return x.DraftScores
+	}
+	return nil
+}
+
+func (x *SaveRoomRequest) GetSetDraftScores() bool {
+	if x != nil {
+		return x.SetDraftScores
+	}
+	return false
+}
+
+type PresenceEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BookingId     string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Event         string                 `protobuf:"bytes,3,opt,name=event,proto3" json:"event,omitempty"` // joined | left
+	At            int64                  `protobuf:"varint,4,opt,name=at,proto3" json:"at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PresenceEvent) Reset() {
+	*x = PresenceEvent{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PresenceEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PresenceEvent) ProtoMessage() {}
+
+func (x *PresenceEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PresenceEvent.ProtoReflect.Descriptor instead.
+func (*PresenceEvent) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *PresenceEvent) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *PresenceEvent) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PresenceEvent) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+func (x *PresenceEvent) GetAt() int64 {
+	if x != nil {
+		return x.At
+	}
+	return 0
+}
+
+type MentorNote struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	BookingId     string                 `protobuf:"bytes,2,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	AtSeconds     int32                  `protobuf:"varint,3,opt,name=at_seconds,json=atSeconds,proto3" json:"at_seconds,omitempty"`
+	Body          string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	Tone          string                 `protobuf:"bytes,5,opt,name=tone,proto3" json:"tone,omitempty"` // plus | minus | note
+	CreatedAt     int64                  `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MentorNote) Reset() {
+	*x = MentorNote{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MentorNote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MentorNote) ProtoMessage() {}
+
+func (x *MentorNote) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MentorNote.ProtoReflect.Descriptor instead.
+func (*MentorNote) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *MentorNote) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *MentorNote) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *MentorNote) GetAtSeconds() int32 {
+	if x != nil {
+		return x.AtSeconds
+	}
+	return 0
+}
+
+func (x *MentorNote) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *MentorNote) GetTone() string {
+	if x != nil {
+		return x.Tone
+	}
+	return ""
+}
+
+func (x *MentorNote) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+type MentorNotes struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Notes         []*MentorNote          `protobuf:"bytes,1,rep,name=notes,proto3" json:"notes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MentorNotes) Reset() {
+	*x = MentorNotes{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MentorNotes) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MentorNotes) ProtoMessage() {}
+
+func (x *MentorNotes) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MentorNotes.ProtoReflect.Descriptor instead.
+func (*MentorNotes) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *MentorNotes) GetNotes() []*MentorNote {
+	if x != nil {
+		return x.Notes
+	}
+	return nil
+}
+
+type AddMentorNoteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BookingId     string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	AtSeconds     int32                  `protobuf:"varint,3,opt,name=at_seconds,json=atSeconds,proto3" json:"at_seconds,omitempty"`
+	Body          string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	Tone          string                 `protobuf:"bytes,5,opt,name=tone,proto3" json:"tone,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddMentorNoteRequest) Reset() {
+	*x = AddMentorNoteRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddMentorNoteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddMentorNoteRequest) ProtoMessage() {}
+
+func (x *AddMentorNoteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddMentorNoteRequest.ProtoReflect.Descriptor instead.
+func (*AddMentorNoteRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *AddMentorNoteRequest) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *AddMentorNoteRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+func (x *AddMentorNoteRequest) GetAtSeconds() int32 {
+	if x != nil {
+		return x.AtSeconds
+	}
+	return 0
+}
+
+func (x *AddMentorNoteRequest) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *AddMentorNoteRequest) GetTone() string {
+	if x != nil {
+		return x.Tone
+	}
+	return ""
+}
+
+type DeleteMentorNoteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteMentorNoteRequest) Reset() {
+	*x = DeleteMentorNoteRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteMentorNoteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteMentorNoteRequest) ProtoMessage() {}
+
+func (x *DeleteMentorNoteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteMentorNoteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteMentorNoteRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *DeleteMentorNoteRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DeleteMentorNoteRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+type Question struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AuthorId      string                 `protobuf:"bytes,2,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Body          string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	InterviewType string                 `protobuf:"bytes,5,opt,name=interview_type,json=interviewType,proto3" json:"interview_type,omitempty"`
+	Difficulty    string                 `protobuf:"bytes,6,opt,name=difficulty,proto3" json:"difficulty,omitempty"` // easy | medium | hard
+	Companies     []string               `protobuf:"bytes,7,rep,name=companies,proto3" json:"companies,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Question) Reset() {
+	*x = Question{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Question) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Question) ProtoMessage() {}
+
+func (x *Question) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Question.ProtoReflect.Descriptor instead.
+func (*Question) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *Question) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Question) GetAuthorId() string {
+	if x != nil {
+		return x.AuthorId
+	}
+	return ""
+}
+
+func (x *Question) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *Question) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *Question) GetInterviewType() string {
+	if x != nil {
+		return x.InterviewType
+	}
+	return ""
+}
+
+func (x *Question) GetDifficulty() string {
+	if x != nil {
+		return x.Difficulty
+	}
+	return ""
+}
+
+func (x *Question) GetCompanies() []string {
+	if x != nil {
+		return x.Companies
+	}
+	return nil
+}
+
+func (x *Question) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *Question) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
+type SaveQuestionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // empty: new question
+	ActorId       string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Body          string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	InterviewType string                 `protobuf:"bytes,5,opt,name=interview_type,json=interviewType,proto3" json:"interview_type,omitempty"`
+	Difficulty    string                 `protobuf:"bytes,6,opt,name=difficulty,proto3" json:"difficulty,omitempty"`
+	Companies     []string               `protobuf:"bytes,7,rep,name=companies,proto3" json:"companies,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveQuestionRequest) Reset() {
+	*x = SaveQuestionRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveQuestionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveQuestionRequest) ProtoMessage() {}
+
+func (x *SaveQuestionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveQuestionRequest.ProtoReflect.Descriptor instead.
+func (*SaveQuestionRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *SaveQuestionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SaveQuestionRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+func (x *SaveQuestionRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *SaveQuestionRequest) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *SaveQuestionRequest) GetInterviewType() string {
+	if x != nil {
+		return x.InterviewType
+	}
+	return ""
+}
+
+func (x *SaveQuestionRequest) GetDifficulty() string {
+	if x != nil {
+		return x.Difficulty
+	}
+	return ""
+}
+
+func (x *SaveQuestionRequest) GetCompanies() []string {
+	if x != nil {
+		return x.Companies
+	}
+	return nil
+}
+
+type ListQuestionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ActorId       string                 `protobuf:"bytes,1,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	InterviewType string                 `protobuf:"bytes,3,opt,name=interview_type,json=interviewType,proto3" json:"interview_type,omitempty"`
+	Company       string                 `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Difficulty    string                 `protobuf:"bytes,5,opt,name=difficulty,proto3" json:"difficulty,omitempty"`
+	MineOnly      bool                   `protobuf:"varint,6,opt,name=mine_only,json=mineOnly,proto3" json:"mine_only,omitempty"`
+	Page          int32                  `protobuf:"varint,7,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int32                  `protobuf:"varint,8,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListQuestionsRequest) Reset() {
+	*x = ListQuestionsRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListQuestionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListQuestionsRequest) ProtoMessage() {}
+
+func (x *ListQuestionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListQuestionsRequest.ProtoReflect.Descriptor instead.
+func (*ListQuestionsRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *ListQuestionsRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+func (x *ListQuestionsRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *ListQuestionsRequest) GetInterviewType() string {
+	if x != nil {
+		return x.InterviewType
+	}
+	return ""
+}
+
+func (x *ListQuestionsRequest) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
+func (x *ListQuestionsRequest) GetDifficulty() string {
+	if x != nil {
+		return x.Difficulty
+	}
+	return ""
+}
+
+func (x *ListQuestionsRequest) GetMineOnly() bool {
+	if x != nil {
+		return x.MineOnly
+	}
+	return false
+}
+
+func (x *ListQuestionsRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *ListQuestionsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+type ListQuestionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Questions     []*Question            `protobuf:"bytes,1,rep,name=questions,proto3" json:"questions,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListQuestionsResponse) Reset() {
+	*x = ListQuestionsResponse{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListQuestionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListQuestionsResponse) ProtoMessage() {}
+
+func (x *ListQuestionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListQuestionsResponse.ProtoReflect.Descriptor instead.
+func (*ListQuestionsResponse) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *ListQuestionsResponse) GetQuestions() []*Question {
+	if x != nil {
+		return x.Questions
+	}
+	return nil
+}
+
+func (x *ListQuestionsResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type GetQuestionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ActorId       string                 `protobuf:"bytes,2,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetQuestionRequest) Reset() {
+	*x = GetQuestionRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[77]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetQuestionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetQuestionRequest) ProtoMessage() {}
+
+func (x *GetQuestionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[77]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetQuestionRequest.ProtoReflect.Descriptor instead.
+func (*GetQuestionRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{77}
+}
+
+func (x *GetQuestionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetQuestionRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+type ProviderInsightsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProfileIds    []string               `protobuf:"bytes,1,rep,name=profile_ids,json=profileIds,proto3" json:"profile_ids,omitempty"`
+	WithinDays    int32                  `protobuf:"varint,2,opt,name=within_days,json=withinDays,proto3" json:"within_days,omitempty"` // how far ahead to look for the next slot
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProviderInsightsRequest) Reset() {
+	*x = ProviderInsightsRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[78]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProviderInsightsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderInsightsRequest) ProtoMessage() {}
+
+func (x *ProviderInsightsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[78]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderInsightsRequest.ProtoReflect.Descriptor instead.
+func (*ProviderInsightsRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{78}
+}
+
+func (x *ProviderInsightsRequest) GetProfileIds() []string {
+	if x != nil {
+		return x.ProfileIds
+	}
+	return nil
+}
+
+func (x *ProviderInsightsRequest) GetWithinDays() int32 {
+	if x != nil {
+		return x.WithinDays
+	}
+	return 0
+}
+
+type ProviderInsight struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProfileId     string                 `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
+	NextSlotAt    int64                  `protobuf:"varint,2,opt,name=next_slot_at,json=nextSlotAt,proto3" json:"next_slot_at,omitempty"`     // 0: none in the window
+	ReplyMinutes  int32                  `protobuf:"varint,3,opt,name=reply_minutes,json=replyMinutes,proto3" json:"reply_minutes,omitempty"` // median; 0: not enough data
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProviderInsight) Reset() {
+	*x = ProviderInsight{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[79]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProviderInsight) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderInsight) ProtoMessage() {}
+
+func (x *ProviderInsight) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[79]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderInsight.ProtoReflect.Descriptor instead.
+func (*ProviderInsight) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{79}
+}
+
+func (x *ProviderInsight) GetProfileId() string {
+	if x != nil {
+		return x.ProfileId
+	}
+	return ""
+}
+
+func (x *ProviderInsight) GetNextSlotAt() int64 {
+	if x != nil {
+		return x.NextSlotAt
+	}
+	return 0
+}
+
+func (x *ProviderInsight) GetReplyMinutes() int32 {
+	if x != nil {
+		return x.ReplyMinutes
+	}
+	return 0
+}
+
+type ProviderInsights struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Insights      []*ProviderInsight     `protobuf:"bytes,1,rep,name=insights,proto3" json:"insights,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProviderInsights) Reset() {
+	*x = ProviderInsights{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[80]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProviderInsights) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderInsights) ProtoMessage() {}
+
+func (x *ProviderInsights) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[80]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderInsights.ProtoReflect.Descriptor instead.
+func (*ProviderInsights) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{80}
+}
+
+func (x *ProviderInsights) GetInsights() []*ProviderInsight {
+	if x != nil {
+		return x.Insights
+	}
+	return nil
+}
+
+type AvailableSoonRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	CampusId      string                 `protobuf:"bytes,2,opt,name=campus_id,json=campusId,proto3" json:"campus_id,omitempty"`
+	WithinHours   int32                  `protobuf:"varint,3,opt,name=within_hours,json=withinHours,proto3" json:"within_hours,omitempty"`
+	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	ViewerId      string                 `protobuf:"bytes,5,opt,name=viewer_id,json=viewerId,proto3" json:"viewer_id,omitempty"`
+	Company       string                 `protobuf:"bytes,6,opt,name=company,proto3" json:"company,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AvailableSoonRequest) Reset() {
+	*x = AvailableSoonRequest{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[81]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AvailableSoonRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AvailableSoonRequest) ProtoMessage() {}
+
+func (x *AvailableSoonRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[81]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AvailableSoonRequest.ProtoReflect.Descriptor instead.
+func (*AvailableSoonRequest) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{81}
+}
+
+func (x *AvailableSoonRequest) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *AvailableSoonRequest) GetCampusId() string {
+	if x != nil {
+		return x.CampusId
+	}
+	return ""
+}
+
+func (x *AvailableSoonRequest) GetWithinHours() int32 {
+	if x != nil {
+		return x.WithinHours
+	}
+	return 0
+}
+
+func (x *AvailableSoonRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *AvailableSoonRequest) GetViewerId() string {
+	if x != nil {
+		return x.ViewerId
+	}
+	return ""
+}
+
+func (x *AvailableSoonRequest) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
+type ProviderSlot struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Profile       *ProviderProfile       `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
+	StartAt       int64                  `protobuf:"varint,2,opt,name=start_at,json=startAt,proto3" json:"start_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProviderSlot) Reset() {
+	*x = ProviderSlot{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[82]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProviderSlot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderSlot) ProtoMessage() {}
+
+func (x *ProviderSlot) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[82]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderSlot.ProtoReflect.Descriptor instead.
+func (*ProviderSlot) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{82}
+}
+
+func (x *ProviderSlot) GetProfile() *ProviderProfile {
+	if x != nil {
+		return x.Profile
+	}
+	return nil
+}
+
+func (x *ProviderSlot) GetStartAt() int64 {
+	if x != nil {
+		return x.StartAt
+	}
+	return 0
+}
+
+type AvailableSoonResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Slots         []*ProviderSlot        `protobuf:"bytes,1,rep,name=slots,proto3" json:"slots,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AvailableSoonResponse) Reset() {
+	*x = AvailableSoonResponse{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[83]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AvailableSoonResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AvailableSoonResponse) ProtoMessage() {}
+
+func (x *AvailableSoonResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[83]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AvailableSoonResponse.ProtoReflect.Descriptor instead.
+func (*AvailableSoonResponse) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{83}
+}
+
+func (x *AvailableSoonResponse) GetSlots() []*ProviderSlot {
+	if x != nil {
+		return x.Slots
+	}
+	return nil
+}
+
+type CompanyCount struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Mentors       int32                  `protobuf:"varint,2,opt,name=mentors,proto3" json:"mentors,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompanyCount) Reset() {
+	*x = CompanyCount{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[84]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompanyCount) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompanyCount) ProtoMessage() {}
+
+func (x *CompanyCount) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[84]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompanyCount.ProtoReflect.Descriptor instead.
+func (*CompanyCount) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{84}
+}
+
+func (x *CompanyCount) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CompanyCount) GetMentors() int32 {
+	if x != nil {
+		return x.Mentors
+	}
+	return 0
+}
+
+type CompanyCounts struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Companies     []*CompanyCount        `protobuf:"bytes,1,rep,name=companies,proto3" json:"companies,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompanyCounts) Reset() {
+	*x = CompanyCounts{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[85]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompanyCounts) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompanyCounts) ProtoMessage() {}
+
+func (x *CompanyCounts) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[85]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompanyCounts.ProtoReflect.Descriptor instead.
+func (*CompanyCounts) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{85}
+}
+
+func (x *CompanyCounts) GetCompanies() []*CompanyCount {
+	if x != nil {
+		return x.Companies
+	}
+	return nil
+}
+
+type ProgressInterview struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	BookingId         string                 `protobuf:"bytes,1,opt,name=booking_id,json=bookingId,proto3" json:"booking_id,omitempty"`
+	InterviewType     string                 `protobuf:"bytes,2,opt,name=interview_type,json=interviewType,proto3" json:"interview_type,omitempty"`
+	At                int64                  `protobuf:"varint,3,opt,name=at,proto3" json:"at,omitempty"`
+	Verdict           string                 `protobuf:"bytes,4,opt,name=verdict,proto3" json:"verdict,omitempty"`
+	Scores            []*Score               `protobuf:"bytes,5,rep,name=scores,proto3" json:"scores,omitempty"`
+	ProviderProfileId string                 `protobuf:"bytes,6,opt,name=provider_profile_id,json=providerProfileId,proto3" json:"provider_profile_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ProgressInterview) Reset() {
+	*x = ProgressInterview{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[86]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProgressInterview) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProgressInterview) ProtoMessage() {}
+
+func (x *ProgressInterview) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[86]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProgressInterview.ProtoReflect.Descriptor instead.
+func (*ProgressInterview) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{86}
+}
+
+func (x *ProgressInterview) GetBookingId() string {
+	if x != nil {
+		return x.BookingId
+	}
+	return ""
+}
+
+func (x *ProgressInterview) GetInterviewType() string {
+	if x != nil {
+		return x.InterviewType
+	}
+	return ""
+}
+
+func (x *ProgressInterview) GetAt() int64 {
+	if x != nil {
+		return x.At
+	}
+	return 0
+}
+
+func (x *ProgressInterview) GetVerdict() string {
+	if x != nil {
+		return x.Verdict
+	}
+	return ""
+}
+
+func (x *ProgressInterview) GetScores() []*Score {
+	if x != nil {
+		return x.Scores
+	}
+	return nil
+}
+
+func (x *ProgressInterview) GetProviderProfileId() string {
+	if x != nil {
+		return x.ProviderProfileId
+	}
+	return ""
+}
+
+type ProgressResume struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	At            int64                  `protobuf:"varint,2,opt,name=at,proto3" json:"at,omitempty"`
+	Score         int32                  `protobuf:"varint,3,opt,name=score,proto3" json:"score,omitempty"`
+	TargetRole    string                 `protobuf:"bytes,4,opt,name=target_role,json=targetRole,proto3" json:"target_role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProgressResume) Reset() {
+	*x = ProgressResume{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[87]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProgressResume) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProgressResume) ProtoMessage() {}
+
+func (x *ProgressResume) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[87]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProgressResume.ProtoReflect.Descriptor instead.
+func (*ProgressResume) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{87}
+}
+
+func (x *ProgressResume) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ProgressResume) GetAt() int64 {
+	if x != nil {
+		return x.At
+	}
+	return 0
+}
+
+func (x *ProgressResume) GetScore() int32 {
+	if x != nil {
+		return x.Score
+	}
+	return 0
+}
+
+func (x *ProgressResume) GetTargetRole() string {
+	if x != nil {
+		return x.TargetRole
+	}
+	return ""
+}
+
+type Progress struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Interviews             []*ProgressInterview   `protobuf:"bytes,1,rep,name=interviews,proto3" json:"interviews,omitempty"` // oldest first
+	Resumes                []*ProgressResume      `protobuf:"bytes,2,rep,name=resumes,proto3" json:"resumes,omitempty"`       // oldest first
+	Readiness              int32                  `protobuf:"varint,3,opt,name=readiness,proto3" json:"readiness,omitempty"`  // 0-100; -1 without any interview
+	WeakestCriterion       string                 `protobuf:"bytes,4,opt,name=weakest_criterion,json=weakestCriterion,proto3" json:"weakest_criterion,omitempty"`
+	SuggestedInterviewType string                 `protobuf:"bytes,5,opt,name=suggested_interview_type,json=suggestedInterviewType,proto3" json:"suggested_interview_type,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *Progress) Reset() {
+	*x = Progress{}
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[88]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Progress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Progress) ProtoMessage() {}
+
+func (x *Progress) ProtoReflect() protoreflect.Message {
+	mi := &file_marketplace_v1_marketplace_proto_msgTypes[88]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Progress.ProtoReflect.Descriptor instead.
+func (*Progress) Descriptor() ([]byte, []int) {
+	return file_marketplace_v1_marketplace_proto_rawDescGZIP(), []int{88}
+}
+
+func (x *Progress) GetInterviews() []*ProgressInterview {
+	if x != nil {
+		return x.Interviews
+	}
+	return nil
+}
+
+func (x *Progress) GetResumes() []*ProgressResume {
+	if x != nil {
+		return x.Resumes
+	}
+	return nil
+}
+
+func (x *Progress) GetReadiness() int32 {
+	if x != nil {
+		return x.Readiness
+	}
+	return 0
+}
+
+func (x *Progress) GetWeakestCriterion() string {
+	if x != nil {
+		return x.WeakestCriterion
+	}
+	return ""
+}
+
+func (x *Progress) GetSuggestedInterviewType() string {
+	if x != nil {
+		return x.SuggestedInterviewType
+	}
+	return ""
+}
+
 var File_marketplace_v1_marketplace_proto protoreflect.FileDescriptor
 
 const file_marketplace_v1_marketplace_proto_rawDesc = "" +
@@ -4719,7 +6646,7 @@ const file_marketplace_v1_marketplace_proto_rawDesc = "" +
 	" marketplace/v1/marketplace.proto\x12\x17yourmate.marketplace.v1\"4\n" +
 	"\x06Option\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
-	"\x05label\x18\x02 \x01(\tR\x05label\"\x81\x04\n" +
+	"\x05label\x18\x02 \x01(\tR\x05label\"\xc9\x04\n" +
 	"\x12MarketplaceCatalog\x12F\n" +
 	"\x0eguide_services\x18\x01 \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\rguideServices\x12D\n" +
 	"\rsession_modes\x18\x02 \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\fsessionModes\x12+\n" +
@@ -4727,7 +6654,8 @@ const file_marketplace_v1_marketplace_proto_rawDesc = "" +
 	"\x0finterview_types\x18\x04 \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\x0einterviewTypes\x12L\n" +
 	"\x11feedback_criteria\x18\x05 \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\x10feedbackCriteria\x12H\n" +
 	"\x0fresume_sections\x18\x06 \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\x0eresumeSections\x12N\n" +
-	"\x12interview_verdicts\x18\a \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\x11interviewVerdicts\"\a\n" +
+	"\x12interview_verdicts\x18\a \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\x11interviewVerdicts\x12F\n" +
+	"\x0ecode_languages\x18\b \x03(\v2\x1f.yourmate.marketplace.v1.OptionR\rcodeLanguages\"\a\n" +
 	"\x05Empty\"z\n" +
 	"\aSubject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
@@ -5068,7 +6996,7 @@ const file_marketplace_v1_marketplace_proto_rawDesc = "" +
 	"\vSectionNote\x12\x18\n" +
 	"\asection\x18\x01 \x01(\tR\asection\x12\x16\n" +
 	"\x06rating\x18\x02 \x01(\x05R\x06rating\x12\x18\n" +
-	"\acomment\x18\x03 \x01(\tR\acomment\"\xa5\x06\n" +
+	"\acomment\x18\x03 \x01(\tR\acomment\"\xd7\x06\n" +
 	"\fResumeReview\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
 	"\x13provider_profile_id\x18\x02 \x01(\tR\x11providerProfileId\x12\x1f\n" +
@@ -5101,7 +7029,14 @@ const file_marketplace_v1_marketplace_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x17 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x18 \x01(\x03R\tupdatedAt\"\xd5\x01\n" +
+	"updated_at\x18\x18 \x01(\x03R\tupdatedAt\x120\n" +
+	"\x04pins\x18\x19 \x03(\v2\x1c.yourmate.marketplace.v1.PinR\x04pins\"i\n" +
+	"\x03Pin\x12\x12\n" +
+	"\x04page\x18\x01 \x01(\x05R\x04page\x12\f\n" +
+	"\x01x\x18\x02 \x01(\x01R\x01x\x12\f\n" +
+	"\x01y\x18\x03 \x01(\x01R\x01y\x12\x18\n" +
+	"\asection\x18\x04 \x01(\tR\asection\x12\x18\n" +
+	"\acomment\x18\x05 \x01(\tR\acomment\"\xd5\x01\n" +
 	"\x19CreateResumeReviewRequest\x12\x19\n" +
 	"\bactor_id\x18\x01 \x01(\tR\aactorId\x12.\n" +
 	"\x13provider_profile_id\x18\x02 \x01(\tR\x11providerProfileId\x12\x1f\n" +
@@ -5127,16 +7062,198 @@ const file_marketplace_v1_marketplace_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12\x16\n" +
 	"\x06action\x18\x03 \x01(\tR\x06action\x12\x16\n" +
-	"\x06reason\x18\x04 \x01(\tR\x06reason\"\xf4\x01\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\"\xa6\x02\n" +
 	"\x1aDeliverResumeReviewRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12#\n" +
 	"\roverall_score\x18\x03 \x01(\x05R\foverallScore\x12\x18\n" +
 	"\asummary\x18\x04 \x01(\tR\asummary\x12@\n" +
 	"\bsections\x18\x05 \x03(\v2$.yourmate.marketplace.v1.SectionNoteR\bsections\x12*\n" +
-	"\x11feedback_file_key\x18\x06 \x01(\tR\x0ffeedbackFileKey\"\x1e\n" +
+	"\x11feedback_file_key\x18\x06 \x01(\tR\x0ffeedbackFileKey\x120\n" +
+	"\x04pins\x18\a \x03(\v2\x1c.yourmate.marketplace.v1.PinR\x04pins\"\x1e\n" +
 	"\bFileKeys\x12\x12\n" +
-	"\x04keys\x18\x01 \x03(\tR\x04keys2\x8d \n" +
+	"\x04keys\x18\x01 \x03(\tR\x04keys\"m\n" +
+	"\vRoomRequest\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12\x19\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12$\n" +
+	"\x0eactor_is_admin\x18\x03 \x01(\bR\factorIsAdmin\"\x94\x01\n" +
+	"\n" +
+	"RoomAccess\x12:\n" +
+	"\abooking\x18\x01 \x01(\v2 .yourmate.marketplace.v1.BookingR\abooking\x12\x12\n" +
+	"\x04role\x18\x02 \x01(\tR\x04role\x12\x19\n" +
+	"\bopens_at\x18\x03 \x01(\x03R\aopensAt\x12\x1b\n" +
+	"\tcloses_at\x18\x04 \x01(\x03R\bclosesAt\"Y\n" +
+	"\bPresence\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tjoined_at\x18\x02 \x01(\x03R\bjoinedAt\x12\x17\n" +
+	"\aleft_at\x18\x03 \x01(\x03R\x06leftAt\"\xa1\x03\n" +
+	"\x04Room\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12\x18\n" +
+	"\aproblem\x18\x02 \x01(\tR\aproblem\x12\x1f\n" +
+	"\vquestion_id\x18\x03 \x01(\tR\n" +
+	"questionId\x12\x1a\n" +
+	"\blanguage\x18\x04 \x01(\tR\blanguage\x12\x12\n" +
+	"\x04code\x18\x05 \x01(\tR\x04code\x12\x1d\n" +
+	"\n" +
+	"code_state\x18\x06 \x01(\fR\tcodeState\x12\x1e\n" +
+	"\n" +
+	"whiteboard\x18\a \x01(\tR\n" +
+	"whiteboard\x12A\n" +
+	"\fdraft_scores\x18\b \x03(\v2\x1e.yourmate.marketplace.v1.ScoreR\vdraftScores\x12=\n" +
+	"\bpresence\x18\t \x03(\v2!.yourmate.marketplace.v1.PresenceR\bpresence\x12\x19\n" +
+	"\bopens_at\x18\n" +
+	" \x01(\x03R\aopensAt\x12\x1b\n" +
+	"\tcloses_at\x18\v \x01(\x03R\bclosesAt\x12\x16\n" +
+	"\x06exists\x18\f \x01(\bR\x06exists\"\xd0\x03\n" +
+	"\x0fSaveRoomRequest\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12\x19\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12\x17\n" +
+	"\x04code\x18\x03 \x01(\tH\x00R\x04code\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"code_state\x18\x04 \x01(\fH\x01R\tcodeState\x88\x01\x01\x12\x1f\n" +
+	"\blanguage\x18\x05 \x01(\tH\x02R\blanguage\x88\x01\x01\x12\x1d\n" +
+	"\aproblem\x18\x06 \x01(\tH\x03R\aproblem\x88\x01\x01\x12$\n" +
+	"\vquestion_id\x18\a \x01(\tH\x04R\n" +
+	"questionId\x88\x01\x01\x12#\n" +
+	"\n" +
+	"whiteboard\x18\b \x01(\tH\x05R\n" +
+	"whiteboard\x88\x01\x01\x12A\n" +
+	"\fdraft_scores\x18\t \x03(\v2\x1e.yourmate.marketplace.v1.ScoreR\vdraftScores\x12(\n" +
+	"\x10set_draft_scores\x18\n" +
+	" \x01(\bR\x0esetDraftScoresB\a\n" +
+	"\x05_codeB\r\n" +
+	"\v_code_stateB\v\n" +
+	"\t_languageB\n" +
+	"\n" +
+	"\b_problemB\x0e\n" +
+	"\f_question_idB\r\n" +
+	"\v_whiteboard\"m\n" +
+	"\rPresenceEvent\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05event\x18\x03 \x01(\tR\x05event\x12\x0e\n" +
+	"\x02at\x18\x04 \x01(\x03R\x02at\"\xa1\x01\n" +
+	"\n" +
+	"MentorNote\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x02 \x01(\tR\tbookingId\x12\x1d\n" +
+	"\n" +
+	"at_seconds\x18\x03 \x01(\x05R\tatSeconds\x12\x12\n" +
+	"\x04body\x18\x04 \x01(\tR\x04body\x12\x12\n" +
+	"\x04tone\x18\x05 \x01(\tR\x04tone\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\x03R\tcreatedAt\"H\n" +
+	"\vMentorNotes\x129\n" +
+	"\x05notes\x18\x01 \x03(\v2#.yourmate.marketplace.v1.MentorNoteR\x05notes\"\x97\x01\n" +
+	"\x14AddMentorNoteRequest\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12\x19\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12\x1d\n" +
+	"\n" +
+	"at_seconds\x18\x03 \x01(\x05R\tatSeconds\x12\x12\n" +
+	"\x04body\x18\x04 \x01(\tR\x04body\x12\x12\n" +
+	"\x04tone\x18\x05 \x01(\tR\x04tone\"D\n" +
+	"\x17DeleteMentorNoteRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\"\x84\x02\n" +
+	"\bQuestion\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
+	"\tauthor_id\x18\x02 \x01(\tR\bauthorId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
+	"\x04body\x18\x04 \x01(\tR\x04body\x12%\n" +
+	"\x0einterview_type\x18\x05 \x01(\tR\rinterviewType\x12\x1e\n" +
+	"\n" +
+	"difficulty\x18\x06 \x01(\tR\n" +
+	"difficulty\x12\x1c\n" +
+	"\tcompanies\x18\a \x03(\tR\tcompanies\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\b \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\x03R\tupdatedAt\"\xcf\x01\n" +
+	"\x13SaveQuestionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
+	"\x04body\x18\x04 \x01(\tR\x04body\x12%\n" +
+	"\x0einterview_type\x18\x05 \x01(\tR\rinterviewType\x12\x1e\n" +
+	"\n" +
+	"difficulty\x18\x06 \x01(\tR\n" +
+	"difficulty\x12\x1c\n" +
+	"\tcompanies\x18\a \x03(\tR\tcompanies\"\xf6\x01\n" +
+	"\x14ListQuestionsRequest\x12\x19\n" +
+	"\bactor_id\x18\x01 \x01(\tR\aactorId\x12\x14\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\x12%\n" +
+	"\x0einterview_type\x18\x03 \x01(\tR\rinterviewType\x12\x18\n" +
+	"\acompany\x18\x04 \x01(\tR\acompany\x12\x1e\n" +
+	"\n" +
+	"difficulty\x18\x05 \x01(\tR\n" +
+	"difficulty\x12\x1b\n" +
+	"\tmine_only\x18\x06 \x01(\bR\bmineOnly\x12\x12\n" +
+	"\x04page\x18\a \x01(\x05R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\b \x01(\x05R\bpageSize\"n\n" +
+	"\x15ListQuestionsResponse\x12?\n" +
+	"\tquestions\x18\x01 \x03(\v2!.yourmate.marketplace.v1.QuestionR\tquestions\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"?\n" +
+	"\x12GetQuestionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bactor_id\x18\x02 \x01(\tR\aactorId\"[\n" +
+	"\x17ProviderInsightsRequest\x12\x1f\n" +
+	"\vprofile_ids\x18\x01 \x03(\tR\n" +
+	"profileIds\x12\x1f\n" +
+	"\vwithin_days\x18\x02 \x01(\x05R\n" +
+	"withinDays\"w\n" +
+	"\x0fProviderInsight\x12\x1d\n" +
+	"\n" +
+	"profile_id\x18\x01 \x01(\tR\tprofileId\x12 \n" +
+	"\fnext_slot_at\x18\x02 \x01(\x03R\n" +
+	"nextSlotAt\x12#\n" +
+	"\rreply_minutes\x18\x03 \x01(\x05R\freplyMinutes\"X\n" +
+	"\x10ProviderInsights\x12D\n" +
+	"\binsights\x18\x01 \x03(\v2(.yourmate.marketplace.v1.ProviderInsightR\binsights\"\xb7\x01\n" +
+	"\x14AvailableSoonRequest\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x1b\n" +
+	"\tcampus_id\x18\x02 \x01(\tR\bcampusId\x12!\n" +
+	"\fwithin_hours\x18\x03 \x01(\x05R\vwithinHours\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x1b\n" +
+	"\tviewer_id\x18\x05 \x01(\tR\bviewerId\x12\x18\n" +
+	"\acompany\x18\x06 \x01(\tR\acompany\"m\n" +
+	"\fProviderSlot\x12B\n" +
+	"\aprofile\x18\x01 \x01(\v2(.yourmate.marketplace.v1.ProviderProfileR\aprofile\x12\x19\n" +
+	"\bstart_at\x18\x02 \x01(\x03R\astartAt\"T\n" +
+	"\x15AvailableSoonResponse\x12;\n" +
+	"\x05slots\x18\x01 \x03(\v2%.yourmate.marketplace.v1.ProviderSlotR\x05slots\"<\n" +
+	"\fCompanyCount\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
+	"\amentors\x18\x02 \x01(\x05R\amentors\"T\n" +
+	"\rCompanyCounts\x12C\n" +
+	"\tcompanies\x18\x01 \x03(\v2%.yourmate.marketplace.v1.CompanyCountR\tcompanies\"\xeb\x01\n" +
+	"\x11ProgressInterview\x12\x1d\n" +
+	"\n" +
+	"booking_id\x18\x01 \x01(\tR\tbookingId\x12%\n" +
+	"\x0einterview_type\x18\x02 \x01(\tR\rinterviewType\x12\x0e\n" +
+	"\x02at\x18\x03 \x01(\x03R\x02at\x12\x18\n" +
+	"\averdict\x18\x04 \x01(\tR\averdict\x126\n" +
+	"\x06scores\x18\x05 \x03(\v2\x1e.yourmate.marketplace.v1.ScoreR\x06scores\x12.\n" +
+	"\x13provider_profile_id\x18\x06 \x01(\tR\x11providerProfileId\"g\n" +
+	"\x0eProgressResume\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x0e\n" +
+	"\x02at\x18\x02 \x01(\x03R\x02at\x12\x14\n" +
+	"\x05score\x18\x03 \x01(\x05R\x05score\x12\x1f\n" +
+	"\vtarget_role\x18\x04 \x01(\tR\n" +
+	"targetRole\"\x9e\x02\n" +
+	"\bProgress\x12J\n" +
+	"\n" +
+	"interviews\x18\x01 \x03(\v2*.yourmate.marketplace.v1.ProgressInterviewR\n" +
+	"interviews\x12A\n" +
+	"\aresumes\x18\x02 \x03(\v2'.yourmate.marketplace.v1.ProgressResumeR\aresumes\x12\x1c\n" +
+	"\treadiness\x18\x03 \x01(\x05R\treadiness\x12+\n" +
+	"\x11weakest_criterion\x18\x04 \x01(\tR\x10weakestCriterion\x128\n" +
+	"\x18suggested_interview_type\x18\x05 \x01(\tR\x16suggestedInterviewType2\xb4+\n" +
 	"\x12MarketplaceService\x12k\n" +
 	"\fListSubjects\x12,.yourmate.marketplace.v1.ListSubjectsRequest\x1a-.yourmate.marketplace.v1.ListSubjectsResponse\x12i\n" +
 	"\vGetSubjects\x12+.yourmate.marketplace.v1.GetSubjectsRequest\x1a-.yourmate.marketplace.v1.ListSubjectsResponse\x12`\n" +
@@ -5176,7 +7293,22 @@ const file_marketplace_v1_marketplace_proto_rawDesc = "" +
 	"\x11ListResumeReviews\x121.yourmate.marketplace.v1.ListResumeReviewsRequest\x1a2.yourmate.marketplace.v1.ListResumeReviewsResponse\x12w\n" +
 	"\x16TransitionResumeReview\x126.yourmate.marketplace.v1.TransitionResumeReviewRequest\x1a%.yourmate.marketplace.v1.ResumeReview\x12q\n" +
 	"\x13DeliverResumeReview\x123.yourmate.marketplace.v1.DeliverResumeReviewRequest\x1a%.yourmate.marketplace.v1.ResumeReview\x12\\\n" +
-	"\x17ClaimExpiredResumeFiles\x12\x1e.yourmate.marketplace.v1.Empty\x1a!.yourmate.marketplace.v1.FileKeys\x12R\n" +
+	"\x17ClaimExpiredResumeFiles\x12\x1e.yourmate.marketplace.v1.Empty\x1a!.yourmate.marketplace.v1.FileKeys\x12U\n" +
+	"\bOpenRoom\x12$.yourmate.marketplace.v1.RoomRequest\x1a#.yourmate.marketplace.v1.RoomAccess\x12N\n" +
+	"\aGetRoom\x12$.yourmate.marketplace.v1.RoomRequest\x1a\x1d.yourmate.marketplace.v1.Room\x12T\n" +
+	"\bSaveRoom\x12(.yourmate.marketplace.v1.SaveRoomRequest\x1a\x1e.yourmate.marketplace.v1.Empty\x12X\n" +
+	"\x0eRecordPresence\x12&.yourmate.marketplace.v1.PresenceEvent\x1a\x1e.yourmate.marketplace.v1.Empty\x12c\n" +
+	"\rAddMentorNote\x12-.yourmate.marketplace.v1.AddMentorNoteRequest\x1a#.yourmate.marketplace.v1.MentorNote\x12]\n" +
+	"\x0fListMentorNotes\x12$.yourmate.marketplace.v1.RoomRequest\x1a$.yourmate.marketplace.v1.MentorNotes\x12d\n" +
+	"\x10DeleteMentorNote\x120.yourmate.marketplace.v1.DeleteMentorNoteRequest\x1a\x1e.yourmate.marketplace.v1.Empty\x12_\n" +
+	"\fSaveQuestion\x12,.yourmate.marketplace.v1.SaveQuestionRequest\x1a!.yourmate.marketplace.v1.Question\x12n\n" +
+	"\rListQuestions\x12-.yourmate.marketplace.v1.ListQuestionsRequest\x1a..yourmate.marketplace.v1.ListQuestionsResponse\x12]\n" +
+	"\vGetQuestion\x12+.yourmate.marketplace.v1.GetQuestionRequest\x1a!.yourmate.marketplace.v1.Question\x12]\n" +
+	"\x0eDeleteQuestion\x12+.yourmate.marketplace.v1.GetQuestionRequest\x1a\x1e.yourmate.marketplace.v1.Empty\x12r\n" +
+	"\x13GetProviderInsights\x120.yourmate.marketplace.v1.ProviderInsightsRequest\x1a).yourmate.marketplace.v1.ProviderInsights\x12n\n" +
+	"\rAvailableSoon\x12-.yourmate.marketplace.v1.AvailableSoonRequest\x1a..yourmate.marketplace.v1.AvailableSoonResponse\x12Y\n" +
+	"\x0fMentorCompanies\x12\x1e.yourmate.marketplace.v1.Empty\x1a&.yourmate.marketplace.v1.CompanyCounts\x12V\n" +
+	"\vGetProgress\x12$.yourmate.marketplace.v1.UserRequest\x1a!.yourmate.marketplace.v1.Progress\x12R\n" +
 	"\x05Stats\x12\x1e.yourmate.marketplace.v1.Empty\x1a).yourmate.marketplace.v1.MarketplaceStats\x12Y\n" +
 	"\n" +
 	"GetCatalog\x12\x1e.yourmate.marketplace.v1.Empty\x1a+.yourmate.marketplace.v1.MarketplaceCatalogB>Z<github.com/yourmate/backend/gen/marketplace/v1;marketplacev1b\x06proto3"
@@ -5193,7 +7325,7 @@ func file_marketplace_v1_marketplace_proto_rawDescGZIP() []byte {
 	return file_marketplace_v1_marketplace_proto_rawDescData
 }
 
-var file_marketplace_v1_marketplace_proto_msgTypes = make([]protoimpl.MessageInfo, 62)
+var file_marketplace_v1_marketplace_proto_msgTypes = make([]protoimpl.MessageInfo, 89)
 var file_marketplace_v1_marketplace_proto_goTypes = []any{
 	(*Option)(nil),                        // 0: yourmate.marketplace.v1.Option
 	(*MarketplaceCatalog)(nil),            // 1: yourmate.marketplace.v1.MarketplaceCatalog
@@ -5250,13 +7382,40 @@ var file_marketplace_v1_marketplace_proto_goTypes = []any{
 	(*SaveInterviewFeedbackRequest)(nil),  // 52: yourmate.marketplace.v1.SaveInterviewFeedbackRequest
 	(*SectionNote)(nil),                   // 53: yourmate.marketplace.v1.SectionNote
 	(*ResumeReview)(nil),                  // 54: yourmate.marketplace.v1.ResumeReview
-	(*CreateResumeReviewRequest)(nil),     // 55: yourmate.marketplace.v1.CreateResumeReviewRequest
-	(*GetResumeReviewRequest)(nil),        // 56: yourmate.marketplace.v1.GetResumeReviewRequest
-	(*ListResumeReviewsRequest)(nil),      // 57: yourmate.marketplace.v1.ListResumeReviewsRequest
-	(*ListResumeReviewsResponse)(nil),     // 58: yourmate.marketplace.v1.ListResumeReviewsResponse
-	(*TransitionResumeReviewRequest)(nil), // 59: yourmate.marketplace.v1.TransitionResumeReviewRequest
-	(*DeliverResumeReviewRequest)(nil),    // 60: yourmate.marketplace.v1.DeliverResumeReviewRequest
-	(*FileKeys)(nil),                      // 61: yourmate.marketplace.v1.FileKeys
+	(*Pin)(nil),                           // 55: yourmate.marketplace.v1.Pin
+	(*CreateResumeReviewRequest)(nil),     // 56: yourmate.marketplace.v1.CreateResumeReviewRequest
+	(*GetResumeReviewRequest)(nil),        // 57: yourmate.marketplace.v1.GetResumeReviewRequest
+	(*ListResumeReviewsRequest)(nil),      // 58: yourmate.marketplace.v1.ListResumeReviewsRequest
+	(*ListResumeReviewsResponse)(nil),     // 59: yourmate.marketplace.v1.ListResumeReviewsResponse
+	(*TransitionResumeReviewRequest)(nil), // 60: yourmate.marketplace.v1.TransitionResumeReviewRequest
+	(*DeliverResumeReviewRequest)(nil),    // 61: yourmate.marketplace.v1.DeliverResumeReviewRequest
+	(*FileKeys)(nil),                      // 62: yourmate.marketplace.v1.FileKeys
+	(*RoomRequest)(nil),                   // 63: yourmate.marketplace.v1.RoomRequest
+	(*RoomAccess)(nil),                    // 64: yourmate.marketplace.v1.RoomAccess
+	(*Presence)(nil),                      // 65: yourmate.marketplace.v1.Presence
+	(*Room)(nil),                          // 66: yourmate.marketplace.v1.Room
+	(*SaveRoomRequest)(nil),               // 67: yourmate.marketplace.v1.SaveRoomRequest
+	(*PresenceEvent)(nil),                 // 68: yourmate.marketplace.v1.PresenceEvent
+	(*MentorNote)(nil),                    // 69: yourmate.marketplace.v1.MentorNote
+	(*MentorNotes)(nil),                   // 70: yourmate.marketplace.v1.MentorNotes
+	(*AddMentorNoteRequest)(nil),          // 71: yourmate.marketplace.v1.AddMentorNoteRequest
+	(*DeleteMentorNoteRequest)(nil),       // 72: yourmate.marketplace.v1.DeleteMentorNoteRequest
+	(*Question)(nil),                      // 73: yourmate.marketplace.v1.Question
+	(*SaveQuestionRequest)(nil),           // 74: yourmate.marketplace.v1.SaveQuestionRequest
+	(*ListQuestionsRequest)(nil),          // 75: yourmate.marketplace.v1.ListQuestionsRequest
+	(*ListQuestionsResponse)(nil),         // 76: yourmate.marketplace.v1.ListQuestionsResponse
+	(*GetQuestionRequest)(nil),            // 77: yourmate.marketplace.v1.GetQuestionRequest
+	(*ProviderInsightsRequest)(nil),       // 78: yourmate.marketplace.v1.ProviderInsightsRequest
+	(*ProviderInsight)(nil),               // 79: yourmate.marketplace.v1.ProviderInsight
+	(*ProviderInsights)(nil),              // 80: yourmate.marketplace.v1.ProviderInsights
+	(*AvailableSoonRequest)(nil),          // 81: yourmate.marketplace.v1.AvailableSoonRequest
+	(*ProviderSlot)(nil),                  // 82: yourmate.marketplace.v1.ProviderSlot
+	(*AvailableSoonResponse)(nil),         // 83: yourmate.marketplace.v1.AvailableSoonResponse
+	(*CompanyCount)(nil),                  // 84: yourmate.marketplace.v1.CompanyCount
+	(*CompanyCounts)(nil),                 // 85: yourmate.marketplace.v1.CompanyCounts
+	(*ProgressInterview)(nil),             // 86: yourmate.marketplace.v1.ProgressInterview
+	(*ProgressResume)(nil),                // 87: yourmate.marketplace.v1.ProgressResume
+	(*Progress)(nil),                      // 88: yourmate.marketplace.v1.Progress
 }
 var file_marketplace_v1_marketplace_proto_depIdxs = []int32{
 	0,  // 0: yourmate.marketplace.v1.MarketplaceCatalog.guide_services:type_name -> yourmate.marketplace.v1.Option
@@ -5265,107 +7424,153 @@ var file_marketplace_v1_marketplace_proto_depIdxs = []int32{
 	0,  // 3: yourmate.marketplace.v1.MarketplaceCatalog.feedback_criteria:type_name -> yourmate.marketplace.v1.Option
 	0,  // 4: yourmate.marketplace.v1.MarketplaceCatalog.resume_sections:type_name -> yourmate.marketplace.v1.Option
 	0,  // 5: yourmate.marketplace.v1.MarketplaceCatalog.interview_verdicts:type_name -> yourmate.marketplace.v1.Option
-	5,  // 6: yourmate.marketplace.v1.ProviderProfile.resume_offer:type_name -> yourmate.marketplace.v1.ResumeOffer
-	4,  // 7: yourmate.marketplace.v1.ProviderProfileList.profiles:type_name -> yourmate.marketplace.v1.ProviderProfile
-	3,  // 8: yourmate.marketplace.v1.ListSubjectsResponse.subjects:type_name -> yourmate.marketplace.v1.Subject
-	5,  // 9: yourmate.marketplace.v1.SaveProviderProfileRequest.resume_offer:type_name -> yourmate.marketplace.v1.ResumeOffer
-	4,  // 10: yourmate.marketplace.v1.SearchProvidersResponse.profiles:type_name -> yourmate.marketplace.v1.ProviderProfile
-	19, // 11: yourmate.marketplace.v1.SetAvailabilityRequest.windows:type_name -> yourmate.marketplace.v1.AvailabilityWindow
-	19, // 12: yourmate.marketplace.v1.AvailabilityResponse.windows:type_name -> yourmate.marketplace.v1.AvailabilityWindow
-	23, // 13: yourmate.marketplace.v1.GetOpenSlotsResponse.slots:type_name -> yourmate.marketplace.v1.TimeSlot
-	25, // 14: yourmate.marketplace.v1.ListBookingsResponse.bookings:type_name -> yourmate.marketplace.v1.Booking
-	31, // 15: yourmate.marketplace.v1.ListMessagesResponse.messages:type_name -> yourmate.marketplace.v1.Message
-	35, // 16: yourmate.marketplace.v1.ListReviewsResponse.reviews:type_name -> yourmate.marketplace.v1.Review
-	41, // 17: yourmate.marketplace.v1.ListNotificationsResponse.notifications:type_name -> yourmate.marketplace.v1.Notification
-	49, // 18: yourmate.marketplace.v1.MarketplaceStats.top_subjects:type_name -> yourmate.marketplace.v1.SubjectDemand
-	50, // 19: yourmate.marketplace.v1.InterviewFeedback.scores:type_name -> yourmate.marketplace.v1.Score
-	50, // 20: yourmate.marketplace.v1.SaveInterviewFeedbackRequest.scores:type_name -> yourmate.marketplace.v1.Score
-	53, // 21: yourmate.marketplace.v1.ResumeReview.sections:type_name -> yourmate.marketplace.v1.SectionNote
-	54, // 22: yourmate.marketplace.v1.ListResumeReviewsResponse.reviews:type_name -> yourmate.marketplace.v1.ResumeReview
-	53, // 23: yourmate.marketplace.v1.DeliverResumeReviewRequest.sections:type_name -> yourmate.marketplace.v1.SectionNote
-	7,  // 24: yourmate.marketplace.v1.MarketplaceService.ListSubjects:input_type -> yourmate.marketplace.v1.ListSubjectsRequest
-	9,  // 25: yourmate.marketplace.v1.MarketplaceService.GetSubjects:input_type -> yourmate.marketplace.v1.GetSubjectsRequest
-	10, // 26: yourmate.marketplace.v1.MarketplaceService.CreateSubject:input_type -> yourmate.marketplace.v1.CreateSubjectRequest
-	11, // 27: yourmate.marketplace.v1.MarketplaceService.SaveProviderProfile:input_type -> yourmate.marketplace.v1.SaveProviderProfileRequest
-	12, // 28: yourmate.marketplace.v1.MarketplaceService.SetProviderStatus:input_type -> yourmate.marketplace.v1.SetProviderStatusRequest
-	13, // 29: yourmate.marketplace.v1.MarketplaceService.GetProviderProfile:input_type -> yourmate.marketplace.v1.GetProviderProfileRequest
-	14, // 30: yourmate.marketplace.v1.MarketplaceService.ListUserProviderProfiles:input_type -> yourmate.marketplace.v1.UserRequest
-	15, // 31: yourmate.marketplace.v1.MarketplaceService.SearchProviders:input_type -> yourmate.marketplace.v1.SearchProvidersRequest
-	17, // 32: yourmate.marketplace.v1.MarketplaceService.SyncUserCard:input_type -> yourmate.marketplace.v1.SyncUserCardRequest
-	18, // 33: yourmate.marketplace.v1.MarketplaceService.SyncCampusTimezone:input_type -> yourmate.marketplace.v1.SyncCampusTimezoneRequest
-	20, // 34: yourmate.marketplace.v1.MarketplaceService.SetAvailability:input_type -> yourmate.marketplace.v1.SetAvailabilityRequest
-	14, // 35: yourmate.marketplace.v1.MarketplaceService.GetAvailability:input_type -> yourmate.marketplace.v1.UserRequest
-	22, // 36: yourmate.marketplace.v1.MarketplaceService.GetOpenSlots:input_type -> yourmate.marketplace.v1.GetOpenSlotsRequest
-	26, // 37: yourmate.marketplace.v1.MarketplaceService.CreateBooking:input_type -> yourmate.marketplace.v1.CreateBookingRequest
-	27, // 38: yourmate.marketplace.v1.MarketplaceService.GetBooking:input_type -> yourmate.marketplace.v1.GetBookingRequest
-	28, // 39: yourmate.marketplace.v1.MarketplaceService.ListBookings:input_type -> yourmate.marketplace.v1.ListBookingsRequest
-	30, // 40: yourmate.marketplace.v1.MarketplaceService.TransitionBooking:input_type -> yourmate.marketplace.v1.TransitionBookingRequest
-	32, // 41: yourmate.marketplace.v1.MarketplaceService.ListMessages:input_type -> yourmate.marketplace.v1.ListMessagesRequest
-	34, // 42: yourmate.marketplace.v1.MarketplaceService.SendMessage:input_type -> yourmate.marketplace.v1.SendMessageRequest
-	36, // 43: yourmate.marketplace.v1.MarketplaceService.CreateReview:input_type -> yourmate.marketplace.v1.CreateReviewRequest
-	37, // 44: yourmate.marketplace.v1.MarketplaceService.ListReviews:input_type -> yourmate.marketplace.v1.ListReviewsRequest
-	39, // 45: yourmate.marketplace.v1.MarketplaceService.GetReview:input_type -> yourmate.marketplace.v1.GetReviewRequest
-	40, // 46: yourmate.marketplace.v1.MarketplaceService.SetReviewHidden:input_type -> yourmate.marketplace.v1.SetReviewHiddenRequest
-	42, // 47: yourmate.marketplace.v1.MarketplaceService.ListNotifications:input_type -> yourmate.marketplace.v1.ListNotificationsRequest
-	44, // 48: yourmate.marketplace.v1.MarketplaceService.MarkNotificationsRead:input_type -> yourmate.marketplace.v1.MarkNotificationsReadRequest
-	45, // 49: yourmate.marketplace.v1.MarketplaceService.Notify:input_type -> yourmate.marketplace.v1.NotifyRequest
-	46, // 50: yourmate.marketplace.v1.MarketplaceService.BlockUser:input_type -> yourmate.marketplace.v1.BlockRequest
-	46, // 51: yourmate.marketplace.v1.MarketplaceService.UnblockUser:input_type -> yourmate.marketplace.v1.BlockRequest
-	14, // 52: yourmate.marketplace.v1.MarketplaceService.ListBlocks:input_type -> yourmate.marketplace.v1.UserRequest
-	52, // 53: yourmate.marketplace.v1.MarketplaceService.SaveInterviewFeedback:input_type -> yourmate.marketplace.v1.SaveInterviewFeedbackRequest
-	27, // 54: yourmate.marketplace.v1.MarketplaceService.GetInterviewFeedback:input_type -> yourmate.marketplace.v1.GetBookingRequest
-	55, // 55: yourmate.marketplace.v1.MarketplaceService.CreateResumeReview:input_type -> yourmate.marketplace.v1.CreateResumeReviewRequest
-	56, // 56: yourmate.marketplace.v1.MarketplaceService.GetResumeReview:input_type -> yourmate.marketplace.v1.GetResumeReviewRequest
-	57, // 57: yourmate.marketplace.v1.MarketplaceService.ListResumeReviews:input_type -> yourmate.marketplace.v1.ListResumeReviewsRequest
-	59, // 58: yourmate.marketplace.v1.MarketplaceService.TransitionResumeReview:input_type -> yourmate.marketplace.v1.TransitionResumeReviewRequest
-	60, // 59: yourmate.marketplace.v1.MarketplaceService.DeliverResumeReview:input_type -> yourmate.marketplace.v1.DeliverResumeReviewRequest
-	2,  // 60: yourmate.marketplace.v1.MarketplaceService.ClaimExpiredResumeFiles:input_type -> yourmate.marketplace.v1.Empty
-	2,  // 61: yourmate.marketplace.v1.MarketplaceService.Stats:input_type -> yourmate.marketplace.v1.Empty
-	2,  // 62: yourmate.marketplace.v1.MarketplaceService.GetCatalog:input_type -> yourmate.marketplace.v1.Empty
-	8,  // 63: yourmate.marketplace.v1.MarketplaceService.ListSubjects:output_type -> yourmate.marketplace.v1.ListSubjectsResponse
-	8,  // 64: yourmate.marketplace.v1.MarketplaceService.GetSubjects:output_type -> yourmate.marketplace.v1.ListSubjectsResponse
-	3,  // 65: yourmate.marketplace.v1.MarketplaceService.CreateSubject:output_type -> yourmate.marketplace.v1.Subject
-	4,  // 66: yourmate.marketplace.v1.MarketplaceService.SaveProviderProfile:output_type -> yourmate.marketplace.v1.ProviderProfile
-	4,  // 67: yourmate.marketplace.v1.MarketplaceService.SetProviderStatus:output_type -> yourmate.marketplace.v1.ProviderProfile
-	4,  // 68: yourmate.marketplace.v1.MarketplaceService.GetProviderProfile:output_type -> yourmate.marketplace.v1.ProviderProfile
-	6,  // 69: yourmate.marketplace.v1.MarketplaceService.ListUserProviderProfiles:output_type -> yourmate.marketplace.v1.ProviderProfileList
-	16, // 70: yourmate.marketplace.v1.MarketplaceService.SearchProviders:output_type -> yourmate.marketplace.v1.SearchProvidersResponse
-	2,  // 71: yourmate.marketplace.v1.MarketplaceService.SyncUserCard:output_type -> yourmate.marketplace.v1.Empty
-	2,  // 72: yourmate.marketplace.v1.MarketplaceService.SyncCampusTimezone:output_type -> yourmate.marketplace.v1.Empty
-	21, // 73: yourmate.marketplace.v1.MarketplaceService.SetAvailability:output_type -> yourmate.marketplace.v1.AvailabilityResponse
-	21, // 74: yourmate.marketplace.v1.MarketplaceService.GetAvailability:output_type -> yourmate.marketplace.v1.AvailabilityResponse
-	24, // 75: yourmate.marketplace.v1.MarketplaceService.GetOpenSlots:output_type -> yourmate.marketplace.v1.GetOpenSlotsResponse
-	25, // 76: yourmate.marketplace.v1.MarketplaceService.CreateBooking:output_type -> yourmate.marketplace.v1.Booking
-	25, // 77: yourmate.marketplace.v1.MarketplaceService.GetBooking:output_type -> yourmate.marketplace.v1.Booking
-	29, // 78: yourmate.marketplace.v1.MarketplaceService.ListBookings:output_type -> yourmate.marketplace.v1.ListBookingsResponse
-	25, // 79: yourmate.marketplace.v1.MarketplaceService.TransitionBooking:output_type -> yourmate.marketplace.v1.Booking
-	33, // 80: yourmate.marketplace.v1.MarketplaceService.ListMessages:output_type -> yourmate.marketplace.v1.ListMessagesResponse
-	31, // 81: yourmate.marketplace.v1.MarketplaceService.SendMessage:output_type -> yourmate.marketplace.v1.Message
-	35, // 82: yourmate.marketplace.v1.MarketplaceService.CreateReview:output_type -> yourmate.marketplace.v1.Review
-	38, // 83: yourmate.marketplace.v1.MarketplaceService.ListReviews:output_type -> yourmate.marketplace.v1.ListReviewsResponse
-	35, // 84: yourmate.marketplace.v1.MarketplaceService.GetReview:output_type -> yourmate.marketplace.v1.Review
-	35, // 85: yourmate.marketplace.v1.MarketplaceService.SetReviewHidden:output_type -> yourmate.marketplace.v1.Review
-	43, // 86: yourmate.marketplace.v1.MarketplaceService.ListNotifications:output_type -> yourmate.marketplace.v1.ListNotificationsResponse
-	2,  // 87: yourmate.marketplace.v1.MarketplaceService.MarkNotificationsRead:output_type -> yourmate.marketplace.v1.Empty
-	2,  // 88: yourmate.marketplace.v1.MarketplaceService.Notify:output_type -> yourmate.marketplace.v1.Empty
-	2,  // 89: yourmate.marketplace.v1.MarketplaceService.BlockUser:output_type -> yourmate.marketplace.v1.Empty
-	2,  // 90: yourmate.marketplace.v1.MarketplaceService.UnblockUser:output_type -> yourmate.marketplace.v1.Empty
-	47, // 91: yourmate.marketplace.v1.MarketplaceService.ListBlocks:output_type -> yourmate.marketplace.v1.ListBlocksResponse
-	51, // 92: yourmate.marketplace.v1.MarketplaceService.SaveInterviewFeedback:output_type -> yourmate.marketplace.v1.InterviewFeedback
-	51, // 93: yourmate.marketplace.v1.MarketplaceService.GetInterviewFeedback:output_type -> yourmate.marketplace.v1.InterviewFeedback
-	54, // 94: yourmate.marketplace.v1.MarketplaceService.CreateResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
-	54, // 95: yourmate.marketplace.v1.MarketplaceService.GetResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
-	58, // 96: yourmate.marketplace.v1.MarketplaceService.ListResumeReviews:output_type -> yourmate.marketplace.v1.ListResumeReviewsResponse
-	54, // 97: yourmate.marketplace.v1.MarketplaceService.TransitionResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
-	54, // 98: yourmate.marketplace.v1.MarketplaceService.DeliverResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
-	61, // 99: yourmate.marketplace.v1.MarketplaceService.ClaimExpiredResumeFiles:output_type -> yourmate.marketplace.v1.FileKeys
-	48, // 100: yourmate.marketplace.v1.MarketplaceService.Stats:output_type -> yourmate.marketplace.v1.MarketplaceStats
-	1,  // 101: yourmate.marketplace.v1.MarketplaceService.GetCatalog:output_type -> yourmate.marketplace.v1.MarketplaceCatalog
-	63, // [63:102] is the sub-list for method output_type
-	24, // [24:63] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	0,  // 6: yourmate.marketplace.v1.MarketplaceCatalog.code_languages:type_name -> yourmate.marketplace.v1.Option
+	5,  // 7: yourmate.marketplace.v1.ProviderProfile.resume_offer:type_name -> yourmate.marketplace.v1.ResumeOffer
+	4,  // 8: yourmate.marketplace.v1.ProviderProfileList.profiles:type_name -> yourmate.marketplace.v1.ProviderProfile
+	3,  // 9: yourmate.marketplace.v1.ListSubjectsResponse.subjects:type_name -> yourmate.marketplace.v1.Subject
+	5,  // 10: yourmate.marketplace.v1.SaveProviderProfileRequest.resume_offer:type_name -> yourmate.marketplace.v1.ResumeOffer
+	4,  // 11: yourmate.marketplace.v1.SearchProvidersResponse.profiles:type_name -> yourmate.marketplace.v1.ProviderProfile
+	19, // 12: yourmate.marketplace.v1.SetAvailabilityRequest.windows:type_name -> yourmate.marketplace.v1.AvailabilityWindow
+	19, // 13: yourmate.marketplace.v1.AvailabilityResponse.windows:type_name -> yourmate.marketplace.v1.AvailabilityWindow
+	23, // 14: yourmate.marketplace.v1.GetOpenSlotsResponse.slots:type_name -> yourmate.marketplace.v1.TimeSlot
+	25, // 15: yourmate.marketplace.v1.ListBookingsResponse.bookings:type_name -> yourmate.marketplace.v1.Booking
+	31, // 16: yourmate.marketplace.v1.ListMessagesResponse.messages:type_name -> yourmate.marketplace.v1.Message
+	35, // 17: yourmate.marketplace.v1.ListReviewsResponse.reviews:type_name -> yourmate.marketplace.v1.Review
+	41, // 18: yourmate.marketplace.v1.ListNotificationsResponse.notifications:type_name -> yourmate.marketplace.v1.Notification
+	49, // 19: yourmate.marketplace.v1.MarketplaceStats.top_subjects:type_name -> yourmate.marketplace.v1.SubjectDemand
+	50, // 20: yourmate.marketplace.v1.InterviewFeedback.scores:type_name -> yourmate.marketplace.v1.Score
+	50, // 21: yourmate.marketplace.v1.SaveInterviewFeedbackRequest.scores:type_name -> yourmate.marketplace.v1.Score
+	53, // 22: yourmate.marketplace.v1.ResumeReview.sections:type_name -> yourmate.marketplace.v1.SectionNote
+	55, // 23: yourmate.marketplace.v1.ResumeReview.pins:type_name -> yourmate.marketplace.v1.Pin
+	54, // 24: yourmate.marketplace.v1.ListResumeReviewsResponse.reviews:type_name -> yourmate.marketplace.v1.ResumeReview
+	53, // 25: yourmate.marketplace.v1.DeliverResumeReviewRequest.sections:type_name -> yourmate.marketplace.v1.SectionNote
+	55, // 26: yourmate.marketplace.v1.DeliverResumeReviewRequest.pins:type_name -> yourmate.marketplace.v1.Pin
+	25, // 27: yourmate.marketplace.v1.RoomAccess.booking:type_name -> yourmate.marketplace.v1.Booking
+	50, // 28: yourmate.marketplace.v1.Room.draft_scores:type_name -> yourmate.marketplace.v1.Score
+	65, // 29: yourmate.marketplace.v1.Room.presence:type_name -> yourmate.marketplace.v1.Presence
+	50, // 30: yourmate.marketplace.v1.SaveRoomRequest.draft_scores:type_name -> yourmate.marketplace.v1.Score
+	69, // 31: yourmate.marketplace.v1.MentorNotes.notes:type_name -> yourmate.marketplace.v1.MentorNote
+	73, // 32: yourmate.marketplace.v1.ListQuestionsResponse.questions:type_name -> yourmate.marketplace.v1.Question
+	79, // 33: yourmate.marketplace.v1.ProviderInsights.insights:type_name -> yourmate.marketplace.v1.ProviderInsight
+	4,  // 34: yourmate.marketplace.v1.ProviderSlot.profile:type_name -> yourmate.marketplace.v1.ProviderProfile
+	82, // 35: yourmate.marketplace.v1.AvailableSoonResponse.slots:type_name -> yourmate.marketplace.v1.ProviderSlot
+	84, // 36: yourmate.marketplace.v1.CompanyCounts.companies:type_name -> yourmate.marketplace.v1.CompanyCount
+	50, // 37: yourmate.marketplace.v1.ProgressInterview.scores:type_name -> yourmate.marketplace.v1.Score
+	86, // 38: yourmate.marketplace.v1.Progress.interviews:type_name -> yourmate.marketplace.v1.ProgressInterview
+	87, // 39: yourmate.marketplace.v1.Progress.resumes:type_name -> yourmate.marketplace.v1.ProgressResume
+	7,  // 40: yourmate.marketplace.v1.MarketplaceService.ListSubjects:input_type -> yourmate.marketplace.v1.ListSubjectsRequest
+	9,  // 41: yourmate.marketplace.v1.MarketplaceService.GetSubjects:input_type -> yourmate.marketplace.v1.GetSubjectsRequest
+	10, // 42: yourmate.marketplace.v1.MarketplaceService.CreateSubject:input_type -> yourmate.marketplace.v1.CreateSubjectRequest
+	11, // 43: yourmate.marketplace.v1.MarketplaceService.SaveProviderProfile:input_type -> yourmate.marketplace.v1.SaveProviderProfileRequest
+	12, // 44: yourmate.marketplace.v1.MarketplaceService.SetProviderStatus:input_type -> yourmate.marketplace.v1.SetProviderStatusRequest
+	13, // 45: yourmate.marketplace.v1.MarketplaceService.GetProviderProfile:input_type -> yourmate.marketplace.v1.GetProviderProfileRequest
+	14, // 46: yourmate.marketplace.v1.MarketplaceService.ListUserProviderProfiles:input_type -> yourmate.marketplace.v1.UserRequest
+	15, // 47: yourmate.marketplace.v1.MarketplaceService.SearchProviders:input_type -> yourmate.marketplace.v1.SearchProvidersRequest
+	17, // 48: yourmate.marketplace.v1.MarketplaceService.SyncUserCard:input_type -> yourmate.marketplace.v1.SyncUserCardRequest
+	18, // 49: yourmate.marketplace.v1.MarketplaceService.SyncCampusTimezone:input_type -> yourmate.marketplace.v1.SyncCampusTimezoneRequest
+	20, // 50: yourmate.marketplace.v1.MarketplaceService.SetAvailability:input_type -> yourmate.marketplace.v1.SetAvailabilityRequest
+	14, // 51: yourmate.marketplace.v1.MarketplaceService.GetAvailability:input_type -> yourmate.marketplace.v1.UserRequest
+	22, // 52: yourmate.marketplace.v1.MarketplaceService.GetOpenSlots:input_type -> yourmate.marketplace.v1.GetOpenSlotsRequest
+	26, // 53: yourmate.marketplace.v1.MarketplaceService.CreateBooking:input_type -> yourmate.marketplace.v1.CreateBookingRequest
+	27, // 54: yourmate.marketplace.v1.MarketplaceService.GetBooking:input_type -> yourmate.marketplace.v1.GetBookingRequest
+	28, // 55: yourmate.marketplace.v1.MarketplaceService.ListBookings:input_type -> yourmate.marketplace.v1.ListBookingsRequest
+	30, // 56: yourmate.marketplace.v1.MarketplaceService.TransitionBooking:input_type -> yourmate.marketplace.v1.TransitionBookingRequest
+	32, // 57: yourmate.marketplace.v1.MarketplaceService.ListMessages:input_type -> yourmate.marketplace.v1.ListMessagesRequest
+	34, // 58: yourmate.marketplace.v1.MarketplaceService.SendMessage:input_type -> yourmate.marketplace.v1.SendMessageRequest
+	36, // 59: yourmate.marketplace.v1.MarketplaceService.CreateReview:input_type -> yourmate.marketplace.v1.CreateReviewRequest
+	37, // 60: yourmate.marketplace.v1.MarketplaceService.ListReviews:input_type -> yourmate.marketplace.v1.ListReviewsRequest
+	39, // 61: yourmate.marketplace.v1.MarketplaceService.GetReview:input_type -> yourmate.marketplace.v1.GetReviewRequest
+	40, // 62: yourmate.marketplace.v1.MarketplaceService.SetReviewHidden:input_type -> yourmate.marketplace.v1.SetReviewHiddenRequest
+	42, // 63: yourmate.marketplace.v1.MarketplaceService.ListNotifications:input_type -> yourmate.marketplace.v1.ListNotificationsRequest
+	44, // 64: yourmate.marketplace.v1.MarketplaceService.MarkNotificationsRead:input_type -> yourmate.marketplace.v1.MarkNotificationsReadRequest
+	45, // 65: yourmate.marketplace.v1.MarketplaceService.Notify:input_type -> yourmate.marketplace.v1.NotifyRequest
+	46, // 66: yourmate.marketplace.v1.MarketplaceService.BlockUser:input_type -> yourmate.marketplace.v1.BlockRequest
+	46, // 67: yourmate.marketplace.v1.MarketplaceService.UnblockUser:input_type -> yourmate.marketplace.v1.BlockRequest
+	14, // 68: yourmate.marketplace.v1.MarketplaceService.ListBlocks:input_type -> yourmate.marketplace.v1.UserRequest
+	52, // 69: yourmate.marketplace.v1.MarketplaceService.SaveInterviewFeedback:input_type -> yourmate.marketplace.v1.SaveInterviewFeedbackRequest
+	27, // 70: yourmate.marketplace.v1.MarketplaceService.GetInterviewFeedback:input_type -> yourmate.marketplace.v1.GetBookingRequest
+	56, // 71: yourmate.marketplace.v1.MarketplaceService.CreateResumeReview:input_type -> yourmate.marketplace.v1.CreateResumeReviewRequest
+	57, // 72: yourmate.marketplace.v1.MarketplaceService.GetResumeReview:input_type -> yourmate.marketplace.v1.GetResumeReviewRequest
+	58, // 73: yourmate.marketplace.v1.MarketplaceService.ListResumeReviews:input_type -> yourmate.marketplace.v1.ListResumeReviewsRequest
+	60, // 74: yourmate.marketplace.v1.MarketplaceService.TransitionResumeReview:input_type -> yourmate.marketplace.v1.TransitionResumeReviewRequest
+	61, // 75: yourmate.marketplace.v1.MarketplaceService.DeliverResumeReview:input_type -> yourmate.marketplace.v1.DeliverResumeReviewRequest
+	2,  // 76: yourmate.marketplace.v1.MarketplaceService.ClaimExpiredResumeFiles:input_type -> yourmate.marketplace.v1.Empty
+	63, // 77: yourmate.marketplace.v1.MarketplaceService.OpenRoom:input_type -> yourmate.marketplace.v1.RoomRequest
+	63, // 78: yourmate.marketplace.v1.MarketplaceService.GetRoom:input_type -> yourmate.marketplace.v1.RoomRequest
+	67, // 79: yourmate.marketplace.v1.MarketplaceService.SaveRoom:input_type -> yourmate.marketplace.v1.SaveRoomRequest
+	68, // 80: yourmate.marketplace.v1.MarketplaceService.RecordPresence:input_type -> yourmate.marketplace.v1.PresenceEvent
+	71, // 81: yourmate.marketplace.v1.MarketplaceService.AddMentorNote:input_type -> yourmate.marketplace.v1.AddMentorNoteRequest
+	63, // 82: yourmate.marketplace.v1.MarketplaceService.ListMentorNotes:input_type -> yourmate.marketplace.v1.RoomRequest
+	72, // 83: yourmate.marketplace.v1.MarketplaceService.DeleteMentorNote:input_type -> yourmate.marketplace.v1.DeleteMentorNoteRequest
+	74, // 84: yourmate.marketplace.v1.MarketplaceService.SaveQuestion:input_type -> yourmate.marketplace.v1.SaveQuestionRequest
+	75, // 85: yourmate.marketplace.v1.MarketplaceService.ListQuestions:input_type -> yourmate.marketplace.v1.ListQuestionsRequest
+	77, // 86: yourmate.marketplace.v1.MarketplaceService.GetQuestion:input_type -> yourmate.marketplace.v1.GetQuestionRequest
+	77, // 87: yourmate.marketplace.v1.MarketplaceService.DeleteQuestion:input_type -> yourmate.marketplace.v1.GetQuestionRequest
+	78, // 88: yourmate.marketplace.v1.MarketplaceService.GetProviderInsights:input_type -> yourmate.marketplace.v1.ProviderInsightsRequest
+	81, // 89: yourmate.marketplace.v1.MarketplaceService.AvailableSoon:input_type -> yourmate.marketplace.v1.AvailableSoonRequest
+	2,  // 90: yourmate.marketplace.v1.MarketplaceService.MentorCompanies:input_type -> yourmate.marketplace.v1.Empty
+	14, // 91: yourmate.marketplace.v1.MarketplaceService.GetProgress:input_type -> yourmate.marketplace.v1.UserRequest
+	2,  // 92: yourmate.marketplace.v1.MarketplaceService.Stats:input_type -> yourmate.marketplace.v1.Empty
+	2,  // 93: yourmate.marketplace.v1.MarketplaceService.GetCatalog:input_type -> yourmate.marketplace.v1.Empty
+	8,  // 94: yourmate.marketplace.v1.MarketplaceService.ListSubjects:output_type -> yourmate.marketplace.v1.ListSubjectsResponse
+	8,  // 95: yourmate.marketplace.v1.MarketplaceService.GetSubjects:output_type -> yourmate.marketplace.v1.ListSubjectsResponse
+	3,  // 96: yourmate.marketplace.v1.MarketplaceService.CreateSubject:output_type -> yourmate.marketplace.v1.Subject
+	4,  // 97: yourmate.marketplace.v1.MarketplaceService.SaveProviderProfile:output_type -> yourmate.marketplace.v1.ProviderProfile
+	4,  // 98: yourmate.marketplace.v1.MarketplaceService.SetProviderStatus:output_type -> yourmate.marketplace.v1.ProviderProfile
+	4,  // 99: yourmate.marketplace.v1.MarketplaceService.GetProviderProfile:output_type -> yourmate.marketplace.v1.ProviderProfile
+	6,  // 100: yourmate.marketplace.v1.MarketplaceService.ListUserProviderProfiles:output_type -> yourmate.marketplace.v1.ProviderProfileList
+	16, // 101: yourmate.marketplace.v1.MarketplaceService.SearchProviders:output_type -> yourmate.marketplace.v1.SearchProvidersResponse
+	2,  // 102: yourmate.marketplace.v1.MarketplaceService.SyncUserCard:output_type -> yourmate.marketplace.v1.Empty
+	2,  // 103: yourmate.marketplace.v1.MarketplaceService.SyncCampusTimezone:output_type -> yourmate.marketplace.v1.Empty
+	21, // 104: yourmate.marketplace.v1.MarketplaceService.SetAvailability:output_type -> yourmate.marketplace.v1.AvailabilityResponse
+	21, // 105: yourmate.marketplace.v1.MarketplaceService.GetAvailability:output_type -> yourmate.marketplace.v1.AvailabilityResponse
+	24, // 106: yourmate.marketplace.v1.MarketplaceService.GetOpenSlots:output_type -> yourmate.marketplace.v1.GetOpenSlotsResponse
+	25, // 107: yourmate.marketplace.v1.MarketplaceService.CreateBooking:output_type -> yourmate.marketplace.v1.Booking
+	25, // 108: yourmate.marketplace.v1.MarketplaceService.GetBooking:output_type -> yourmate.marketplace.v1.Booking
+	29, // 109: yourmate.marketplace.v1.MarketplaceService.ListBookings:output_type -> yourmate.marketplace.v1.ListBookingsResponse
+	25, // 110: yourmate.marketplace.v1.MarketplaceService.TransitionBooking:output_type -> yourmate.marketplace.v1.Booking
+	33, // 111: yourmate.marketplace.v1.MarketplaceService.ListMessages:output_type -> yourmate.marketplace.v1.ListMessagesResponse
+	31, // 112: yourmate.marketplace.v1.MarketplaceService.SendMessage:output_type -> yourmate.marketplace.v1.Message
+	35, // 113: yourmate.marketplace.v1.MarketplaceService.CreateReview:output_type -> yourmate.marketplace.v1.Review
+	38, // 114: yourmate.marketplace.v1.MarketplaceService.ListReviews:output_type -> yourmate.marketplace.v1.ListReviewsResponse
+	35, // 115: yourmate.marketplace.v1.MarketplaceService.GetReview:output_type -> yourmate.marketplace.v1.Review
+	35, // 116: yourmate.marketplace.v1.MarketplaceService.SetReviewHidden:output_type -> yourmate.marketplace.v1.Review
+	43, // 117: yourmate.marketplace.v1.MarketplaceService.ListNotifications:output_type -> yourmate.marketplace.v1.ListNotificationsResponse
+	2,  // 118: yourmate.marketplace.v1.MarketplaceService.MarkNotificationsRead:output_type -> yourmate.marketplace.v1.Empty
+	2,  // 119: yourmate.marketplace.v1.MarketplaceService.Notify:output_type -> yourmate.marketplace.v1.Empty
+	2,  // 120: yourmate.marketplace.v1.MarketplaceService.BlockUser:output_type -> yourmate.marketplace.v1.Empty
+	2,  // 121: yourmate.marketplace.v1.MarketplaceService.UnblockUser:output_type -> yourmate.marketplace.v1.Empty
+	47, // 122: yourmate.marketplace.v1.MarketplaceService.ListBlocks:output_type -> yourmate.marketplace.v1.ListBlocksResponse
+	51, // 123: yourmate.marketplace.v1.MarketplaceService.SaveInterviewFeedback:output_type -> yourmate.marketplace.v1.InterviewFeedback
+	51, // 124: yourmate.marketplace.v1.MarketplaceService.GetInterviewFeedback:output_type -> yourmate.marketplace.v1.InterviewFeedback
+	54, // 125: yourmate.marketplace.v1.MarketplaceService.CreateResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
+	54, // 126: yourmate.marketplace.v1.MarketplaceService.GetResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
+	59, // 127: yourmate.marketplace.v1.MarketplaceService.ListResumeReviews:output_type -> yourmate.marketplace.v1.ListResumeReviewsResponse
+	54, // 128: yourmate.marketplace.v1.MarketplaceService.TransitionResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
+	54, // 129: yourmate.marketplace.v1.MarketplaceService.DeliverResumeReview:output_type -> yourmate.marketplace.v1.ResumeReview
+	62, // 130: yourmate.marketplace.v1.MarketplaceService.ClaimExpiredResumeFiles:output_type -> yourmate.marketplace.v1.FileKeys
+	64, // 131: yourmate.marketplace.v1.MarketplaceService.OpenRoom:output_type -> yourmate.marketplace.v1.RoomAccess
+	66, // 132: yourmate.marketplace.v1.MarketplaceService.GetRoom:output_type -> yourmate.marketplace.v1.Room
+	2,  // 133: yourmate.marketplace.v1.MarketplaceService.SaveRoom:output_type -> yourmate.marketplace.v1.Empty
+	2,  // 134: yourmate.marketplace.v1.MarketplaceService.RecordPresence:output_type -> yourmate.marketplace.v1.Empty
+	69, // 135: yourmate.marketplace.v1.MarketplaceService.AddMentorNote:output_type -> yourmate.marketplace.v1.MentorNote
+	70, // 136: yourmate.marketplace.v1.MarketplaceService.ListMentorNotes:output_type -> yourmate.marketplace.v1.MentorNotes
+	2,  // 137: yourmate.marketplace.v1.MarketplaceService.DeleteMentorNote:output_type -> yourmate.marketplace.v1.Empty
+	73, // 138: yourmate.marketplace.v1.MarketplaceService.SaveQuestion:output_type -> yourmate.marketplace.v1.Question
+	76, // 139: yourmate.marketplace.v1.MarketplaceService.ListQuestions:output_type -> yourmate.marketplace.v1.ListQuestionsResponse
+	73, // 140: yourmate.marketplace.v1.MarketplaceService.GetQuestion:output_type -> yourmate.marketplace.v1.Question
+	2,  // 141: yourmate.marketplace.v1.MarketplaceService.DeleteQuestion:output_type -> yourmate.marketplace.v1.Empty
+	80, // 142: yourmate.marketplace.v1.MarketplaceService.GetProviderInsights:output_type -> yourmate.marketplace.v1.ProviderInsights
+	83, // 143: yourmate.marketplace.v1.MarketplaceService.AvailableSoon:output_type -> yourmate.marketplace.v1.AvailableSoonResponse
+	85, // 144: yourmate.marketplace.v1.MarketplaceService.MentorCompanies:output_type -> yourmate.marketplace.v1.CompanyCounts
+	88, // 145: yourmate.marketplace.v1.MarketplaceService.GetProgress:output_type -> yourmate.marketplace.v1.Progress
+	48, // 146: yourmate.marketplace.v1.MarketplaceService.Stats:output_type -> yourmate.marketplace.v1.MarketplaceStats
+	1,  // 147: yourmate.marketplace.v1.MarketplaceService.GetCatalog:output_type -> yourmate.marketplace.v1.MarketplaceCatalog
+	94, // [94:148] is the sub-list for method output_type
+	40, // [40:94] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_marketplace_v1_marketplace_proto_init() }
@@ -5373,13 +7578,14 @@ func file_marketplace_v1_marketplace_proto_init() {
 	if File_marketplace_v1_marketplace_proto != nil {
 		return
 	}
+	file_marketplace_v1_marketplace_proto_msgTypes[67].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_marketplace_v1_marketplace_proto_rawDesc), len(file_marketplace_v1_marketplace_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   62,
+			NumMessages:   89,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

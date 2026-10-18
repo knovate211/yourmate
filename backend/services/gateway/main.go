@@ -70,6 +70,12 @@ func main() {
 		Store:        store,
 		Cookies:      graph.CookieConfig{Secure: config.Bool("COOKIE_SECURE", !dev), Domain: config.String("COOKIE_DOMAIN", "")},
 		Limiter:      graph.NewLimiter(),
+		// Video rooms: off unless LiveKit credentials are configured.
+		Rooms: graph.RoomConfig{
+			URL:    config.String("LIVEKIT_PUBLIC_URL", ""),
+			Key:    config.String("LIVEKIT_API_KEY", ""),
+			Secret: config.String("LIVEKIT_API_SECRET", ""),
+		},
 	}
 
 	go purgeResumeFiles(context.Background(), res.Market, store, config.Duration("RESUME_PURGE_INTERVAL", time.Hour))
@@ -102,6 +108,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/graphql", graph.Middleware(signer, res, config.Bool("TRUST_PROXY", false), gql))
 	mux.Handle("/files/", store)
+	mux.Handle("/livekit/webhook", graph.RoomWebhook(res))
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("ok")) })
 	if dev {
 		mux.Handle("/playground", playground.Handler("Your Mate API", "/graphql"))

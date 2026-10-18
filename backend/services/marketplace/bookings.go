@@ -336,7 +336,9 @@ func (s *server) TransitionBooking(ctx context.Context, req *marketplacev1.Trans
 	if location == "" {
 		location = b.Location
 	}
-	_, err = tx.Exec(ctx, `UPDATE bookings SET status = $2, status_reason = $3, cancelled_by = $4, meeting_link = $5, location = $6, updated_at = now()
+	// answered_at records the provider's first reply, for their reply-speed stat.
+	_, err = tx.Exec(ctx, `UPDATE bookings SET status = $2, status_reason = $3, cancelled_by = $4, meeting_link = $5, location = $6,
+			answered_at = CASE WHEN $2 IN ('accepted', 'declined') THEN coalesce(answered_at, now()) ELSE answered_at END, updated_at = now()
 		WHERE id = $1`, b.Id, newStatus, reason, cancelledBy, link, location)
 	if db.IsExclusionViolation(err) {
 		return nil, grpcx.Precondition("SLOT_CONFLICT: one of you already has an accepted session at this time")

@@ -23,13 +23,14 @@ export interface Catalog {
   feedbackCriteria: Option[]
   interviewVerdicts: Option[]
   resumeSections: Option[]
+  codeLanguages: Option[]
 }
 
 type ListName = Exclude<keyof Catalog, 'sessionDurations'>
 
 const empty: Catalog = {
   guideServices: [], sessionModes: [], sessionDurations: [], communityKinds: [], reportReasons: [], postTypes: [],
-  interviewTypes: [], feedbackCriteria: [], interviewVerdicts: [], resumeSections: [],
+  interviewTypes: [], feedbackCriteria: [], interviewVerdicts: [], resumeSections: [], codeLanguages: [],
 }
 
 const CatalogContext = createContext<Catalog>(empty)
@@ -39,7 +40,8 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     `{ catalog {
         guideServices { value label } sessionModes { value label } sessionDurations
         communityKinds { value label } reportReasons { value label } postTypes { value label }
-        interviewTypes { value label } feedbackCriteria { value label } interviewVerdicts { value label } resumeSections { value label } } }`,
+        interviewTypes { value label } feedbackCriteria { value label } interviewVerdicts { value label } resumeSections { value label }
+        codeLanguages { value label } } }`,
   )
   return <CatalogContext.Provider value={data?.catalog ?? empty}>{children}</CatalogContext.Provider>
 }

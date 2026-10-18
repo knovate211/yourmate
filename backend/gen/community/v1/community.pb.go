@@ -4514,6 +4514,658 @@ func (x *CommunityStats) GetInquiries() int64 {
 	return 0
 }
 
+type ExperienceRound struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // e.g. "Online assessment", "Technical 1"
+	Details       string                 `protobuf:"bytes,2,opt,name=details,proto3" json:"details,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExperienceRound) Reset() {
+	*x = ExperienceRound{}
+	mi := &file_community_v1_community_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExperienceRound) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExperienceRound) ProtoMessage() {}
+
+func (x *ExperienceRound) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExperienceRound.ProtoReflect.Descriptor instead.
+func (*ExperienceRound) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *ExperienceRound) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ExperienceRound) GetDetails() string {
+	if x != nil {
+		return x.Details
+	}
+	return ""
+}
+
+type InterviewExperience struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	AuthorId      string                 `protobuf:"bytes,2,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"` // empty for anonymous posts, except to admins and the author
+	CampusId      string                 `protobuf:"bytes,3,opt,name=campus_id,json=campusId,proto3" json:"campus_id,omitempty"`
+	Company       string                 `protobuf:"bytes,4,opt,name=company,proto3" json:"company,omitempty"`
+	Role          string                 `protobuf:"bytes,5,opt,name=role,proto3" json:"role,omitempty"`
+	Year          int32                  `protobuf:"varint,6,opt,name=year,proto3" json:"year,omitempty"`
+	Outcome       string                 `protobuf:"bytes,7,opt,name=outcome,proto3" json:"outcome,omitempty"` // selected | rejected | waiting
+	Rounds        []*ExperienceRound     `protobuf:"bytes,8,rep,name=rounds,proto3" json:"rounds,omitempty"`
+	Tips          string                 `protobuf:"bytes,9,opt,name=tips,proto3" json:"tips,omitempty"`
+	Anonymous     bool                   `protobuf:"varint,10,opt,name=anonymous,proto3" json:"anonymous,omitempty"`
+	Status        string                 `protobuf:"bytes,11,opt,name=status,proto3" json:"status,omitempty"` // pending | published | rejected
+	ReviewReason  string                 `protobuf:"bytes,12,opt,name=review_reason,json=reviewReason,proto3" json:"review_reason,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Mine          bool                   `protobuf:"varint,14,opt,name=mine,proto3" json:"mine,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InterviewExperience) Reset() {
+	*x = InterviewExperience{}
+	mi := &file_community_v1_community_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InterviewExperience) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InterviewExperience) ProtoMessage() {}
+
+func (x *InterviewExperience) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InterviewExperience.ProtoReflect.Descriptor instead.
+func (*InterviewExperience) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *InterviewExperience) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetAuthorId() string {
+	if x != nil {
+		return x.AuthorId
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetCampusId() string {
+	if x != nil {
+		return x.CampusId
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetYear() int32 {
+	if x != nil {
+		return x.Year
+	}
+	return 0
+}
+
+func (x *InterviewExperience) GetOutcome() string {
+	if x != nil {
+		return x.Outcome
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetRounds() []*ExperienceRound {
+	if x != nil {
+		return x.Rounds
+	}
+	return nil
+}
+
+func (x *InterviewExperience) GetTips() string {
+	if x != nil {
+		return x.Tips
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetAnonymous() bool {
+	if x != nil {
+		return x.Anonymous
+	}
+	return false
+}
+
+func (x *InterviewExperience) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetReviewReason() string {
+	if x != nil {
+		return x.ReviewReason
+	}
+	return ""
+}
+
+func (x *InterviewExperience) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *InterviewExperience) GetMine() bool {
+	if x != nil {
+		return x.Mine
+	}
+	return false
+}
+
+type CreateExperienceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Actor         *Actor                 `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
+	Company       string                 `protobuf:"bytes,2,opt,name=company,proto3" json:"company,omitempty"`
+	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	Year          int32                  `protobuf:"varint,4,opt,name=year,proto3" json:"year,omitempty"`
+	Outcome       string                 `protobuf:"bytes,5,opt,name=outcome,proto3" json:"outcome,omitempty"`
+	Rounds        []*ExperienceRound     `protobuf:"bytes,6,rep,name=rounds,proto3" json:"rounds,omitempty"`
+	Tips          string                 `protobuf:"bytes,7,opt,name=tips,proto3" json:"tips,omitempty"`
+	Anonymous     bool                   `protobuf:"varint,8,opt,name=anonymous,proto3" json:"anonymous,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateExperienceRequest) Reset() {
+	*x = CreateExperienceRequest{}
+	mi := &file_community_v1_community_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateExperienceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateExperienceRequest) ProtoMessage() {}
+
+func (x *CreateExperienceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateExperienceRequest.ProtoReflect.Descriptor instead.
+func (*CreateExperienceRequest) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *CreateExperienceRequest) GetActor() *Actor {
+	if x != nil {
+		return x.Actor
+	}
+	return nil
+}
+
+func (x *CreateExperienceRequest) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
+func (x *CreateExperienceRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *CreateExperienceRequest) GetYear() int32 {
+	if x != nil {
+		return x.Year
+	}
+	return 0
+}
+
+func (x *CreateExperienceRequest) GetOutcome() string {
+	if x != nil {
+		return x.Outcome
+	}
+	return ""
+}
+
+func (x *CreateExperienceRequest) GetRounds() []*ExperienceRound {
+	if x != nil {
+		return x.Rounds
+	}
+	return nil
+}
+
+func (x *CreateExperienceRequest) GetTips() string {
+	if x != nil {
+		return x.Tips
+	}
+	return ""
+}
+
+func (x *CreateExperienceRequest) GetAnonymous() bool {
+	if x != nil {
+		return x.Anonymous
+	}
+	return false
+}
+
+type ListExperiencesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Actor         *Actor                 `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
+	Company       string                 `protobuf:"bytes,2,opt,name=company,proto3" json:"company,omitempty"`
+	CampusId      string                 `protobuf:"bytes,3,opt,name=campus_id,json=campusId,proto3" json:"campus_id,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"` // admins only; default published
+	Mine          bool                   `protobuf:"varint,5,opt,name=mine,proto3" json:"mine,omitempty"`
+	Page          int32                  `protobuf:"varint,6,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int32                  `protobuf:"varint,7,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListExperiencesRequest) Reset() {
+	*x = ListExperiencesRequest{}
+	mi := &file_community_v1_community_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListExperiencesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListExperiencesRequest) ProtoMessage() {}
+
+func (x *ListExperiencesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListExperiencesRequest.ProtoReflect.Descriptor instead.
+func (*ListExperiencesRequest) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *ListExperiencesRequest) GetActor() *Actor {
+	if x != nil {
+		return x.Actor
+	}
+	return nil
+}
+
+func (x *ListExperiencesRequest) GetCompany() string {
+	if x != nil {
+		return x.Company
+	}
+	return ""
+}
+
+func (x *ListExperiencesRequest) GetCampusId() string {
+	if x != nil {
+		return x.CampusId
+	}
+	return ""
+}
+
+func (x *ListExperiencesRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListExperiencesRequest) GetMine() bool {
+	if x != nil {
+		return x.Mine
+	}
+	return false
+}
+
+func (x *ListExperiencesRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *ListExperiencesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+type ListExperiencesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Experiences   []*InterviewExperience `protobuf:"bytes,1,rep,name=experiences,proto3" json:"experiences,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListExperiencesResponse) Reset() {
+	*x = ListExperiencesResponse{}
+	mi := &file_community_v1_community_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListExperiencesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListExperiencesResponse) ProtoMessage() {}
+
+func (x *ListExperiencesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListExperiencesResponse.ProtoReflect.Descriptor instead.
+func (*ListExperiencesResponse) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *ListExperiencesResponse) GetExperiences() []*InterviewExperience {
+	if x != nil {
+		return x.Experiences
+	}
+	return nil
+}
+
+func (x *ListExperiencesResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type ExperienceRef struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Actor         *Actor                 `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExperienceRef) Reset() {
+	*x = ExperienceRef{}
+	mi := &file_community_v1_community_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExperienceRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExperienceRef) ProtoMessage() {}
+
+func (x *ExperienceRef) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExperienceRef.ProtoReflect.Descriptor instead.
+func (*ExperienceRef) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *ExperienceRef) GetActor() *Actor {
+	if x != nil {
+		return x.Actor
+	}
+	return nil
+}
+
+func (x *ExperienceRef) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type ReviewExperienceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Approve       bool                   `protobuf:"varint,2,opt,name=approve,proto3" json:"approve,omitempty"`
+	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewExperienceRequest) Reset() {
+	*x = ReviewExperienceRequest{}
+	mi := &file_community_v1_community_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewExperienceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewExperienceRequest) ProtoMessage() {}
+
+func (x *ReviewExperienceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewExperienceRequest.ProtoReflect.Descriptor instead.
+func (*ReviewExperienceRequest) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *ReviewExperienceRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ReviewExperienceRequest) GetApprove() bool {
+	if x != nil {
+		return x.Approve
+	}
+	return false
+}
+
+func (x *ReviewExperienceRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type CompanyExperienceCount struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Experiences   int32                  `protobuf:"varint,2,opt,name=experiences,proto3" json:"experiences,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompanyExperienceCount) Reset() {
+	*x = CompanyExperienceCount{}
+	mi := &file_community_v1_community_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompanyExperienceCount) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompanyExperienceCount) ProtoMessage() {}
+
+func (x *CompanyExperienceCount) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompanyExperienceCount.ProtoReflect.Descriptor instead.
+func (*CompanyExperienceCount) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *CompanyExperienceCount) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CompanyExperienceCount) GetExperiences() int32 {
+	if x != nil {
+		return x.Experiences
+	}
+	return 0
+}
+
+type ExperienceCompaniesResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Companies     []*CompanyExperienceCount `protobuf:"bytes,1,rep,name=companies,proto3" json:"companies,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExperienceCompaniesResponse) Reset() {
+	*x = ExperienceCompaniesResponse{}
+	mi := &file_community_v1_community_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExperienceCompaniesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExperienceCompaniesResponse) ProtoMessage() {}
+
+func (x *ExperienceCompaniesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_community_v1_community_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExperienceCompaniesResponse.ProtoReflect.Descriptor instead.
+func (*ExperienceCompaniesResponse) Descriptor() ([]byte, []int) {
+	return file_community_v1_community_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *ExperienceCompaniesResponse) GetCompanies() []*CompanyExperienceCount {
+	if x != nil {
+		return x.Companies
+	}
+	return nil
+}
+
 var File_community_v1_community_proto protoreflect.FileDescriptor
 
 const file_community_v1_community_proto_rawDesc = "" +
@@ -4871,7 +5523,59 @@ const file_community_v1_community_proto_rawDesc = "" +
 	"\x0fpublished_posts\x18\x01 \x01(\x03R\x0epublishedPosts\x12#\n" +
 	"\rpending_posts\x18\x02 \x01(\x03R\fpendingPosts\x12!\n" +
 	"\fopen_reports\x18\x03 \x01(\x03R\vopenReports\x12\x1c\n" +
-	"\tinquiries\x18\x04 \x01(\x03R\tinquiries2\xaf$\n" +
+	"\tinquiries\x18\x04 \x01(\x03R\tinquiries\"?\n" +
+	"\x0fExperienceRound\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
+	"\adetails\x18\x02 \x01(\tR\adetails\"\x9d\x03\n" +
+	"\x13InterviewExperience\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
+	"\tauthor_id\x18\x02 \x01(\tR\bauthorId\x12\x1b\n" +
+	"\tcampus_id\x18\x03 \x01(\tR\bcampusId\x12\x18\n" +
+	"\acompany\x18\x04 \x01(\tR\acompany\x12\x12\n" +
+	"\x04role\x18\x05 \x01(\tR\x04role\x12\x12\n" +
+	"\x04year\x18\x06 \x01(\x05R\x04year\x12\x18\n" +
+	"\aoutcome\x18\a \x01(\tR\aoutcome\x12>\n" +
+	"\x06rounds\x18\b \x03(\v2&.yourmate.community.v1.ExperienceRoundR\x06rounds\x12\x12\n" +
+	"\x04tips\x18\t \x01(\tR\x04tips\x12\x1c\n" +
+	"\tanonymous\x18\n" +
+	" \x01(\bR\tanonymous\x12\x16\n" +
+	"\x06status\x18\v \x01(\tR\x06status\x12#\n" +
+	"\rreview_reason\x18\f \x01(\tR\freviewReason\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\r \x01(\x03R\tcreatedAt\x12\x12\n" +
+	"\x04mine\x18\x0e \x01(\bR\x04mine\"\x9b\x02\n" +
+	"\x17CreateExperienceRequest\x122\n" +
+	"\x05actor\x18\x01 \x01(\v2\x1c.yourmate.community.v1.ActorR\x05actor\x12\x18\n" +
+	"\acompany\x18\x02 \x01(\tR\acompany\x12\x12\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\x12\x12\n" +
+	"\x04year\x18\x04 \x01(\x05R\x04year\x12\x18\n" +
+	"\aoutcome\x18\x05 \x01(\tR\aoutcome\x12>\n" +
+	"\x06rounds\x18\x06 \x03(\v2&.yourmate.community.v1.ExperienceRoundR\x06rounds\x12\x12\n" +
+	"\x04tips\x18\a \x01(\tR\x04tips\x12\x1c\n" +
+	"\tanonymous\x18\b \x01(\bR\tanonymous\"\xe0\x01\n" +
+	"\x16ListExperiencesRequest\x122\n" +
+	"\x05actor\x18\x01 \x01(\v2\x1c.yourmate.community.v1.ActorR\x05actor\x12\x18\n" +
+	"\acompany\x18\x02 \x01(\tR\acompany\x12\x1b\n" +
+	"\tcampus_id\x18\x03 \x01(\tR\bcampusId\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x12\n" +
+	"\x04mine\x18\x05 \x01(\bR\x04mine\x12\x12\n" +
+	"\x04page\x18\x06 \x01(\x05R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\a \x01(\x05R\bpageSize\"}\n" +
+	"\x17ListExperiencesResponse\x12L\n" +
+	"\vexperiences\x18\x01 \x03(\v2*.yourmate.community.v1.InterviewExperienceR\vexperiences\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"S\n" +
+	"\rExperienceRef\x122\n" +
+	"\x05actor\x18\x01 \x01(\v2\x1c.yourmate.community.v1.ActorR\x05actor\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"[\n" +
+	"\x17ReviewExperienceRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\aapprove\x18\x02 \x01(\bR\aapprove\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"N\n" +
+	"\x16CompanyExperienceCount\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vexperiences\x18\x02 \x01(\x05R\vexperiences\"j\n" +
+	"\x1bExperienceCompaniesResponse\x12K\n" +
+	"\tcompanies\x18\x01 \x03(\v2-.yourmate.community.v1.CompanyExperienceCountR\tcompanies2\xa5)\n" +
 	"\x10CommunityService\x12S\n" +
 	"\n" +
 	"CreatePost\x12(.yourmate.community.v1.CreatePostRequest\x1a\x1b.yourmate.community.v1.Post\x12^\n" +
@@ -4924,7 +5628,13 @@ const file_community_v1_community_proto_rawDesc = "" +
 	"\x12ListDirectMessages\x120.yourmate.community.v1.ListDirectMessagesRequest\x1a1.yourmate.community.v1.ListDirectMessagesResponse\x12v\n" +
 	"\x11SendDirectMessage\x12/.yourmate.community.v1.SendDirectMessageRequest\x1a0.yourmate.community.v1.SendDirectMessageResponse\x12Y\n" +
 	"\fInboxSummary\x12\x1c.yourmate.community.v1.Actor\x1a+.yourmate.community.v1.InboxSummaryResponse\x12Z\n" +
-	"\x13StreamMessageEvents\x12\x1c.yourmate.community.v1.Actor\x1a#.yourmate.community.v1.MessageEvent0\x01B:Z8github.com/yourmate/backend/gen/community/v1;communityv1b\x06proto3"
+	"\x13StreamMessageEvents\x12\x1c.yourmate.community.v1.Actor\x1a#.yourmate.community.v1.MessageEvent0\x01\x12n\n" +
+	"\x10CreateExperience\x12..yourmate.community.v1.CreateExperienceRequest\x1a*.yourmate.community.v1.InterviewExperience\x12p\n" +
+	"\x0fListExperiences\x12-.yourmate.community.v1.ListExperiencesRequest\x1a..yourmate.community.v1.ListExperiencesResponse\x12a\n" +
+	"\rGetExperience\x12$.yourmate.community.v1.ExperienceRef\x1a*.yourmate.community.v1.InterviewExperience\x12n\n" +
+	"\x10ReviewExperience\x12..yourmate.community.v1.ReviewExperienceRequest\x1a*.yourmate.community.v1.InterviewExperience\x12V\n" +
+	"\x10DeleteExperience\x12$.yourmate.community.v1.ExperienceRef\x1a\x1c.yourmate.community.v1.Empty\x12g\n" +
+	"\x13ExperienceCompanies\x12\x1c.yourmate.community.v1.Empty\x1a2.yourmate.community.v1.ExperienceCompaniesResponseB:Z8github.com/yourmate/backend/gen/community/v1;communityv1b\x06proto3"
 
 var (
 	file_community_v1_community_proto_rawDescOnce sync.Once
@@ -4938,7 +5648,7 @@ func file_community_v1_community_proto_rawDescGZIP() []byte {
 	return file_community_v1_community_proto_rawDescData
 }
 
-var file_community_v1_community_proto_msgTypes = make([]protoimpl.MessageInfo, 68)
+var file_community_v1_community_proto_msgTypes = make([]protoimpl.MessageInfo, 77)
 var file_community_v1_community_proto_goTypes = []any{
 	(*MessageEvent)(nil),                   // 0: yourmate.community.v1.MessageEvent
 	(*UserPairRequest)(nil),                // 1: yourmate.community.v1.UserPairRequest
@@ -5008,150 +5718,178 @@ var file_community_v1_community_proto_goTypes = []any{
 	(*ListInquiriesRequest)(nil),           // 65: yourmate.community.v1.ListInquiriesRequest
 	(*ListInquiriesResponse)(nil),          // 66: yourmate.community.v1.ListInquiriesResponse
 	(*CommunityStats)(nil),                 // 67: yourmate.community.v1.CommunityStats
+	(*ExperienceRound)(nil),                // 68: yourmate.community.v1.ExperienceRound
+	(*InterviewExperience)(nil),            // 69: yourmate.community.v1.InterviewExperience
+	(*CreateExperienceRequest)(nil),        // 70: yourmate.community.v1.CreateExperienceRequest
+	(*ListExperiencesRequest)(nil),         // 71: yourmate.community.v1.ListExperiencesRequest
+	(*ListExperiencesResponse)(nil),        // 72: yourmate.community.v1.ListExperiencesResponse
+	(*ExperienceRef)(nil),                  // 73: yourmate.community.v1.ExperienceRef
+	(*ReviewExperienceRequest)(nil),        // 74: yourmate.community.v1.ReviewExperienceRequest
+	(*CompanyExperienceCount)(nil),         // 75: yourmate.community.v1.CompanyExperienceCount
+	(*ExperienceCompaniesResponse)(nil),    // 76: yourmate.community.v1.ExperienceCompaniesResponse
 }
 var file_community_v1_community_proto_depIdxs = []int32{
-	4,  // 0: yourmate.community.v1.MessageEvent.message:type_name -> yourmate.community.v1.DirectMessage
-	16, // 1: yourmate.community.v1.UserPairRequest.actor:type_name -> yourmate.community.v1.Actor
-	4,  // 2: yourmate.community.v1.Conversation.last_message:type_name -> yourmate.community.v1.DirectMessage
-	16, // 3: yourmate.community.v1.ConversationRef.actor:type_name -> yourmate.community.v1.Actor
-	16, // 4: yourmate.community.v1.ListConversationsRequest.actor:type_name -> yourmate.community.v1.Actor
-	3,  // 5: yourmate.community.v1.ListConversationsResponse.conversations:type_name -> yourmate.community.v1.Conversation
-	16, // 6: yourmate.community.v1.RespondToConversationRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 7: yourmate.community.v1.ListDirectMessagesRequest.actor:type_name -> yourmate.community.v1.Actor
-	4,  // 8: yourmate.community.v1.ListDirectMessagesResponse.messages:type_name -> yourmate.community.v1.DirectMessage
-	16, // 9: yourmate.community.v1.SendDirectMessageRequest.actor:type_name -> yourmate.community.v1.Actor
-	4,  // 10: yourmate.community.v1.SendDirectMessageResponse.message:type_name -> yourmate.community.v1.DirectMessage
-	14, // 11: yourmate.community.v1.CommunityCatalog.community_kinds:type_name -> yourmate.community.v1.Option
-	14, // 12: yourmate.community.v1.CommunityCatalog.report_reasons:type_name -> yourmate.community.v1.Option
-	14, // 13: yourmate.community.v1.CommunityCatalog.post_types:type_name -> yourmate.community.v1.Option
-	16, // 14: yourmate.community.v1.CommunityRef.actor:type_name -> yourmate.community.v1.Actor
-	16, // 15: yourmate.community.v1.CreateCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 16: yourmate.community.v1.UpdateCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 17: yourmate.community.v1.GetCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 18: yourmate.community.v1.ListCommunitiesRequest.actor:type_name -> yourmate.community.v1.Actor
-	17, // 19: yourmate.community.v1.ListCommunitiesResponse.communities:type_name -> yourmate.community.v1.Community
-	16, // 20: yourmate.community.v1.JoinCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
-	17, // 21: yourmate.community.v1.JoinCommunityResponse.community:type_name -> yourmate.community.v1.Community
-	16, // 22: yourmate.community.v1.SetCommunityMutedRequest.actor:type_name -> yourmate.community.v1.Actor
-	28, // 23: yourmate.community.v1.ListJoinRequestsResponse.requests:type_name -> yourmate.community.v1.JoinRequest
-	16, // 24: yourmate.community.v1.ReviewJoinRequestRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 25: yourmate.community.v1.ListMembersRequest.actor:type_name -> yourmate.community.v1.Actor
-	31, // 26: yourmate.community.v1.ListMembersResponse.members:type_name -> yourmate.community.v1.Member
-	16, // 27: yourmate.community.v1.SetMemberRoleRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 28: yourmate.community.v1.MemberRef.actor:type_name -> yourmate.community.v1.Actor
-	16, // 29: yourmate.community.v1.CreateCommunityPostRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 30: yourmate.community.v1.ListCommunityPostsRequest.actor:type_name -> yourmate.community.v1.Actor
-	37, // 31: yourmate.community.v1.ListCommunityPostsResponse.posts:type_name -> yourmate.community.v1.CommunityPost
-	16, // 32: yourmate.community.v1.PostRef.actor:type_name -> yourmate.community.v1.Actor
-	16, // 33: yourmate.community.v1.PinCommunityPostRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 34: yourmate.community.v1.LikeCommunityPostRequest.actor:type_name -> yourmate.community.v1.Actor
-	16, // 35: yourmate.community.v1.CreateReplyRequest.actor:type_name -> yourmate.community.v1.Actor
-	44, // 36: yourmate.community.v1.CreateReplyResponse.reply:type_name -> yourmate.community.v1.Reply
-	44, // 37: yourmate.community.v1.ListRepliesResponse.replies:type_name -> yourmate.community.v1.Reply
-	16, // 38: yourmate.community.v1.ReplyRef.actor:type_name -> yourmate.community.v1.Actor
-	16, // 39: yourmate.community.v1.ModerateCommunityReportRequest.actor:type_name -> yourmate.community.v1.Actor
-	51, // 40: yourmate.community.v1.ListPostsResponse.posts:type_name -> yourmate.community.v1.Post
-	58, // 41: yourmate.community.v1.ListReportsResponse.reports:type_name -> yourmate.community.v1.Report
-	63, // 42: yourmate.community.v1.ListInquiriesResponse.inquiries:type_name -> yourmate.community.v1.Inquiry
-	52, // 43: yourmate.community.v1.CommunityService.CreatePost:input_type -> yourmate.community.v1.CreatePostRequest
-	53, // 44: yourmate.community.v1.CommunityService.ListPosts:input_type -> yourmate.community.v1.ListPostsRequest
-	55, // 45: yourmate.community.v1.CommunityService.GetPost:input_type -> yourmate.community.v1.GetPostRequest
-	56, // 46: yourmate.community.v1.CommunityService.ReviewPost:input_type -> yourmate.community.v1.ReviewPostRequest
-	57, // 47: yourmate.community.v1.CommunityService.DeletePost:input_type -> yourmate.community.v1.DeletePostRequest
-	59, // 48: yourmate.community.v1.CommunityService.CreateReport:input_type -> yourmate.community.v1.CreateReportRequest
-	60, // 49: yourmate.community.v1.CommunityService.ListReports:input_type -> yourmate.community.v1.ListReportsRequest
-	62, // 50: yourmate.community.v1.CommunityService.ResolveReport:input_type -> yourmate.community.v1.ResolveReportRequest
-	64, // 51: yourmate.community.v1.CommunityService.CreateInquiry:input_type -> yourmate.community.v1.CreateInquiryRequest
-	65, // 52: yourmate.community.v1.CommunityService.ListInquiries:input_type -> yourmate.community.v1.ListInquiriesRequest
-	50, // 53: yourmate.community.v1.CommunityService.Stats:input_type -> yourmate.community.v1.Empty
-	19, // 54: yourmate.community.v1.CommunityService.EnsureDefaultCommunity:input_type -> yourmate.community.v1.EnsureDefaultCommunityRequest
-	20, // 55: yourmate.community.v1.CommunityService.CreateCommunity:input_type -> yourmate.community.v1.CreateCommunityRequest
-	21, // 56: yourmate.community.v1.CommunityService.UpdateCommunity:input_type -> yourmate.community.v1.UpdateCommunityRequest
-	18, // 57: yourmate.community.v1.CommunityService.DeleteCommunity:input_type -> yourmate.community.v1.CommunityRef
-	22, // 58: yourmate.community.v1.CommunityService.GetCommunity:input_type -> yourmate.community.v1.GetCommunityRequest
-	23, // 59: yourmate.community.v1.CommunityService.ListCommunities:input_type -> yourmate.community.v1.ListCommunitiesRequest
-	25, // 60: yourmate.community.v1.CommunityService.JoinCommunity:input_type -> yourmate.community.v1.JoinCommunityRequest
-	18, // 61: yourmate.community.v1.CommunityService.LeaveCommunity:input_type -> yourmate.community.v1.CommunityRef
-	27, // 62: yourmate.community.v1.CommunityService.SetCommunityMuted:input_type -> yourmate.community.v1.SetCommunityMutedRequest
-	18, // 63: yourmate.community.v1.CommunityService.ListJoinRequests:input_type -> yourmate.community.v1.CommunityRef
-	30, // 64: yourmate.community.v1.CommunityService.ReviewJoinRequest:input_type -> yourmate.community.v1.ReviewJoinRequestRequest
-	32, // 65: yourmate.community.v1.CommunityService.ListMembers:input_type -> yourmate.community.v1.ListMembersRequest
-	18, // 66: yourmate.community.v1.CommunityService.ListMemberIds:input_type -> yourmate.community.v1.CommunityRef
-	35, // 67: yourmate.community.v1.CommunityService.SetMemberRole:input_type -> yourmate.community.v1.SetMemberRoleRequest
-	36, // 68: yourmate.community.v1.CommunityService.RemoveMember:input_type -> yourmate.community.v1.MemberRef
-	38, // 69: yourmate.community.v1.CommunityService.CreateCommunityPost:input_type -> yourmate.community.v1.CreateCommunityPostRequest
-	39, // 70: yourmate.community.v1.CommunityService.ListCommunityPosts:input_type -> yourmate.community.v1.ListCommunityPostsRequest
-	41, // 71: yourmate.community.v1.CommunityService.GetCommunityPost:input_type -> yourmate.community.v1.PostRef
-	41, // 72: yourmate.community.v1.CommunityService.RemoveCommunityPost:input_type -> yourmate.community.v1.PostRef
-	42, // 73: yourmate.community.v1.CommunityService.PinCommunityPost:input_type -> yourmate.community.v1.PinCommunityPostRequest
-	43, // 74: yourmate.community.v1.CommunityService.LikeCommunityPost:input_type -> yourmate.community.v1.LikeCommunityPostRequest
-	45, // 75: yourmate.community.v1.CommunityService.CreateReply:input_type -> yourmate.community.v1.CreateReplyRequest
-	41, // 76: yourmate.community.v1.CommunityService.ListReplies:input_type -> yourmate.community.v1.PostRef
-	48, // 77: yourmate.community.v1.CommunityService.RemoveReply:input_type -> yourmate.community.v1.ReplyRef
-	18, // 78: yourmate.community.v1.CommunityService.ListCommunityReports:input_type -> yourmate.community.v1.CommunityRef
-	49, // 79: yourmate.community.v1.CommunityService.ModerateCommunityReport:input_type -> yourmate.community.v1.ModerateCommunityReportRequest
-	50, // 80: yourmate.community.v1.CommunityService.GetCatalog:input_type -> yourmate.community.v1.Empty
-	1,  // 81: yourmate.community.v1.CommunityService.CanMessage:input_type -> yourmate.community.v1.UserPairRequest
-	1,  // 82: yourmate.community.v1.CommunityService.StartConversation:input_type -> yourmate.community.v1.UserPairRequest
-	6,  // 83: yourmate.community.v1.CommunityService.ListConversations:input_type -> yourmate.community.v1.ListConversationsRequest
-	5,  // 84: yourmate.community.v1.CommunityService.GetConversation:input_type -> yourmate.community.v1.ConversationRef
-	8,  // 85: yourmate.community.v1.CommunityService.RespondToConversation:input_type -> yourmate.community.v1.RespondToConversationRequest
-	9,  // 86: yourmate.community.v1.CommunityService.ListDirectMessages:input_type -> yourmate.community.v1.ListDirectMessagesRequest
-	11, // 87: yourmate.community.v1.CommunityService.SendDirectMessage:input_type -> yourmate.community.v1.SendDirectMessageRequest
-	16, // 88: yourmate.community.v1.CommunityService.InboxSummary:input_type -> yourmate.community.v1.Actor
-	16, // 89: yourmate.community.v1.CommunityService.StreamMessageEvents:input_type -> yourmate.community.v1.Actor
-	51, // 90: yourmate.community.v1.CommunityService.CreatePost:output_type -> yourmate.community.v1.Post
-	54, // 91: yourmate.community.v1.CommunityService.ListPosts:output_type -> yourmate.community.v1.ListPostsResponse
-	51, // 92: yourmate.community.v1.CommunityService.GetPost:output_type -> yourmate.community.v1.Post
-	51, // 93: yourmate.community.v1.CommunityService.ReviewPost:output_type -> yourmate.community.v1.Post
-	50, // 94: yourmate.community.v1.CommunityService.DeletePost:output_type -> yourmate.community.v1.Empty
-	58, // 95: yourmate.community.v1.CommunityService.CreateReport:output_type -> yourmate.community.v1.Report
-	61, // 96: yourmate.community.v1.CommunityService.ListReports:output_type -> yourmate.community.v1.ListReportsResponse
-	58, // 97: yourmate.community.v1.CommunityService.ResolveReport:output_type -> yourmate.community.v1.Report
-	63, // 98: yourmate.community.v1.CommunityService.CreateInquiry:output_type -> yourmate.community.v1.Inquiry
-	66, // 99: yourmate.community.v1.CommunityService.ListInquiries:output_type -> yourmate.community.v1.ListInquiriesResponse
-	67, // 100: yourmate.community.v1.CommunityService.Stats:output_type -> yourmate.community.v1.CommunityStats
-	17, // 101: yourmate.community.v1.CommunityService.EnsureDefaultCommunity:output_type -> yourmate.community.v1.Community
-	17, // 102: yourmate.community.v1.CommunityService.CreateCommunity:output_type -> yourmate.community.v1.Community
-	17, // 103: yourmate.community.v1.CommunityService.UpdateCommunity:output_type -> yourmate.community.v1.Community
-	50, // 104: yourmate.community.v1.CommunityService.DeleteCommunity:output_type -> yourmate.community.v1.Empty
-	17, // 105: yourmate.community.v1.CommunityService.GetCommunity:output_type -> yourmate.community.v1.Community
-	24, // 106: yourmate.community.v1.CommunityService.ListCommunities:output_type -> yourmate.community.v1.ListCommunitiesResponse
-	26, // 107: yourmate.community.v1.CommunityService.JoinCommunity:output_type -> yourmate.community.v1.JoinCommunityResponse
-	50, // 108: yourmate.community.v1.CommunityService.LeaveCommunity:output_type -> yourmate.community.v1.Empty
-	17, // 109: yourmate.community.v1.CommunityService.SetCommunityMuted:output_type -> yourmate.community.v1.Community
-	29, // 110: yourmate.community.v1.CommunityService.ListJoinRequests:output_type -> yourmate.community.v1.ListJoinRequestsResponse
-	28, // 111: yourmate.community.v1.CommunityService.ReviewJoinRequest:output_type -> yourmate.community.v1.JoinRequest
-	33, // 112: yourmate.community.v1.CommunityService.ListMembers:output_type -> yourmate.community.v1.ListMembersResponse
-	34, // 113: yourmate.community.v1.CommunityService.ListMemberIds:output_type -> yourmate.community.v1.ListMemberIdsResponse
-	50, // 114: yourmate.community.v1.CommunityService.SetMemberRole:output_type -> yourmate.community.v1.Empty
-	50, // 115: yourmate.community.v1.CommunityService.RemoveMember:output_type -> yourmate.community.v1.Empty
-	37, // 116: yourmate.community.v1.CommunityService.CreateCommunityPost:output_type -> yourmate.community.v1.CommunityPost
-	40, // 117: yourmate.community.v1.CommunityService.ListCommunityPosts:output_type -> yourmate.community.v1.ListCommunityPostsResponse
-	37, // 118: yourmate.community.v1.CommunityService.GetCommunityPost:output_type -> yourmate.community.v1.CommunityPost
-	50, // 119: yourmate.community.v1.CommunityService.RemoveCommunityPost:output_type -> yourmate.community.v1.Empty
-	37, // 120: yourmate.community.v1.CommunityService.PinCommunityPost:output_type -> yourmate.community.v1.CommunityPost
-	37, // 121: yourmate.community.v1.CommunityService.LikeCommunityPost:output_type -> yourmate.community.v1.CommunityPost
-	46, // 122: yourmate.community.v1.CommunityService.CreateReply:output_type -> yourmate.community.v1.CreateReplyResponse
-	47, // 123: yourmate.community.v1.CommunityService.ListReplies:output_type -> yourmate.community.v1.ListRepliesResponse
-	50, // 124: yourmate.community.v1.CommunityService.RemoveReply:output_type -> yourmate.community.v1.Empty
-	61, // 125: yourmate.community.v1.CommunityService.ListCommunityReports:output_type -> yourmate.community.v1.ListReportsResponse
-	50, // 126: yourmate.community.v1.CommunityService.ModerateCommunityReport:output_type -> yourmate.community.v1.Empty
-	15, // 127: yourmate.community.v1.CommunityService.GetCatalog:output_type -> yourmate.community.v1.CommunityCatalog
-	2,  // 128: yourmate.community.v1.CommunityService.CanMessage:output_type -> yourmate.community.v1.CanMessageResponse
-	3,  // 129: yourmate.community.v1.CommunityService.StartConversation:output_type -> yourmate.community.v1.Conversation
-	7,  // 130: yourmate.community.v1.CommunityService.ListConversations:output_type -> yourmate.community.v1.ListConversationsResponse
-	3,  // 131: yourmate.community.v1.CommunityService.GetConversation:output_type -> yourmate.community.v1.Conversation
-	3,  // 132: yourmate.community.v1.CommunityService.RespondToConversation:output_type -> yourmate.community.v1.Conversation
-	10, // 133: yourmate.community.v1.CommunityService.ListDirectMessages:output_type -> yourmate.community.v1.ListDirectMessagesResponse
-	12, // 134: yourmate.community.v1.CommunityService.SendDirectMessage:output_type -> yourmate.community.v1.SendDirectMessageResponse
-	13, // 135: yourmate.community.v1.CommunityService.InboxSummary:output_type -> yourmate.community.v1.InboxSummaryResponse
-	0,  // 136: yourmate.community.v1.CommunityService.StreamMessageEvents:output_type -> yourmate.community.v1.MessageEvent
-	90, // [90:137] is the sub-list for method output_type
-	43, // [43:90] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	4,   // 0: yourmate.community.v1.MessageEvent.message:type_name -> yourmate.community.v1.DirectMessage
+	16,  // 1: yourmate.community.v1.UserPairRequest.actor:type_name -> yourmate.community.v1.Actor
+	4,   // 2: yourmate.community.v1.Conversation.last_message:type_name -> yourmate.community.v1.DirectMessage
+	16,  // 3: yourmate.community.v1.ConversationRef.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 4: yourmate.community.v1.ListConversationsRequest.actor:type_name -> yourmate.community.v1.Actor
+	3,   // 5: yourmate.community.v1.ListConversationsResponse.conversations:type_name -> yourmate.community.v1.Conversation
+	16,  // 6: yourmate.community.v1.RespondToConversationRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 7: yourmate.community.v1.ListDirectMessagesRequest.actor:type_name -> yourmate.community.v1.Actor
+	4,   // 8: yourmate.community.v1.ListDirectMessagesResponse.messages:type_name -> yourmate.community.v1.DirectMessage
+	16,  // 9: yourmate.community.v1.SendDirectMessageRequest.actor:type_name -> yourmate.community.v1.Actor
+	4,   // 10: yourmate.community.v1.SendDirectMessageResponse.message:type_name -> yourmate.community.v1.DirectMessage
+	14,  // 11: yourmate.community.v1.CommunityCatalog.community_kinds:type_name -> yourmate.community.v1.Option
+	14,  // 12: yourmate.community.v1.CommunityCatalog.report_reasons:type_name -> yourmate.community.v1.Option
+	14,  // 13: yourmate.community.v1.CommunityCatalog.post_types:type_name -> yourmate.community.v1.Option
+	16,  // 14: yourmate.community.v1.CommunityRef.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 15: yourmate.community.v1.CreateCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 16: yourmate.community.v1.UpdateCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 17: yourmate.community.v1.GetCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 18: yourmate.community.v1.ListCommunitiesRequest.actor:type_name -> yourmate.community.v1.Actor
+	17,  // 19: yourmate.community.v1.ListCommunitiesResponse.communities:type_name -> yourmate.community.v1.Community
+	16,  // 20: yourmate.community.v1.JoinCommunityRequest.actor:type_name -> yourmate.community.v1.Actor
+	17,  // 21: yourmate.community.v1.JoinCommunityResponse.community:type_name -> yourmate.community.v1.Community
+	16,  // 22: yourmate.community.v1.SetCommunityMutedRequest.actor:type_name -> yourmate.community.v1.Actor
+	28,  // 23: yourmate.community.v1.ListJoinRequestsResponse.requests:type_name -> yourmate.community.v1.JoinRequest
+	16,  // 24: yourmate.community.v1.ReviewJoinRequestRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 25: yourmate.community.v1.ListMembersRequest.actor:type_name -> yourmate.community.v1.Actor
+	31,  // 26: yourmate.community.v1.ListMembersResponse.members:type_name -> yourmate.community.v1.Member
+	16,  // 27: yourmate.community.v1.SetMemberRoleRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 28: yourmate.community.v1.MemberRef.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 29: yourmate.community.v1.CreateCommunityPostRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 30: yourmate.community.v1.ListCommunityPostsRequest.actor:type_name -> yourmate.community.v1.Actor
+	37,  // 31: yourmate.community.v1.ListCommunityPostsResponse.posts:type_name -> yourmate.community.v1.CommunityPost
+	16,  // 32: yourmate.community.v1.PostRef.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 33: yourmate.community.v1.PinCommunityPostRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 34: yourmate.community.v1.LikeCommunityPostRequest.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 35: yourmate.community.v1.CreateReplyRequest.actor:type_name -> yourmate.community.v1.Actor
+	44,  // 36: yourmate.community.v1.CreateReplyResponse.reply:type_name -> yourmate.community.v1.Reply
+	44,  // 37: yourmate.community.v1.ListRepliesResponse.replies:type_name -> yourmate.community.v1.Reply
+	16,  // 38: yourmate.community.v1.ReplyRef.actor:type_name -> yourmate.community.v1.Actor
+	16,  // 39: yourmate.community.v1.ModerateCommunityReportRequest.actor:type_name -> yourmate.community.v1.Actor
+	51,  // 40: yourmate.community.v1.ListPostsResponse.posts:type_name -> yourmate.community.v1.Post
+	58,  // 41: yourmate.community.v1.ListReportsResponse.reports:type_name -> yourmate.community.v1.Report
+	63,  // 42: yourmate.community.v1.ListInquiriesResponse.inquiries:type_name -> yourmate.community.v1.Inquiry
+	68,  // 43: yourmate.community.v1.InterviewExperience.rounds:type_name -> yourmate.community.v1.ExperienceRound
+	16,  // 44: yourmate.community.v1.CreateExperienceRequest.actor:type_name -> yourmate.community.v1.Actor
+	68,  // 45: yourmate.community.v1.CreateExperienceRequest.rounds:type_name -> yourmate.community.v1.ExperienceRound
+	16,  // 46: yourmate.community.v1.ListExperiencesRequest.actor:type_name -> yourmate.community.v1.Actor
+	69,  // 47: yourmate.community.v1.ListExperiencesResponse.experiences:type_name -> yourmate.community.v1.InterviewExperience
+	16,  // 48: yourmate.community.v1.ExperienceRef.actor:type_name -> yourmate.community.v1.Actor
+	75,  // 49: yourmate.community.v1.ExperienceCompaniesResponse.companies:type_name -> yourmate.community.v1.CompanyExperienceCount
+	52,  // 50: yourmate.community.v1.CommunityService.CreatePost:input_type -> yourmate.community.v1.CreatePostRequest
+	53,  // 51: yourmate.community.v1.CommunityService.ListPosts:input_type -> yourmate.community.v1.ListPostsRequest
+	55,  // 52: yourmate.community.v1.CommunityService.GetPost:input_type -> yourmate.community.v1.GetPostRequest
+	56,  // 53: yourmate.community.v1.CommunityService.ReviewPost:input_type -> yourmate.community.v1.ReviewPostRequest
+	57,  // 54: yourmate.community.v1.CommunityService.DeletePost:input_type -> yourmate.community.v1.DeletePostRequest
+	59,  // 55: yourmate.community.v1.CommunityService.CreateReport:input_type -> yourmate.community.v1.CreateReportRequest
+	60,  // 56: yourmate.community.v1.CommunityService.ListReports:input_type -> yourmate.community.v1.ListReportsRequest
+	62,  // 57: yourmate.community.v1.CommunityService.ResolveReport:input_type -> yourmate.community.v1.ResolveReportRequest
+	64,  // 58: yourmate.community.v1.CommunityService.CreateInquiry:input_type -> yourmate.community.v1.CreateInquiryRequest
+	65,  // 59: yourmate.community.v1.CommunityService.ListInquiries:input_type -> yourmate.community.v1.ListInquiriesRequest
+	50,  // 60: yourmate.community.v1.CommunityService.Stats:input_type -> yourmate.community.v1.Empty
+	19,  // 61: yourmate.community.v1.CommunityService.EnsureDefaultCommunity:input_type -> yourmate.community.v1.EnsureDefaultCommunityRequest
+	20,  // 62: yourmate.community.v1.CommunityService.CreateCommunity:input_type -> yourmate.community.v1.CreateCommunityRequest
+	21,  // 63: yourmate.community.v1.CommunityService.UpdateCommunity:input_type -> yourmate.community.v1.UpdateCommunityRequest
+	18,  // 64: yourmate.community.v1.CommunityService.DeleteCommunity:input_type -> yourmate.community.v1.CommunityRef
+	22,  // 65: yourmate.community.v1.CommunityService.GetCommunity:input_type -> yourmate.community.v1.GetCommunityRequest
+	23,  // 66: yourmate.community.v1.CommunityService.ListCommunities:input_type -> yourmate.community.v1.ListCommunitiesRequest
+	25,  // 67: yourmate.community.v1.CommunityService.JoinCommunity:input_type -> yourmate.community.v1.JoinCommunityRequest
+	18,  // 68: yourmate.community.v1.CommunityService.LeaveCommunity:input_type -> yourmate.community.v1.CommunityRef
+	27,  // 69: yourmate.community.v1.CommunityService.SetCommunityMuted:input_type -> yourmate.community.v1.SetCommunityMutedRequest
+	18,  // 70: yourmate.community.v1.CommunityService.ListJoinRequests:input_type -> yourmate.community.v1.CommunityRef
+	30,  // 71: yourmate.community.v1.CommunityService.ReviewJoinRequest:input_type -> yourmate.community.v1.ReviewJoinRequestRequest
+	32,  // 72: yourmate.community.v1.CommunityService.ListMembers:input_type -> yourmate.community.v1.ListMembersRequest
+	18,  // 73: yourmate.community.v1.CommunityService.ListMemberIds:input_type -> yourmate.community.v1.CommunityRef
+	35,  // 74: yourmate.community.v1.CommunityService.SetMemberRole:input_type -> yourmate.community.v1.SetMemberRoleRequest
+	36,  // 75: yourmate.community.v1.CommunityService.RemoveMember:input_type -> yourmate.community.v1.MemberRef
+	38,  // 76: yourmate.community.v1.CommunityService.CreateCommunityPost:input_type -> yourmate.community.v1.CreateCommunityPostRequest
+	39,  // 77: yourmate.community.v1.CommunityService.ListCommunityPosts:input_type -> yourmate.community.v1.ListCommunityPostsRequest
+	41,  // 78: yourmate.community.v1.CommunityService.GetCommunityPost:input_type -> yourmate.community.v1.PostRef
+	41,  // 79: yourmate.community.v1.CommunityService.RemoveCommunityPost:input_type -> yourmate.community.v1.PostRef
+	42,  // 80: yourmate.community.v1.CommunityService.PinCommunityPost:input_type -> yourmate.community.v1.PinCommunityPostRequest
+	43,  // 81: yourmate.community.v1.CommunityService.LikeCommunityPost:input_type -> yourmate.community.v1.LikeCommunityPostRequest
+	45,  // 82: yourmate.community.v1.CommunityService.CreateReply:input_type -> yourmate.community.v1.CreateReplyRequest
+	41,  // 83: yourmate.community.v1.CommunityService.ListReplies:input_type -> yourmate.community.v1.PostRef
+	48,  // 84: yourmate.community.v1.CommunityService.RemoveReply:input_type -> yourmate.community.v1.ReplyRef
+	18,  // 85: yourmate.community.v1.CommunityService.ListCommunityReports:input_type -> yourmate.community.v1.CommunityRef
+	49,  // 86: yourmate.community.v1.CommunityService.ModerateCommunityReport:input_type -> yourmate.community.v1.ModerateCommunityReportRequest
+	50,  // 87: yourmate.community.v1.CommunityService.GetCatalog:input_type -> yourmate.community.v1.Empty
+	1,   // 88: yourmate.community.v1.CommunityService.CanMessage:input_type -> yourmate.community.v1.UserPairRequest
+	1,   // 89: yourmate.community.v1.CommunityService.StartConversation:input_type -> yourmate.community.v1.UserPairRequest
+	6,   // 90: yourmate.community.v1.CommunityService.ListConversations:input_type -> yourmate.community.v1.ListConversationsRequest
+	5,   // 91: yourmate.community.v1.CommunityService.GetConversation:input_type -> yourmate.community.v1.ConversationRef
+	8,   // 92: yourmate.community.v1.CommunityService.RespondToConversation:input_type -> yourmate.community.v1.RespondToConversationRequest
+	9,   // 93: yourmate.community.v1.CommunityService.ListDirectMessages:input_type -> yourmate.community.v1.ListDirectMessagesRequest
+	11,  // 94: yourmate.community.v1.CommunityService.SendDirectMessage:input_type -> yourmate.community.v1.SendDirectMessageRequest
+	16,  // 95: yourmate.community.v1.CommunityService.InboxSummary:input_type -> yourmate.community.v1.Actor
+	16,  // 96: yourmate.community.v1.CommunityService.StreamMessageEvents:input_type -> yourmate.community.v1.Actor
+	70,  // 97: yourmate.community.v1.CommunityService.CreateExperience:input_type -> yourmate.community.v1.CreateExperienceRequest
+	71,  // 98: yourmate.community.v1.CommunityService.ListExperiences:input_type -> yourmate.community.v1.ListExperiencesRequest
+	73,  // 99: yourmate.community.v1.CommunityService.GetExperience:input_type -> yourmate.community.v1.ExperienceRef
+	74,  // 100: yourmate.community.v1.CommunityService.ReviewExperience:input_type -> yourmate.community.v1.ReviewExperienceRequest
+	73,  // 101: yourmate.community.v1.CommunityService.DeleteExperience:input_type -> yourmate.community.v1.ExperienceRef
+	50,  // 102: yourmate.community.v1.CommunityService.ExperienceCompanies:input_type -> yourmate.community.v1.Empty
+	51,  // 103: yourmate.community.v1.CommunityService.CreatePost:output_type -> yourmate.community.v1.Post
+	54,  // 104: yourmate.community.v1.CommunityService.ListPosts:output_type -> yourmate.community.v1.ListPostsResponse
+	51,  // 105: yourmate.community.v1.CommunityService.GetPost:output_type -> yourmate.community.v1.Post
+	51,  // 106: yourmate.community.v1.CommunityService.ReviewPost:output_type -> yourmate.community.v1.Post
+	50,  // 107: yourmate.community.v1.CommunityService.DeletePost:output_type -> yourmate.community.v1.Empty
+	58,  // 108: yourmate.community.v1.CommunityService.CreateReport:output_type -> yourmate.community.v1.Report
+	61,  // 109: yourmate.community.v1.CommunityService.ListReports:output_type -> yourmate.community.v1.ListReportsResponse
+	58,  // 110: yourmate.community.v1.CommunityService.ResolveReport:output_type -> yourmate.community.v1.Report
+	63,  // 111: yourmate.community.v1.CommunityService.CreateInquiry:output_type -> yourmate.community.v1.Inquiry
+	66,  // 112: yourmate.community.v1.CommunityService.ListInquiries:output_type -> yourmate.community.v1.ListInquiriesResponse
+	67,  // 113: yourmate.community.v1.CommunityService.Stats:output_type -> yourmate.community.v1.CommunityStats
+	17,  // 114: yourmate.community.v1.CommunityService.EnsureDefaultCommunity:output_type -> yourmate.community.v1.Community
+	17,  // 115: yourmate.community.v1.CommunityService.CreateCommunity:output_type -> yourmate.community.v1.Community
+	17,  // 116: yourmate.community.v1.CommunityService.UpdateCommunity:output_type -> yourmate.community.v1.Community
+	50,  // 117: yourmate.community.v1.CommunityService.DeleteCommunity:output_type -> yourmate.community.v1.Empty
+	17,  // 118: yourmate.community.v1.CommunityService.GetCommunity:output_type -> yourmate.community.v1.Community
+	24,  // 119: yourmate.community.v1.CommunityService.ListCommunities:output_type -> yourmate.community.v1.ListCommunitiesResponse
+	26,  // 120: yourmate.community.v1.CommunityService.JoinCommunity:output_type -> yourmate.community.v1.JoinCommunityResponse
+	50,  // 121: yourmate.community.v1.CommunityService.LeaveCommunity:output_type -> yourmate.community.v1.Empty
+	17,  // 122: yourmate.community.v1.CommunityService.SetCommunityMuted:output_type -> yourmate.community.v1.Community
+	29,  // 123: yourmate.community.v1.CommunityService.ListJoinRequests:output_type -> yourmate.community.v1.ListJoinRequestsResponse
+	28,  // 124: yourmate.community.v1.CommunityService.ReviewJoinRequest:output_type -> yourmate.community.v1.JoinRequest
+	33,  // 125: yourmate.community.v1.CommunityService.ListMembers:output_type -> yourmate.community.v1.ListMembersResponse
+	34,  // 126: yourmate.community.v1.CommunityService.ListMemberIds:output_type -> yourmate.community.v1.ListMemberIdsResponse
+	50,  // 127: yourmate.community.v1.CommunityService.SetMemberRole:output_type -> yourmate.community.v1.Empty
+	50,  // 128: yourmate.community.v1.CommunityService.RemoveMember:output_type -> yourmate.community.v1.Empty
+	37,  // 129: yourmate.community.v1.CommunityService.CreateCommunityPost:output_type -> yourmate.community.v1.CommunityPost
+	40,  // 130: yourmate.community.v1.CommunityService.ListCommunityPosts:output_type -> yourmate.community.v1.ListCommunityPostsResponse
+	37,  // 131: yourmate.community.v1.CommunityService.GetCommunityPost:output_type -> yourmate.community.v1.CommunityPost
+	50,  // 132: yourmate.community.v1.CommunityService.RemoveCommunityPost:output_type -> yourmate.community.v1.Empty
+	37,  // 133: yourmate.community.v1.CommunityService.PinCommunityPost:output_type -> yourmate.community.v1.CommunityPost
+	37,  // 134: yourmate.community.v1.CommunityService.LikeCommunityPost:output_type -> yourmate.community.v1.CommunityPost
+	46,  // 135: yourmate.community.v1.CommunityService.CreateReply:output_type -> yourmate.community.v1.CreateReplyResponse
+	47,  // 136: yourmate.community.v1.CommunityService.ListReplies:output_type -> yourmate.community.v1.ListRepliesResponse
+	50,  // 137: yourmate.community.v1.CommunityService.RemoveReply:output_type -> yourmate.community.v1.Empty
+	61,  // 138: yourmate.community.v1.CommunityService.ListCommunityReports:output_type -> yourmate.community.v1.ListReportsResponse
+	50,  // 139: yourmate.community.v1.CommunityService.ModerateCommunityReport:output_type -> yourmate.community.v1.Empty
+	15,  // 140: yourmate.community.v1.CommunityService.GetCatalog:output_type -> yourmate.community.v1.CommunityCatalog
+	2,   // 141: yourmate.community.v1.CommunityService.CanMessage:output_type -> yourmate.community.v1.CanMessageResponse
+	3,   // 142: yourmate.community.v1.CommunityService.StartConversation:output_type -> yourmate.community.v1.Conversation
+	7,   // 143: yourmate.community.v1.CommunityService.ListConversations:output_type -> yourmate.community.v1.ListConversationsResponse
+	3,   // 144: yourmate.community.v1.CommunityService.GetConversation:output_type -> yourmate.community.v1.Conversation
+	3,   // 145: yourmate.community.v1.CommunityService.RespondToConversation:output_type -> yourmate.community.v1.Conversation
+	10,  // 146: yourmate.community.v1.CommunityService.ListDirectMessages:output_type -> yourmate.community.v1.ListDirectMessagesResponse
+	12,  // 147: yourmate.community.v1.CommunityService.SendDirectMessage:output_type -> yourmate.community.v1.SendDirectMessageResponse
+	13,  // 148: yourmate.community.v1.CommunityService.InboxSummary:output_type -> yourmate.community.v1.InboxSummaryResponse
+	0,   // 149: yourmate.community.v1.CommunityService.StreamMessageEvents:output_type -> yourmate.community.v1.MessageEvent
+	69,  // 150: yourmate.community.v1.CommunityService.CreateExperience:output_type -> yourmate.community.v1.InterviewExperience
+	72,  // 151: yourmate.community.v1.CommunityService.ListExperiences:output_type -> yourmate.community.v1.ListExperiencesResponse
+	69,  // 152: yourmate.community.v1.CommunityService.GetExperience:output_type -> yourmate.community.v1.InterviewExperience
+	69,  // 153: yourmate.community.v1.CommunityService.ReviewExperience:output_type -> yourmate.community.v1.InterviewExperience
+	50,  // 154: yourmate.community.v1.CommunityService.DeleteExperience:output_type -> yourmate.community.v1.Empty
+	76,  // 155: yourmate.community.v1.CommunityService.ExperienceCompanies:output_type -> yourmate.community.v1.ExperienceCompaniesResponse
+	103, // [103:156] is the sub-list for method output_type
+	50,  // [50:103] is the sub-list for method input_type
+	50,  // [50:50] is the sub-list for extension type_name
+	50,  // [50:50] is the sub-list for extension extendee
+	0,   // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_community_v1_community_proto_init() }
@@ -5165,7 +5903,7 @@ func file_community_v1_community_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_community_v1_community_proto_rawDesc), len(file_community_v1_community_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   68,
+			NumMessages:   77,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -27,6 +27,9 @@ var (
 	resumeRequestTTL    = 72 * time.Hour      // unanswered resume requests expire after this
 	resumeFileRetention = 30 * 24 * time.Hour // uploads are deleted this long after a review closes
 	resumeMaxTurnaround = 14                  // longest turnaround a mentor may promise, in days
+
+	roomOpensBefore = 10 * time.Minute // the video room opens this long before a session
+	roomClosesAfter = 30 * time.Minute // and closes this long after it ends
 )
 
 type option struct{ value, label string }
@@ -79,6 +82,15 @@ var (
 		{"skills", "Skills"},
 		{"formatting", "Formatting & ATS"},
 	}
+	// Languages the interview room's code editor highlights.
+	codeLanguageOptions = []option{
+		{"python", "Python 3"},
+		{"javascript", "JavaScript"},
+		{"java", "Java"},
+		{"cpp", "C++"},
+		{"text", "Plain text"},
+	}
+	codeLanguages    = values(codeLanguageOptions)
 	interviewTypes   = values(interviewTypeOptions)
 	feedbackCriteria = values(feedbackCriteriaOptions)
 	verdicts         = values(verdictOptions)
@@ -124,6 +136,8 @@ func loadSettings() {
 	resumeRequestTTL = config.Duration("RESUME_REQUEST_TTL", resumeRequestTTL)
 	resumeFileRetention = config.Duration("RESUME_FILE_RETENTION", resumeFileRetention)
 	resumeMaxTurnaround = config.Int("RESUME_MAX_TURNAROUND_DAYS", resumeMaxTurnaround)
+	roomOpensBefore = config.Duration("ROOM_OPENS_BEFORE", roomOpensBefore)
+	roomClosesAfter = config.Duration("ROOM_CLOSES_AFTER", roomClosesAfter)
 	if resumeMaxTurnaround < 1 || resumeMaxTurnaround > 30 {
 		log.Fatalf("config: RESUME_MAX_TURNAROUND_DAYS must be 1-30")
 	}
@@ -175,5 +189,6 @@ func (s *server) GetCatalog(context.Context, *marketplacev1.Empty) (*marketplace
 		FeedbackCriteria:  toOptions(feedbackCriteriaOptions),
 		ResumeSections:    toOptions(resumeSectionOptions),
 		InterviewVerdicts: toOptions(verdictOptions),
+		CodeLanguages:     toOptions(codeLanguageOptions),
 	}, nil
 }

@@ -114,3 +114,19 @@ export function initials(name: string): string {
 export function plural(n: number, word: string, pluralWord = `${word}s`): string {
   return `${n} ${n === 1 ? word : pluralWord}`
 }
+
+/** "today 7:30 pm", "tomorrow 9:00 am", or a date. */
+export function slotLabel(iso: string) {
+  const d = new Date(iso)
+  const day = (x: Date) => x.toDateString()
+  const today = new Date()
+  const tomorrow = new Date(Date.now() + 86_400_000)
+  const when = day(d) === day(today) ? 'today' : day(d) === day(tomorrow) ? 'tomorrow' : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })
+  return `${when} ${formatTime(iso)}`
+}
+
+export function replyLabel(minutes: number) {
+  if (minutes < 60) return `~${Math.max(5, Math.round(minutes / 5) * 5)} min`
+  if (minutes < 36 * 60) return `~${Math.round(minutes / 60)} h`
+  return `~${Math.round(minutes / 1440)} days`
+}

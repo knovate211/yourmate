@@ -38,3 +38,11 @@ export const CONVERSATION = `id status isRequestForMe canSend sharesCommunity un
 export const RESUME_REVIEW = `id status statusReason targetRole notes fileName price { amountMinor currency } turnaroundDays
   dueAt overdue acceptedAt deliveredAt overallScore rated myRole createdAt
   mentor { id kind displayName avatarUrl headline } student { id displayName avatarUrl }`
+
+export const ROOM = `problem language code codeState whiteboard isOpen opensAt closesAt
+  draftScores { criterion score } presence { user { id displayName } joinedAt leftAt }`
+
+export const EXPERIENCE = `id company role year outcome tips anonymous status reviewReason createdAt mine
+  rounds { name details } author { id displayName avatarUrl } campus { id name }`
+
+export const QUESTION = `id title body interviewType difficulty companies mine createdAt author { id displayName }`

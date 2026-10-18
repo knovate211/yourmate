@@ -108,6 +108,8 @@ export interface Provider {
   companies: string[]
   resumeOffer: { price: Money; turnaroundDays: number } | null
   resumeReviewsDelivered?: number
+  nextSlotAt?: string | null
+  replyMinutes?: number | null
   campus?: Campus | null
   user?: Pick<User, 'id' | 'displayName' | 'campusVerified' | 'idVerified' | 'joinedAt' | 'bio'>
   availability?: Availability
@@ -138,6 +140,8 @@ export interface Booking {
   service: string | null
   interviewType: string | null
   feedback?: InterviewFeedback | null
+  room?: InterviewRoom | null
+  mentorNotes?: MentorNote[]
   reviewed: boolean
   myRole: BookingRole
   timezone: string
@@ -291,4 +295,78 @@ export interface ResumeReview {
   mentor: Pick<Provider, 'id' | 'kind' | 'displayName' | 'avatarUrl' | 'headline'>
   student: Pick<User, 'id' | 'displayName' | 'avatarUrl'>
   cancelledBy?: Pick<User, 'id' | 'displayName'> | null
+  pins?: ResumePin[]
+}
+
+export interface ResumePin {
+  page: number
+  x: number
+  y: number
+  section: string | null
+  comment: string
+}
+
+export interface InterviewRoom {
+  problem: string
+  language: string
+  code: string
+  codeState: string | null
+  whiteboard: string
+  draftScores: { criterion: string; score: number }[]
+  presence: { user: Pick<User, 'id' | 'displayName'>; joinedAt: string; leftAt: string | null }[]
+  opensAt: string
+  closesAt: string
+  isOpen: boolean
+  question?: Question | null
+}
+
+export type NoteTone = 'PLUS' | 'MINUS' | 'NOTE'
+
+export interface MentorNote {
+  id: string
+  atSeconds: number
+  body: string
+  tone: NoteTone
+  createdAt: string
+}
+
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD'
+
+export interface Question {
+  id: string
+  title: string
+  body: string
+  interviewType: string
+  difficulty: Difficulty
+  companies: string[]
+  mine: boolean
+  createdAt: string
+  author?: Pick<User, 'id' | 'displayName'>
+}
+
+export interface Progress {
+  interviews: { at: string; verdict: InterviewFeedback['verdict']; interviewType: string | null; scores: { criterion: string; score: number }[]; booking: { id: string; provider: Pick<Provider, 'id' | 'kind' | 'displayName'> } }[]
+  resumes: { id: string; at: string; score: number; targetRole: string }[]
+  readiness: number | null
+  weakestCriterion: string | null
+  suggestedInterviewType: string | null
+}
+
+export type ExperienceOutcome = 'SELECTED' | 'REJECTED' | 'WAITING'
+
+export interface InterviewExperience {
+  id: string
+  author: Pick<User, 'id' | 'displayName' | 'avatarUrl'> | null
+  campus: Pick<Campus, 'id' | 'name'> | null
+  company: string
+  role: string
+  year: number
+  outcome: ExperienceOutcome
+  rounds: { name: string; details: string }[]
+  tips: string
+  anonymous: boolean
+  status: 'PENDING' | 'PUBLISHED' | 'REJECTED'
+  reviewReason: string
+  createdAt: string
+  mine: boolean
 }

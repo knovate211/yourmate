@@ -11,6 +11,8 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -30,6 +32,7 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -86,6 +89,8 @@ func cleanup() error {
 		`CREATE TEMP TABLE gone_files ON COMMIT DROP AS SELECT unnest(ARRAY[file_key, feedback_file_key]) AS key FROM marketplace.resume_reviews
 			WHERE student_id IN (SELECT id FROM gone) OR reviewer_id IN (SELECT id FROM gone)`,
 		`DELETE FROM marketplace.resume_reviews WHERE student_id IN (SELECT id FROM gone) OR reviewer_id IN (SELECT id FROM gone)`,
+		`DELETE FROM marketplace.questions WHERE author_id IN (SELECT id FROM gone)`,
+		`DELETE FROM community.interview_experiences WHERE author_id IN (SELECT id FROM gone)`,
 		`DELETE FROM marketplace.messages WHERE booking_id IN (SELECT id FROM gone_bookings)`,
 		`DELETE FROM marketplace.bookings WHERE id IN (SELECT id FROM gone_bookings)`,
 		`DELETE FROM marketplace.provider_profiles WHERE user_id IN (SELECT id FROM gone)`,
@@ -1331,7 +1336,9 @@ func TestCareers(t *testing.T) {
 
 	// 2. Students find mentors by company, interview type and resume reviews.
 	for _, filter := range []string{`{kind: MENTOR, company: "amaz"}`, `{kind: MENTOR, interviewType: CODING}`, `{kind: MENTOR, resumeReviews: true}`, `{kind: MENTOR, query: "flipkart"}`} {
-		var res struct{ Providers struct{ Items []struct{ ID string } } }
+		var res struct {
+			Providers struct{ Items []struct{ ID string } }
+		}
 		anon.q(`{ providers(filter: `+filter+`, pageSize: 50) { items { id } } }`, nil, &res)
 		if !slices.ContainsFunc(res.Providers.Items, func(i struct{ ID string }) bool { return i.ID == mentorID }) {
 			t.Fatalf("mentor not found with filter %s", filter)
@@ -1344,7 +1351,9 @@ func TestCareers(t *testing.T) {
 	}
 
 	// 3. A mock interview is booked like any session, for an interview type the mentor runs.
-	var slots struct{ OpenSlots struct{ Slots []struct{ StartAt string } } }
+	var slots struct {
+		OpenSlots struct{ Slots []struct{ StartAt string } }
+	}
 	anon.q(`query($p: ID!) { openSlots(providerId: $p, durationMinutes: 60) { slots { startAt } } }`, map[string]any{"p": mentorID}, &slots)
 	if len(slots.OpenSlots.Slots) < 5 {
 		t.Fatal("mentor should have open slots")
@@ -1521,4 +1530,269 @@ func TestCareers(t *testing.T) {
 	if _, errs := requestResume(student, tinyPDF, "cv.pdf"); code(errs) != "RATE_LIMITED" {
 		t.Fatalf("beyond the open-request cap: got %q", code(errs))
 	}
+}
+
+// ── Placement prep: rooms, notes, question bank, progress, experiences ──────
+
+func livekitWebhook(t *testing.T, body string) int {
+	t.Helper()
+	sum := sha256.Sum256([]byte(body))
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss": os.Getenv("LIVEKIT_API_KEY"), "exp": time.Now().Add(time.Minute).Unix(),
+		"sha256": base64.StdEncoding.EncodeToString(sum[:]),
+	})
+	signed, err := tok.SignedString([]byte(os.Getenv("LIVEKIT_API_SECRET")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, _ := http.NewRequest(http.MethodPost, gatewayURL+"/livekit/webhook", strings.NewReader(body))
+	req.Header.Set("Authorization", signed)
+	req.Header.Set("Content-Type", "application/webhook+json")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	return res.StatusCode
+}
+
+func TestPrep(t *testing.T) {
+	if os.Getenv("LIVEKIT_API_SECRET") == "" {
+		t.Skip("LIVEKIT_API_SECRET not set")
+	}
+	anon := newClient(t)
+	lpu := campusID(t, anon, "lpu")
+	admin := login(t, adminEmail, adminPass)
+	mentor := signup(t, "prepmentor"+runID+"@lpu.in", "Mentor", lpu)
+	student := signup(t, "prepstudent"+runID+"@lpu.in", "Candidate", lpu)
+	outsider := signup(t, "prepoutsider"+runID+"@lpu.in", "Outsider", lpu)
+	verifyID(t, admin, mentor)
+	var saved struct{ SaveProviderProfile struct{ ID string } }
+	mentor.q(`mutation($i: ProviderProfileInput!) { saveProviderProfile(input: $i) { id } }`, map[string]any{"i": map[string]any{
+		"kind": "MENTOR", "headline": "SDE at Microsoft-`+runID+` · coding mocks", "rateMinor": 0,
+		"bio": "Placed at Microsoft. I run coding rounds and write detailed scorecards for every candidate.", "publish": true,
+		"modes": []string{"ONLINE"}, "languages": []string{"English"}, "interviewTypes": []string{"CODING"}, "companies": []string{"Microsoft-" + runID},
+	}}, &saved)
+	mentorID := saved.SaveProviderProfile.ID
+	var windows []map[string]any
+	for d := 0; d < 7; d++ {
+		windows = append(windows, map[string]any{"weekday": d, "startMinute": 0, "endMinute": 1440})
+	}
+	mentor.q(`mutation($w: [AvailabilityInput!]!) { setAvailability(windows: $w) { timezone } }`, map[string]any{"w": windows}, nil)
+
+	// 1. Hub: company list, next slot, "available soon".
+	var hub struct {
+		MentorCompanies []struct {
+			Name  string
+			Count int
+		}
+		AvailableSoon []struct {
+			Provider struct{ ID string }
+			StartAt  string
+		}
+		Provider struct{ NextSlotAt *string }
+	}
+	anon.q(`query($p: ID!, $c: String) { mentorCompanies { name count } availableSoon(kind: MENTOR, company: $c, withinHours: 24) { provider { id } startAt }
+		provider(id: $p) { nextSlotAt } }`, map[string]any{"p": mentorID, "c": "microsoft-" + runID}, &hub)
+	if !slices.ContainsFunc(hub.MentorCompanies, func(c struct {
+		Name  string
+		Count int
+	}) bool { return c.Name == "Microsoft-"+runID }) {
+		t.Fatalf("company missing from mentorCompanies: %+v", hub.MentorCompanies)
+	}
+	if len(hub.AvailableSoon) != 1 || hub.AvailableSoon[0].Provider.ID != mentorID || hub.Provider.NextSlotAt == nil {
+		t.Fatalf("availability: soon=%+v next=%v", hub.AvailableSoon, hub.Provider.NextSlotAt)
+	}
+
+	// 2. Book and accept; the room stays shut until shortly before the start.
+	var slots struct {
+		OpenSlots struct{ Slots []struct{ StartAt string } }
+	}
+	anon.q(`query($p: ID!) { openSlots(providerId: $p, durationMinutes: 60) { slots { startAt } } }`, map[string]any{"p": mentorID}, &slots)
+	var booked struct{ RequestBooking struct{ ID string } }
+	student.q(`mutation($i: BookingInput!) { requestBooking(input: $i) { id } }`, map[string]any{"i": map[string]any{
+		"providerId": mentorID, "startAt": slots.OpenSlots.Slots[3].StartAt, "durationMinutes": 60, "mode": "ONLINE", "interviewType": "CODING"}}, &booked)
+	b := booked.RequestBooking.ID
+	join := `mutation($b: ID!) { joinRoom(bookingId: $b) { url token role expiresAt } }`
+	if errs := student.try(join, map[string]any{"b": b}, nil); code(errs) != "FAILED_PRECONDITION/ROOM_NOT_ACCEPTED" {
+		t.Fatalf("room before accept: got %q", code(errs))
+	}
+	mentor.q(`mutation($b: ID!) { transitionBooking(input: {bookingId: $b, action: ACCEPT}) { status } }`, map[string]any{"b": b}, nil)
+	if errs := student.try(join, map[string]any{"b": b}, nil); code(errs) != "FAILED_PRECONDITION/ROOM_NOT_OPEN" {
+		t.Fatalf("room hours before the start: got %q", code(errs))
+	}
+	ctx := context.Background()
+	conn, err := pgx.Connect(ctx, dbURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close(ctx)
+	if _, err := conn.Exec(ctx, `UPDATE marketplace.bookings SET start_at = now() - interval '5 minutes', end_at = now() + interval '55 minutes' WHERE id = $1`, b); err != nil {
+		t.Fatal(err)
+	}
+
+	// 3. Only the two parties get a pass, for this room, with their role.
+	var pass struct {
+		JoinRoom struct{ URL, Token, Role, ExpiresAt string }
+	}
+	student.q(join, map[string]any{"b": b}, &pass)
+	var claims struct {
+		jwt.RegisteredClaims
+		Video struct{ Room string } `json:"video"`
+	}
+	if _, err := jwt.ParseWithClaims(pass.JoinRoom.Token, &claims, func(*jwt.Token) (any, error) { return []byte(os.Getenv("LIVEKIT_API_SECRET")), nil }); err != nil {
+		t.Fatalf("room pass doesn't verify: %v", err)
+	}
+	if pass.JoinRoom.Role != "STUDENT" || claims.Subject != student.ID || claims.Video.Room != "booking-"+b || pass.JoinRoom.URL == "" {
+		t.Fatalf("pass: %+v claims: %+v", pass.JoinRoom, claims)
+	}
+	if errs := outsider.try(join, map[string]any{"b": b}, nil); code(errs) != "NOT_FOUND" {
+		t.Fatalf("outsider joining: got %q", code(errs))
+	}
+
+	// 4. Room state: both edit code; only the mentor sets the problem and draft scores.
+	save := `mutation($i: SaveRoomInput!) { saveRoom(input: $i) }`
+	student.q(save, map[string]any{"i": map[string]any{"bookingId": b, "code": "print(1)", "codeState": base64.StdEncoding.EncodeToString([]byte{1, 2, 3}), "language": "PYTHON"}}, nil)
+	if errs := student.try(save, map[string]any{"i": map[string]any{"bookingId": b, "problem": "spoiler"}}, nil); code(errs) != "FORBIDDEN" {
+		t.Fatalf("student setting the problem: got %q", code(errs))
+	}
+	if errs := student.try(save, map[string]any{"i": map[string]any{"bookingId": b, "language": "COBOL"}}, nil); code(errs) != "BAD_USER_INPUT" {
+		t.Fatalf("unknown language: got %q", code(errs))
+	}
+	mentor.q(save, map[string]any{"i": map[string]any{"bookingId": b, "problem": "Number of islands", "draftScores": []map[string]any{{"criterion": "COMMUNICATION", "score": 4}}}}, nil)
+
+	// 5. Notes are the mentor's alone.
+	note := `mutation($b: ID!, $s: Int!, $t: NoteTone) { addMentorNote(bookingId: $b, atSeconds: $s, body: "Clarified constraints first", tone: $t) { id tone } }`
+	mentor.q(note, map[string]any{"b": b, "s": 252, "t": "PLUS"}, nil)
+	if errs := student.try(note, map[string]any{"b": b, "s": 10, "t": "PLUS"}, nil); code(errs) != "FORBIDDEN" {
+		t.Fatalf("student adding a note: got %q", code(errs))
+	}
+
+	// 6. The video server's signed webhook builds the join log; unsigned ones are refused.
+	event := func(kind, user string) string {
+		return fmt.Sprintf(`{"event":"%s","room":{"name":"booking-%s"},"participant":{"identity":"%s","name":"Candidate"},"createdAt":"%d"}`, kind, b, user, time.Now().Unix())
+	}
+	if st := livekitWebhook(t, event("participant_joined", student.ID)); st != 200 {
+		t.Fatalf("webhook: %d", st)
+	}
+	req, _ := http.NewRequest(http.MethodPost, gatewayURL+"/livekit/webhook", strings.NewReader(event("participant_joined", outsider.ID)))
+	if res, _ := http.DefaultClient.Do(req); res == nil || res.StatusCode != 401 {
+		t.Fatal("unsigned webhook must be refused")
+	}
+	livekitWebhook(t, event("participant_left", student.ID))
+
+	const roomFields = `room { problem language code codeState isOpen draftScores { criterion score } presence { user { id } joinedAt leftAt } } mentorNotes { atSeconds tone }`
+	type roomView struct {
+		Booking struct {
+			Room struct {
+				Problem, Language, Code string
+				CodeState               *string
+				IsOpen                  bool
+				DraftScores             []struct{ Criterion string }
+				Presence                []struct {
+					User     struct{ ID string }
+					JoinedAt string
+					LeftAt   *string
+				}
+			}
+			MentorNotes []struct {
+				AtSeconds int
+				Tone      string
+			}
+		}
+	}
+	var sv, mv roomView
+	student.q(`query($b: ID!) { booking(id: $b) { `+roomFields+` } }`, map[string]any{"b": b}, &sv)
+	mentor.q(`query($b: ID!) { booking(id: $b) { `+roomFields+` } }`, map[string]any{"b": b}, &mv)
+	r := sv.Booking.Room
+	if !r.IsOpen || r.Code != "print(1)" || r.Language != "PYTHON" || r.CodeState == nil || r.Problem != "Number of islands" {
+		t.Fatalf("room for student: %+v", r)
+	}
+	if len(r.DraftScores) != 0 || len(sv.Booking.MentorNotes) != 0 {
+		t.Fatal("student must not see the mentor's draft scores or notes")
+	}
+	if len(mv.Booking.Room.DraftScores) != 1 || len(mv.Booking.MentorNotes) != 1 || mv.Booking.MentorNotes[0].Tone != "PLUS" {
+		t.Fatalf("mentor's room: %+v notes %+v", mv.Booking.Room.DraftScores, mv.Booking.MentorNotes)
+	}
+	if p := r.Presence; len(p) != 1 || p[0].User.ID != student.ID || p[0].LeftAt == nil {
+		t.Fatalf("presence: %+v", p)
+	}
+
+	// 7. Question bank: mentors only, edits by the author only.
+	qsave := `mutation($id: ID, $i: QuestionInput!) { saveQuestion(id: $id, input: $i) { id mine } }`
+	qin := map[string]any{"title": "Number of islands", "body": "Count connected groups of 1s in a grid.", "interviewType": "CODING", "difficulty": "MEDIUM", "companies": []string{"Microsoft-" + runID}}
+	if errs := student.try(qsave, map[string]any{"i": qin}, nil); code(errs) != "FORBIDDEN/MENTOR_REQUIRED" {
+		t.Fatalf("student writing a question: got %q", code(errs))
+	}
+	var q struct {
+		SaveQuestion struct {
+			ID   string
+			Mine bool
+		}
+	}
+	mentor.q(qsave, map[string]any{"i": qin}, &q)
+	if errs := student.try(`{ questions { total } }`, nil, nil); code(errs) != "FORBIDDEN/MENTOR_REQUIRED" {
+		t.Fatalf("student reading the bank: got %q", code(errs))
+	}
+	var bank struct{ Questions struct{ Total int } }
+	mentor.q(`query($c: String) { questions(company: $c, interviewType: CODING) { total } }`, map[string]any{"c": "microsoft-" + runID}, &bank)
+	if bank.Questions.Total != 1 {
+		t.Fatalf("bank search: %d", bank.Questions.Total)
+	}
+	conn.Exec(ctx, `DELETE FROM marketplace.questions WHERE id = $1`, q.SaveQuestion.ID) //nolint:errcheck
+
+	// 8. Progress comes from scorecards.
+	var scores []map[string]any
+	for _, c := range []string{"COMMUNICATION", "PROBLEM_SOLVING", "TECHNICAL_DEPTH", "STRUCTURE", "CONFIDENCE"} {
+		s := 4
+		if c == "STRUCTURE" {
+			s = 2
+		}
+		scores = append(scores, map[string]any{"criterion": c, "score": s})
+	}
+	mentor.q(`mutation($i: InterviewFeedbackInput!) { saveInterviewFeedback(input: $i) { verdict } }`, map[string]any{"i": map[string]any{
+		"bookingId": b, "scores": scores, "verdict": "ALMOST", "strengths": "Clear and calm throughout.", "improvements": "Structure the answer before coding."}}, nil)
+	var prog struct {
+		MyProgress struct {
+			Readiness              *int
+			WeakestCriterion       *string
+			SuggestedInterviewType *string
+			Interviews             []struct{ Verdict string }
+		}
+	}
+	student.q(`{ myProgress { readiness weakestCriterion suggestedInterviewType interviews { verdict } } }`, nil, &prog)
+	p := prog.MyProgress
+	if p.Readiness == nil || *p.Readiness != 72 || *p.WeakestCriterion != "STRUCTURE" || *p.SuggestedInterviewType != "SYSTEM_DESIGN" || len(p.Interviews) != 1 {
+		t.Fatalf("progress: %+v", p)
+	}
+
+	// 9. Interview experiences: moderated, anonymous posts hide the author.
+	share := `mutation($i: ExperienceInput!) { shareInterviewExperience(input: $i) { id status } }`
+	var shared struct{ ShareInterviewExperience struct{ ID, Status string } }
+	student.q(share, map[string]any{"i": map[string]any{"company": "Microsoft-" + runID, "role": "SDE intern", "year": 2026, "outcome": "SELECTED", "anonymous": true,
+		"rounds": []map[string]any{{"name": "Online assessment", "details": "Two DSA questions in 90 minutes on graphs and DP."}}}}, &shared)
+	if shared.ShareInterviewExperience.Status != "PENDING" {
+		t.Fatalf("new experience should wait for review: %+v", shared)
+	}
+	exp := shared.ShareInterviewExperience.ID
+	var list struct{ InterviewExperiences struct{ Total int } }
+	outsider.q(`query($c: String) { interviewExperiences(company: $c) { total } }`, map[string]any{"c": "microsoft-" + runID}, &list)
+	if list.InterviewExperiences.Total != 0 {
+		t.Fatal("unreviewed experience must not be listed")
+	}
+	admin.q(`mutation($id: ID!) { reviewInterviewExperience(id: $id, approve: true) { status } }`, map[string]any{"id": exp}, nil)
+	var one struct {
+		InterviewExperience *struct {
+			Author *struct{ ID string }
+			Status string
+		}
+	}
+	outsider.q(`query($id: ID!) { interviewExperience(id: $id) { author { id } status } }`, map[string]any{"id": exp}, &one)
+	if one.InterviewExperience == nil || one.InterviewExperience.Status != "PUBLISHED" || one.InterviewExperience.Author != nil {
+		t.Fatalf("published anonymous experience: %+v", one.InterviewExperience)
+	}
+	if errs := outsider.try(`mutation($id: ID!) { deleteInterviewExperience(id: $id) }`, map[string]any{"id": exp}, nil); code(errs) != "NOT_FOUND" {
+		t.Fatalf("deleting someone else's experience: got %q", code(errs))
+	}
+	student.q(`mutation($id: ID!) { deleteInterviewExperience(id: $id) }`, map[string]any{"id": exp}, nil)
 }

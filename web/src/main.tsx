@@ -1,11 +1,12 @@
-import { StrictMode, lazy, useEffect, type ComponentType } from 'react'
+import { StrictMode, Suspense, lazy, useEffect, type ComponentType } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import './index.css'
 import { AuthProvider } from './lib/auth'
 import { CatalogProvider } from './lib/catalog'
 import { ToastProvider } from './components/toast'
 import { Layout, RequireAdmin, RequireAuth } from './components/Layout'
+import { PageLoader } from './components/ui'
 import { Home } from './pages/public'
 
 // Every page but the home page is its own chunk, loaded when first visited.
@@ -22,6 +23,7 @@ const accountPages = () => import('./pages/account')
 const profilePages = () => import('./pages/profile')
 const communityPages = () => import('./pages/communities')
 const careerPages = () => import('./pages/careers')
+const prepPages = () => import('./pages/prep')
 const adminPages = () => import('./pages/admin')
 
 const About = page(publicPages, 'About')
@@ -52,6 +54,12 @@ const NewCommunity = page(communityPages, 'NewCommunity')
 const Messages = page(() => import('./pages/messages'), 'Messages')
 const ResumeReviews = page(careerPages, 'ResumeReviews')
 const ResumeReviewDetail = page(careerPages, 'ResumeReviewDetail')
+const PrepHub = page(prepPages, 'PrepHub')
+const ExperienceDetail = page(prepPages, 'ExperienceDetail')
+const NewExperience = page(prepPages, 'NewExperience')
+const QuestionBank = page(prepPages, 'QuestionBank')
+const InterviewRoomPage = page(() => import('./pages/room'), 'InterviewRoomPage')
+const AdminExperiences = page(adminPages, 'AdminExperiences')
 const AdminBookings = page(adminPages, 'AdminBookings')
 const AdminCampuses = page(adminPages, 'AdminCampuses')
 const AdminInquiries = page(adminPages, 'AdminInquiries')
@@ -82,6 +90,8 @@ createRoot(document.getElementById('root')!).render(
           <CatalogProvider>
           <ScrollToTop />
           <Routes>
+            {/* The live room is full screen, outside the site's header and footer. */}
+            <Route path="interview/:id" element={auth(<Suspense fallback={<PageLoader />}><InterviewRoomPage /></Suspense>)} />
             <Route element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="about" element={<About />} />
@@ -97,7 +107,11 @@ createRoot(document.getElementById('root')!).render(
               <Route path="tutors/:id" element={<ProviderDetail kind="TUTOR" />} />
               <Route path="guides" element={<Providers kind="GUIDE" key="guides" />} />
               <Route path="guides/:id" element={<ProviderDetail kind="GUIDE" />} />
-              <Route path="mentors" element={<Providers kind="MENTOR" key="mentors" />} />
+              <Route path="prep" element={<PrepHub />} />
+              <Route path="prep/questions" element={auth(<QuestionBank />)} />
+              <Route path="prep/experiences/new" element={auth(<NewExperience />)} />
+              <Route path="prep/experiences/:id" element={auth(<ExperienceDetail />)} />
+              <Route path="mentors" element={<Navigate to="/prep" replace />} />
               <Route path="mentors/:id" element={<ProviderDetail kind="MENTOR" />} />
               <Route path="resume-reviews" element={auth(<ResumeReviews />)} />
               <Route path="resume-reviews/:id" element={auth(<ResumeReviewDetail />)} />
@@ -130,6 +144,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="bookings" element={<AdminBookings />} />
                 <Route path="inquiries" element={<AdminInquiries />} />
                 <Route path="subjects" element={<AdminSubjects />} />
+                <Route path="experiences" element={<AdminExperiences />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Route>

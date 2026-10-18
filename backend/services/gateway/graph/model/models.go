@@ -210,6 +210,71 @@ type ResumeReview struct {
 	Raw *marketplacev1.ResumeReview `json:"-"`
 }
 
+type InterviewRoom struct {
+	Problem     string           `json:"problem"`
+	Language    string           `json:"language"`
+	Code        string           `json:"code"`
+	CodeState   *string          `json:"codeState"`
+	Whiteboard  string           `json:"whiteboard"`
+	DraftScores []*FeedbackScore `json:"draftScores"`
+	OpensAt     time.Time        `json:"opensAt"`
+	ClosesAt    time.Time        `json:"closesAt"`
+	IsOpen      bool             `json:"isOpen"`
+
+	Raw              *marketplacev1.Room `json:"-"`
+	ViewerIsProvider bool                `json:"-"`
+}
+
+type RoomPresence struct {
+	JoinedAt time.Time  `json:"joinedAt"`
+	LeftAt   *time.Time `json:"leftAt"`
+
+	Raw *marketplacev1.Presence `json:"-"`
+}
+
+type Question struct {
+	ID            string        `json:"id"`
+	Title         string        `json:"title"`
+	Body          string        `json:"body"`
+	InterviewType InterviewType `json:"interviewType"`
+	Difficulty    Difficulty    `json:"difficulty"`
+	Companies     []string      `json:"companies"`
+	CreatedAt     time.Time     `json:"createdAt"`
+
+	Raw *marketplacev1.Question `json:"-"`
+}
+
+type ProviderSlot struct {
+	Provider *Provider `json:"provider"`
+	StartAt  time.Time `json:"startAt"`
+}
+
+type ProgressInterview struct {
+	InterviewType *InterviewType   `json:"interviewType"`
+	At            time.Time        `json:"at"`
+	Verdict       InterviewVerdict `json:"verdict"`
+	Scores        []*FeedbackScore `json:"scores"`
+
+	Raw *marketplacev1.ProgressInterview `json:"-"`
+}
+
+type InterviewExperience struct {
+	ID           string             `json:"id"`
+	Company      string             `json:"company"`
+	Role         string             `json:"role"`
+	Year         int                `json:"year"`
+	Outcome      ExperienceOutcome  `json:"outcome"`
+	Rounds       []*ExperienceRound `json:"rounds"`
+	Tips         string             `json:"tips"`
+	Anonymous    bool               `json:"anonymous"`
+	Status       ExperienceStatus   `json:"status"`
+	ReviewReason string             `json:"reviewReason"`
+	CreatedAt    time.Time          `json:"createdAt"`
+	Mine         bool               `json:"mine"`
+
+	Raw *communityv1.InterviewExperience `json:"-"`
+}
+
 type MessageEvent struct {
 	ConversationID string         `json:"conversationId"`
 	Message        *DirectMessage `json:"message"`

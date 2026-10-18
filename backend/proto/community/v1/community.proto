@@ -65,6 +65,14 @@ service CommunityService {
   rpc InboxSummary(Actor) returns (InboxSummaryResponse);
   // Live: every message sent or received by the actor, as it happens.
   rpc StreamMessageEvents(Actor) returns (stream MessageEvent);
+
+  // Interview experiences, moderated like feed posts.
+  rpc CreateExperience(CreateExperienceRequest) returns (InterviewExperience);
+  rpc ListExperiences(ListExperiencesRequest) returns (ListExperiencesResponse);
+  rpc GetExperience(ExperienceRef) returns (InterviewExperience);
+  rpc ReviewExperience(ReviewExperienceRequest) returns (InterviewExperience);
+  rpc DeleteExperience(ExperienceRef) returns (Empty);
+  rpc ExperienceCompanies(Empty) returns (ExperienceCompaniesResponse);
 }
 
 message MessageEvent {
@@ -519,3 +527,71 @@ message CommunityStats {
   int64 open_reports = 3;
   int64 inquiries = 4;
 }
+
+// ── Interview experiences ───────────────────────────────────────────────────
+
+message ExperienceRound {
+  string name = 1;    // e.g. "Online assessment", "Technical 1"
+  string details = 2;
+}
+
+message InterviewExperience {
+  string id = 1;
+  string author_id = 2; // empty for anonymous posts, except to admins and the author
+  string campus_id = 3;
+  string company = 4;
+  string role = 5;
+  int32 year = 6;
+  string outcome = 7; // selected | rejected | waiting
+  repeated ExperienceRound rounds = 8;
+  string tips = 9;
+  bool anonymous = 10;
+  string status = 11; // pending | published | rejected
+  string review_reason = 12;
+  int64 created_at = 13;
+  bool mine = 14;
+}
+
+message CreateExperienceRequest {
+  Actor actor = 1;
+  string company = 2;
+  string role = 3;
+  int32 year = 4;
+  string outcome = 5;
+  repeated ExperienceRound rounds = 6;
+  string tips = 7;
+  bool anonymous = 8;
+}
+
+message ListExperiencesRequest {
+  Actor actor = 1;
+  string company = 2;
+  string campus_id = 3;
+  string status = 4; // admins only; default published
+  bool mine = 5;
+  int32 page = 6;
+  int32 page_size = 7;
+}
+
+message ListExperiencesResponse {
+  repeated InterviewExperience experiences = 1;
+  int64 total = 2;
+}
+
+message ExperienceRef {
+  Actor actor = 1;
+  string id = 2;
+}
+
+message ReviewExperienceRequest {
+  string id = 1;
+  bool approve = 2;
+  string reason = 3;
+}
+
+message CompanyExperienceCount {
+  string name = 1;
+  int32 experiences = 2;
+}
+
+message ExperienceCompaniesResponse { repeated CompanyExperienceCount companies = 1; }

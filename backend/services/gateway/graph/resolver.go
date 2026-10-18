@@ -16,4 +16,5 @@ type Resolver struct {
 	Store        *storage.Store
 	Cookies      CookieConfig
 	Limiter      *Limiter
+	Rooms        RoomConfig
 }

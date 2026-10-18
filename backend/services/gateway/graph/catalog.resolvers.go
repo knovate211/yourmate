@@ -38,5 +38,6 @@ func (r *queryResolver) Catalog(ctx context.Context) (*model.Catalog, error) {
 		FeedbackCriteria:  marketOptions(mk.FeedbackCriteria),
 		InterviewVerdicts: marketOptions(mk.InterviewVerdicts),
 		ResumeSections:    marketOptions(mk.ResumeSections),
+		CodeLanguages:     marketOptions(mk.CodeLanguages),
 	}, nil
 }
