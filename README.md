@@ -260,6 +260,12 @@ created, when the run ends.
 - **Object storage.** Uploads go to a Docker volume. `gateway/storage` keeps the
   Save/Delete/URL surface small so it can be swapped for S3/R2.
 
+## Deploying
+
+[`deploy/README.md`](deploy/README.md) walks through putting it on one server (AWS EC2
+in Mumbai) with HTTPS, video rooms and nightly backups:
+`setup-server.sh` → `make-env.sh` → `deploy.sh`.
+
 ## Before deploying anywhere public
 
 Set real values for `JWT_SECRET`, `INTERNAL_TOKEN`, `FILE_SIGNING_SECRET`,

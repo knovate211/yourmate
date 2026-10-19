@@ -1,0 +1,74 @@
+# Production overlay. Use it together with the main file:
+#
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d
+#
+# (deploy/deploy.sh does this for you.) What it changes:
+#   - Caddy in front, on ports 80/443, with automatic HTTPS certificates for
+#     APP_DOMAIN. Everything else listens only inside the server.
+#   - The video server's media ports (TCP 7881, UDP 52000-52100) are public;
+#     its signalling goes through Caddy at https://APP_DOMAIN/livekit.
+#   - Production mode: no GraphQL playground, Secure cookies, Mailpit off.
+#   - Every container's logs are rotated so they can't fill the disk.
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env (e.g. yourmate.duckdns.org)}
+      # Let's Encrypt writes here about certificate problems; must be a real inbox.
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env to a real email address}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [web, livekit]
+    logging: *logging
+
+  web:
+    logging: *logging
+
+  gateway:
+    environment:
+      DEV_MODE: "false"
+      COOKIE_SECURE: "true"
+      CORS_ORIGINS: https://${APP_DOMAIN:?set APP_DOMAIN in .env}
+      LIVEKIT_PUBLIC_URL: wss://${APP_DOMAIN:?set APP_DOMAIN in .env}/livekit
+    logging: *logging
+
+  identity:
+    logging: *logging
+
+  marketplace:
+    logging: *logging
+
+  community:
+    logging: *logging
+
+  postgres:
+    logging: *logging
+
+  livekit:
+    # Signalling (7880) stays private behind Caddy; media ports are public.
+    ports: !override
+      - "7881:7881"
+      - "52000-52100:52000-52100/udp"
+    logging: *logging
+
+  # Real email goes through SMTP_* in .env; the local test inbox isn't needed.
+  mailpit:
+    profiles: ["dev"]
+
+volumes:
+  caddy_data:
+  caddy_config:

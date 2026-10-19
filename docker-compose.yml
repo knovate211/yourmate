@@ -12,6 +12,8 @@
 # No credentials live in this file: every secret comes from .env, which is
 # git-ignored. Create it with scripts/dev-env.sh (see .env.example). Compose
 # refuses to start while a required value is missing.
+name: yourmate
+
 x-backend-env: &backend-env
   DATABASE_URL: postgres://yourmate:${POSTGRES_PASSWORD:?run scripts/dev-env.sh to create .env}@postgres:5432/yourmate?sslmode=disable
   INTERNAL_TOKEN: ${INTERNAL_TOKEN:?run scripts/dev-env.sh to create .env}

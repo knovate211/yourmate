@@ -1,0 +1,28 @@
+# Caddy terminates HTTPS for the whole app and renews the certificate on its
+# own (Let's Encrypt). APP_DOMAIN comes from .env, e.g. yourmate.duckdns.org.
+{
+	email {$ACME_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	# Video-room signalling: wss://APP_DOMAIN/livekit/rtc -> livekit:7880/rtc
+	handle_path /livekit/* {
+		reverse_proxy livekit:7880
+	}
+
+	# Everything else: the web app, which proxies /graphql and /files on to the
+	# gateway. Caddy replaces any X-Forwarded-For a client sends with the real
+	# client address, so rate limits can't be dodged with a forged header.
+	handle {
+		reverse_proxy web:80
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+}
+
+# Plain http:// requests are redirected to https:// automatically.
